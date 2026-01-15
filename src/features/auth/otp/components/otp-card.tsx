@@ -3,12 +3,12 @@
 import React from "react";
 import { Card, Typography } from "antd";
 import { SafetyCertificateOutlined } from "@ant-design/icons";
-import SignInForm from "../signin-form";
 import { FormattedMessage } from "react-intl";
+import OTPForm from "../otp-form";
 
 const { Title, Text } = Typography;
 
-const SignInCard: React.FC = () => {
+const OTPCard: React.FC = () => {
   return (
     <div className="min-h-screen w-full flex items-center justify-center px-4">
       {/* Background like screenshot */}
@@ -30,7 +30,7 @@ const SignInCard: React.FC = () => {
           </div>
 
           <div className="mt-6">
-            <SignInForm />
+            <OTPForm />
           </div>
         </Card>
       </div>
@@ -38,4 +38,4 @@ const SignInCard: React.FC = () => {
   );
 };
 
-export default SignInCard;
+export default OTPCard;

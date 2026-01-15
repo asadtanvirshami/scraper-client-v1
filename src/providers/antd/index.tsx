@@ -2,7 +2,7 @@
 
 import { ConfigProvider, theme } from "antd";
 import React, { useEffect, useState } from "react";
-
+import esES from "antd/locale/es_ES";
 const { defaultAlgorithm, darkAlgorithm } = theme;
 
 export default function Providers({ children }: { children: React.ReactNode }) {
@@ -39,6 +39,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <ConfigProvider
+      locale={esES}
       theme={{
         algorithm: isDark ? darkAlgorithm : defaultAlgorithm,
 

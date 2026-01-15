@@ -4,6 +4,7 @@ import React from "react";
 import { Card, Typography } from "antd";
 import { SafetyCertificateOutlined } from "@ant-design/icons";
 import SignInForm from "../signup-form";
+import { FormattedMessage } from "react-intl";
 
 const { Title, Text } = Typography;
 
@@ -23,7 +24,7 @@ const SignUpCard: React.FC = () => {
 
           <div className="mt-3 text-center">
             <Title level={5} className="!mb-1">
-              Sign up on our platform
+              <FormattedMessage id="auth.sign_up.sign_up_with_email" />
             </Title>
           </div>
 

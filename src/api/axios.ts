@@ -1,12 +1,11 @@
 import axios from "axios";
 import qs from "qs";
 
-const VERSION = "v1";
-const PRIVACY = "public";
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:8080";
-
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:4000";
+  console.log(BASE_URL);
+  
 const api = axios.create({
-  baseURL: `${BASE_URL}/${PRIVACY}/api/${VERSION}`,
+  baseURL: `${BASE_URL}/api`,
   paramsSerializer: (params) => qs.stringify(params, { encode: false }),
   withCredentials: true,
   headers: {

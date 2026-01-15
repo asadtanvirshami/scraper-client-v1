@@ -1,0 +1,37 @@
+{
+  "auth": {
+    "sign_in": {
+      "sign_in_with_email": "Sign in with email",
+      "forgot_password": "Forgot your password?",
+      "buttonCTA": "Sign In",
+      "strip_line": "or sign in with",
+      "dont_have_account": "Don't have an account? Sign Up",
+      "success_message": "Successfully signed in.",
+      "errors": {
+        "invalid_credentials": "Invalid credentials. Please try again.",
+        "account_locked": "Your account has been locked. Please contact support.",
+        "network_error": "Network error. Please check your connection and try again.",
+        "unknown_error": "An unknown error occurred. Please try again later.",
+        "email_required": "Email is required.",
+        "password_required": "Password is required.",
+        "invalid_email_format": "The email format is invalid.",
+        "password_too_short": "Password must be at least 8 characters long."
+      }
+    },
+    "sign_up": {
+      "sign_up_with_email": "Sign up with email",
+      "buttonCTA": "Create Account",
+      "have_account": "Already have an account? Sign In",
+      "strip_line": "or sign up with",
+      "success_message": "Account created successfully. Please sign in.",
+      "errors": {
+        "first_name_required": "First name is required.",
+        "last_name_required": "Last name is required.",
+        "email_required": "Email is required.",
+        "password_required": "Password is required.",
+        "invalid_email_format": "The email format is invalid.",
+        "password_too_short": "Password must be at least 8 characters long."
+      }
+    }
+  }
+}
