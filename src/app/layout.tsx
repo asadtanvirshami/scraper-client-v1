@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/hooks/language/use-language";
 import Providers from "@/providers/react-query";
+import StoreProvider from "@/redux/store-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,7 +33,9 @@ export default function RootLayout({
       >
         <LanguageProvider>
           <Providers>
-            <AntdRegistry>{children}</AntdRegistry>
+            <StoreProvider>
+              <AntdRegistry>{children}</AntdRegistry>
+            </StoreProvider>
           </Providers>
         </LanguageProvider>
       </body>

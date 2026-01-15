@@ -2,7 +2,7 @@
 
 import React, { useRef, useState } from "react";
 import { Button, Form, Input, Typography } from "antd";
-import { useVerifyOtp } from "./hooks/verifyOtp";
+import { useOTPResend, useVerifyOtp } from "../hooks/";
 
 const { Text } = Typography;
 
@@ -20,6 +20,8 @@ const OTPForm: React.FC<OTPFormProps> = ({
   const [otp, setOtp] = useState<string[]>(Array(length).fill(""));
   const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
   const verifyMutation = useVerifyOtp();
+  const resendOTPMutation = useOTPResend();
+  const email = localStorage.getItem("email");
   const handleChange = (value: string, index: number) => {
     if (!/^\d?$/.test(value)) return;
 
@@ -65,8 +67,12 @@ const OTPForm: React.FC<OTPFormProps> = ({
   const handleSubmit = () => {
     const code = otp.join("");
     if (code.length === length) {
-      verifyMutation.mutate({ email: "asadtanvir20@gmail.com", otp: code });
+      verifyMutation.mutate({ email: email, otp: code });
     }
+  };
+
+  const handleResendOtp = () => {
+    resendOTPMutation.mutate({ email: email });
   };
 
   const isComplete = otp.every((digit) => digit !== "");
@@ -103,6 +109,17 @@ const OTPForm: React.FC<OTPFormProps> = ({
         <Text type="secondary" className="text-xs">
           Enter the 6-digit code sent to your email
         </Text>
+      </div>
+
+      <div className="mt-3 text-right">
+        <Button
+          onClick={handleResendOtp}
+          htmlType="button"
+          type="text"
+          className="text-xs"
+        >
+          Resend OTP
+        </Button>
       </div>
     </Form>
   );

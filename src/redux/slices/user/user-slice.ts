@@ -2,14 +2,13 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface User {
   email: string;
-  id: string;
-  firstName: string;
-  lastName: string;
+  _id: string;
+  first_name: string;
+  last_name: string;
   role: string;
   avatar_url: string;
   plan: string;
-  subscriptions: any;
-  tradeAccounts: any[];
+  is_verified: boolean;
   blocked?: boolean;
 }
 

@@ -4,12 +4,46 @@ import React from "react";
 import { Button, Divider, Form, Input, Typography } from "antd";
 import { MailOutlined, LockOutlined, GoogleOutlined } from "@ant-design/icons";
 import { FormattedMessage } from "react-intl";
+import { useLogin } from "../hooks";
+import { useDispatch } from "react-redux";
+import { loginSuccess } from "@/redux/slices/user/user-slice";
+import { persistor } from "@/redux/store";
+import { useRouter } from "next/navigation";
 
 const { Link, Text } = Typography;
 
 const SignInForm: React.FC = () => {
+  const logInMutation = useLogin();
+  const dispatch = useDispatch();
+  const router = useRouter();
+
+  const handleSubmit = (values: { email: string; password: string }) => {
+    console.log(values);
+    logInMutation.mutateAsync(values, {
+      onSuccess: async (data) => {
+        const redirect = data.data.redirect;
+        const userData = data.data.user;
+        console.log(userData);
+        // Dispatch user data to Redux
+        dispatch(loginSuccess(userData));
+        // Flush persistor to ensure state is saved before navigation
+        await persistor.flush();
+        // Small delay to ensure Redux state is persisted
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        // Navigate to dashboard
+        router.replace(`${redirect}/${userData._id}`);
+
+      },
+    });
+    console.log(logInMutation.data);
+  };
   return (
-    <Form layout="vertical" size="large" requiredMark={false}>
+    <Form
+      onFinish={handleSubmit}
+      layout="vertical"
+      size="large"
+      requiredMark={false}
+    >
       <Form.Item
         name="email"
         rules={[
@@ -66,6 +100,7 @@ const SignInForm: React.FC = () => {
 
       <Form.Item className="!mb-4">
         <Button
+          loading={logInMutation.isPending}
           htmlType="submit"
           className="!w-full !h-11 !rounded-xl !border-0 !text-white font-medium
                      !shadow-[0_10px_26px_rgba(0,0,0,0.25)] !font-semibold

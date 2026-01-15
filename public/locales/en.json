@@ -24,6 +24,12 @@
       "have_account": "Already have an account? Sign In",
       "strip_line": "or sign up with",
       "success_message": "Account created successfully. Please sign in.",
+      "placeholders": {
+        "first_name": "First name",
+        "last_name": "Last name",
+        "email": "xyz@gmail.com",
+        "password": "**********"
+      },
       "errors": {
         "first_name_required": "First name is required.",
         "last_name_required": "Last name is required.",
@@ -31,6 +37,67 @@
         "password_required": "Password is required.",
         "invalid_email_format": "The email format is invalid.",
         "password_too_short": "Password must be at least 8 characters long."
+      }
+    },
+    "forgot_password": {
+      "title": "Forgot Password",
+      "forgot_password": "Forgot your password?",
+      "buttonCTA": "Send Reset Email",
+      "strip_line": "or sign in with",
+      "success_message": "Password reset email sent.",
+      "errors": {
+        "email_required": "Email is required.",
+        "invalid_email_format": "The email format is invalid."
+      }
+    },
+    "reset_password": {
+      "title": "Reset Password",
+      "buttonCTA": "Reset Password",
+      "success_message": "Password reset successfully.",
+
+      "otp": "One-Time Password (OTP)",
+      "otp_placeholder": "Enter OTP",
+      "otp_required": "OTP is required.",
+      "otp_length": "OTP must be 6 digits.",
+      "otp_numeric": "OTP must contain only numbers.",
+
+      "new_password": "New Password",
+      "new_password_placeholder": "Enter new password",
+
+      "confirm_password": "Confirm Password",
+      "confirm_password_placeholder": "Confirm new password",
+
+      "password_required": "Password is required.",
+      "password_too_short": "Password must be at least 8 characters long.",
+      "password_mismatch": "Passwords do not match."
+    },
+    "messages": {
+      "errors": {
+        "user_not_found": "User not found",
+        "user_already_verified": "User is already verified",
+        "invalid_otp": "Invalid OTP",
+        "invalid_email_or_password": "Invalid email address or password",
+        "account_blocked": "This account has been blocked",
+        "account_not_verified": "This account is not verified. Please verify your email.",
+        "no_account_found": "No account found with this email",
+        "incorrect_password": "Incorrect password",
+        "email_already_exists": "An account with this email already exists",
+        "weak_password_6": "Password should be at least 6 characters",
+        "too_many_attempts": "Too many attempts. Please try again later",
+        "google_signin_failed": "Google sign-in failed. Please try again.",
+        "unexpected_error": "An unexpected error occurred"
+      },
+      "success": {
+        "otp_sent": "OTP sent successfully",
+        "email_sent": "Email sent successfully",
+        "password_reset_email_sent": "Password reset email sent",
+        "account_created": "Account created successfully",
+        "signed_in_successfully": "Signed in successfully",
+        "account_verified": "Account verified successfully",
+        "signed_out_successfully": "Signed out successfully",
+        "password_updated": "Password updated successfully",
+        "google_signin_success": "Signed in with Google successfully",
+        "operation_successful": "Operation successful"
       }
     }
   }

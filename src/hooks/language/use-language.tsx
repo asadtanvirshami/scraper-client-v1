@@ -1,10 +1,11 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { IntlProvider } from "react-intl";
+import { IntlProvider, useIntl } from "react-intl";
 
 import en from "../../../public/locales/en.json";
 import es from "../../../public/locales/es.json";
+import { setIntl } from "@/lib/notification";
 
 type SupportedLanguage = "en" | "es";
 
@@ -104,10 +105,19 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
     setLanguage,
     flag: flagMap[language],
   };
+  function IntlBridge() {
+    const intl = useIntl();
+
+    // Register intl globally
+    setIntl(intl);
+
+    return null;
+  }
 
   return (
     <LanguageContext.Provider value={value}>
       <IntlProvider locale={language} messages={messages[language]}>
+        <IntlBridge />
         {children}
       </IntlProvider>
     </LanguageContext.Provider>

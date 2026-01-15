@@ -1,5 +1,7 @@
 import axios from "axios";
 import qs from "qs";
+import { attachAuthInterceptor } from "./auth-interceptor";
+import { attachErrorInterceptor } from "./error-interceptor";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:4000";
   console.log(BASE_URL);
@@ -13,38 +15,7 @@ const api = axios.create({
   },
 });
 
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (!error.response) {
-      console.error("❌ Network Error:", error.message);
-    } else {
-      const { status, data } = error.response;
-
-      switch (status) {
-        case 400:
-          console.warn("Bad request:", data.message || data);
-          break;
-        case 401:
-          console.warn("Unauthorized — maybe redirect to login?");
-          // e.g. clear tokens / redirect
-          break;
-        case 403:
-          console.warn("Forbidden: You don’t have access");
-          break;
-        case 500:
-          console.error(
-            "Server error:",
-            data.message || "Internal Server Error"
-          );
-          break;
-        default:
-          console.error("API error:", status, data);
-      }
-    }
-
-    return Promise.reject(error);
-  }
-);
+attachAuthInterceptor(api);
+attachErrorInterceptor(api);
 
 export default api;

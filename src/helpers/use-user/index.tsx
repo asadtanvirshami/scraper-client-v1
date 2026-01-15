@@ -7,16 +7,15 @@ const useUserInfo = () => {
   if (!user) return {};
   return {
     user: user,
-    id: user?.id,
-    firstName: user?.firstName,
-    lastName: user?.lastName,
+    id: user?._id,
+    firstName: user?.first_name,
+    lastName: user?.last_name,
     plan: user?.plan,
     email: user?.email,
     avatar_url: user?.avatar_url,
     role: user?.role,
     blocked: user?.blocked,
-    subscriptions: user?.subscriptions || {},
-    tradeAccounts: user?.tradeAccounts || [],
+    is_verified: user?.is_verified,
   };
 };
 

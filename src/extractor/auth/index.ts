@@ -1,48 +1,75 @@
-// Helper to extract error message
+// Helper to extract error message KEY
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) {
-    // Firebase error codes
     const message = error.message;
+
+    if (message.includes("user-already-verified"))
+      return "auth.messages.errors.user_already_verified";
+
+    if(message.includes("user-not-found"))
+      return "auth.messages.errors.user_not_found";
+    
     if (message.includes("invalid-credentials"))
-      return "Invalid email address or password";
+      return "auth.messages.errors.invalid_email_or_password";
+
     if (message.includes("user-blocked"))
-      return "This account has been blocked";
-    if (message.includes("user-disabled"))
-      return "This account has been disabled";
+      return "auth.messages.errors.account_blocked";
+
+    if (message.includes("account-not-verified"))
+      return "auth.messages.errors.account_not_verified";
+
     if (message.includes("user-not-found"))
-      return "No account found with this email";
-    if (message.includes("wrong-password")) return "Incorrect password";
-    if (message.includes("auth/email-already-in-use"))
-      return "An account with this email already exists";
+      return "auth.messages.errors.no_account_found";
+
+    if (message.includes("wrong-password"))
+      return "auth.messages.errors.incorrect_password";
+
+    if (message.includes("email-already-exists"))
+      return "auth.messages.errors.email_already_exists";
+
+    if(message.includes("invalid-otp"))
+      return "auth.messages.errors.invalid_otp";
+
     if (message.includes("auth/weak-password"))
-      return "Password should be at least 6 characters";
+      return "auth.messages.errors.weak_password_6";
+
     if (message.includes("auth/too-many-requests"))
-      return "Too many attempts. Please try again later";
+      return "auth.messages.errors.too_many_attempts";
+
     if (message.includes("google-signin-failed"))
-      return "Google sign-in failed. Please try again.";
-    return message;
+      return "auth.messages.errors.google_signin_failed";
+
+    return "auth.messages.errors.unexpected_error";
   }
-  return "An unexpected error occurred";
+
+  return "auth.messages.errors.unexpected_error";
 }
 
+// Helper to extract success message KEY
 function getSuccessMessage(message: unknown): string {
   if (typeof message === "string") {
     if (message.includes("password-reset-email-sent"))
-      return "Password reset email sent";
+      return "auth.messages.success.password_reset_email_sent";
+
     if (message.includes("account-created"))
-      return "Account created successfully";
+      return "auth.messages.success.account_created";
+
     if (message.includes("signed-in-successfully"))
-      return "Signed in successfully";
+      return "auth.messages.success.signed_in_successfully";
+
     if (message.includes("signed-out-successfully"))
-      return "Signed out successfully";
+      return "auth.messages.success.signed_out_successfully";
+
     if (message.includes("password-updated"))
-      return "Password updated successfully";
+      return "auth.messages.success.password_updated";
+
     if (message.includes("google-signin-success"))
-      return "Signed in with Google successfully";
-    return message;
+      return "auth.messages.success.google_signin_success";
+
+    return "auth.messages.success.operation_successful";
   }
-  return "Operation successful";
+
+  return "auth.messages.success.operation_successful";
 }
 
 export { getErrorMessage, getSuccessMessage };
-
