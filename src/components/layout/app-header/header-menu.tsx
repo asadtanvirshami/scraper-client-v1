@@ -3,6 +3,11 @@ import { DownOutlined, LogoutOutlined } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { Avatar, Button, Dropdown, Space, Typography } from "antd";
 import { useUserInfo } from "@/helpers/use-user";
+import { useDispatch } from "react-redux";
+import { logoutUser } from "@/redux/slices/user/user-slice";
+import { clearAuthCookies } from "@/lib/cookies";
+import { useRouter } from "next/navigation";
+import { persistor } from "@/redux/store";
 
 const ProfileDropdown: React.FC = () => {
   const { user } = useUserInfo();
@@ -42,14 +47,40 @@ const ProfileDropdown: React.FC = () => {
   );
 };
 
-const LogoutButton: React.FC = () => (
-  <Button
-    variant="outlined"
-    size="large"
-    className="!p-3 !bg-transparent !rounded-full"
-  >
-    <LogoutOutlined />
-  </Button>
-);
+const LogoutButton: React.FC = () => {
+  const dispatch = useDispatch();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      // 1️⃣ Clear Redux state
+      dispatch(logoutUser());
+
+      // 2️⃣ Purge persisted Redux state
+      await persistor.purge();
+
+      // 3️⃣ Clear auth cookies
+      clearAuthCookies();
+
+      // 4️⃣ Redirect to sign-in
+      router.replace("/auth/signin");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
+  return (
+    <Button
+      type="default"
+      size="large"
+      className="!p-3 !bg-transparent !rounded-full"
+      onClick={handleLogout}
+      aria-label="Logout"
+    >
+      <LogoutOutlined />
+    </Button>
+  );
+};
+
 
 export { LogoutButton, ProfileDropdown };

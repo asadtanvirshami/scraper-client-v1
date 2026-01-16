@@ -9,6 +9,7 @@ import { useDispatch } from "react-redux";
 import { loginSuccess } from "@/redux/slices/user/user-slice";
 import { persistor } from "@/redux/store";
 import { useRouter } from "next/navigation";
+import { setAuthCookies } from "@/lib/cookies";
 
 const { Link, Text } = Typography;
 
@@ -23,7 +24,13 @@ const SignInForm: React.FC = () => {
       onSuccess: async (data) => {
         const redirect = data.data.redirect;
         const userData = data.data.user;
+        const token = data.data.token;
         console.log(userData);
+        setAuthCookies({
+          accessToken: token,
+          refreshToken: "",
+        });
+
         // Dispatch user data to Redux
         dispatch(loginSuccess(userData));
         // Flush persistor to ensure state is saved before navigation
@@ -32,7 +39,6 @@ const SignInForm: React.FC = () => {
         await new Promise((resolve) => setTimeout(resolve, 100));
         // Navigate to dashboard
         router.replace(`${redirect}/${userData._id}`);
-
       },
     });
     console.log(logInMutation.data);
