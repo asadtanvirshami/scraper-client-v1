@@ -1,7 +1,8 @@
+import CampaignsLeadsDashboard from "@/features/dashboard/user/user-layout"
 
 const Page = () => {
   return (
-    <div>Page</div>
+    <CampaignsLeadsDashboard/>
   )
 }
 

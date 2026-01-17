@@ -14,6 +14,5 @@ export const apiEndpoints = {
     change_password: "/auth/change-password",
     forgot_password: "/auth/send-password-reset-otp",
     verifyJWT: "/auth/verification",
-    verify: "/auth/verification",
   },
 };

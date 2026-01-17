@@ -49,31 +49,29 @@ export async function proxy(req: NextRequest) {
   }
 
   // 4) Read token and verify
-  // const token = req.cookies.get("accessToken")?.value;
-  // if (!token) {
-  //   return redirectTo(req, "/auth/signin", pathname + search);
-  // }
+  const token = req.cookies.get("access_token")?.value
+  console.log(token)
+  if (!token) {
+    return redirectTo(req, "/auth/signin", pathname + search);
+  }
 
-  // let session: any = null;
-  // try {
-  //   session = await verifyJWTServer(token); // must work on the edge (use 'jose' under the hood)
-  // } catch (err) {
-  //   console.warn("JWT validation failed:", err);
-  //   return redirectTo(req, "/auth/signin", pathname + search);
-  // }
-  // if (!session) {
-  //   return redirectTo(req, "/auth/signin", pathname + search);
-  // }
-  // // 5) No valid session -> signin
-  // if (!session?.success) {
-  //   return redirectTo(req, "/auth/signin", pathname + search);
-  // }
-  // // 6) Valid session but missing plan -> plans (avoid redirect if already there)
-  // const plan = session?.data?.subscriptions ?? null;
-  // if (plan === null && pathname !== "/plans") {
-  //   return redirectTo(req, "/plans", pathname + search);
-  // }
-
+  let session: any = null;
+  try {
+    session = await verifyJWTServer(token); // must work on the edge (use 'jose' under the hood)
+    console.log(session);
+    
+  } catch (err) {
+    console.warn("JWT validation failed:", err);
+    return redirectTo(req, "/auth/signin", pathname + search);
+  }
+  if (!session) {
+    return redirectTo(req, "/auth/signin", pathname + search);
+  }
+  // 5) No valid session -> signin
+  if (!session?.success) {
+    return redirectTo(req, "/auth/signin", pathname + search);
+  }
+  
   return NextResponse.next();
 }
 
