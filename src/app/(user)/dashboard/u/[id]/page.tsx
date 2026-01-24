@@ -1,9 +1,7 @@
-import CampaignsLeadsDashboard from "@/features/dashboard/user/user-layout"
+import UserLayout from "@/features/dashboard/user/user-layout";
 
 const Page = () => {
-  return (
-    <CampaignsLeadsDashboard/>
-  )
-}
+  return <UserLayout />;
+};
 
-export default Page
+export default Page;

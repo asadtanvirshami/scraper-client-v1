@@ -1,5 +1,5 @@
 "use client"
-import AuthCard from "@/components/common/auth-card";
+import AuthCard from "@/components/ui/auth-card";
 import ResetPasswordForm from "./reset-form";
 
 const ResetPasswordLayout = () => {

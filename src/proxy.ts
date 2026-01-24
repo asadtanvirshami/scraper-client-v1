@@ -3,7 +3,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyJWTServer } from "@/lib/auth_JWT/verify_JWT"; // must be edge-safe
 
 // Pages anyone can visit (add /plans so we don't loop)
-const PUBLIC_ROUTES = ["/login", "/signup", "/auth/signin", "/plans", "/"];
+const PUBLIC_ROUTES = [
+  "/login",
+  "/signup",
+  "/auth/signin",
+  "/auth/signup",
+  "/auth/forgot-password",
+  "/auth/reset-password/",
+  "/plans",
+  "/",
+];
 
 // URL patterns we never run auth logic for (assets, files, etc.)
 const ALWAYS_PUBLIC = [
@@ -49,8 +58,8 @@ export async function proxy(req: NextRequest) {
   }
 
   // 4) Read token and verify
-  const token = req.cookies.get("access_token")?.value
-  console.log(token)
+  const token = req.cookies.get("access_token")?.value;
+  console.log(token);
   if (!token) {
     return redirectTo(req, "/auth/signin", pathname + search);
   }
@@ -59,7 +68,6 @@ export async function proxy(req: NextRequest) {
   try {
     session = await verifyJWTServer(token); // must work on the edge (use 'jose' under the hood)
     console.log(session);
-    
   } catch (err) {
     console.warn("JWT validation failed:", err);
     return redirectTo(req, "/auth/signin", pathname + search);
@@ -71,7 +79,7 @@ export async function proxy(req: NextRequest) {
   if (!session?.success) {
     return redirectTo(req, "/auth/signin", pathname + search);
   }
-  
+
   return NextResponse.next();
 }
 

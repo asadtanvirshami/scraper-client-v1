@@ -6,16 +6,24 @@ import {
   addNotification,
 } from "@/redux/slices/notification/slice";
 import api from "@/api/axios";
-import { apiEndpoints } from "@/api/endpoints";
+import { apiEndpoints } from "@/api/end-points";
+import { getAccessToken } from "@/lib/cookies";
+
+const token = getAccessToken();
 
 export async function initNotifications(dispatch: AppDispatch, userId: string) {
   try {
-    const { data} = await api.get(
-      apiEndpoints.notification.getAll({ id: userId })
-    );
+    const { data } = await api.get(
+      apiEndpoints.notifications.get(0, 10),
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );  
 
-    if (data?.data) {
-      dispatch(setNotifications(data.data));
+    if (data?.data?.data) {
+      dispatch(setNotifications(data?.data?.data));
     }
 
     const socket = getSocket();
@@ -28,7 +36,7 @@ export async function initNotifications(dispatch: AppDispatch, userId: string) {
       dispatch(addNotification(payload));
     });
   } catch (error) {
-    console.error("❌ initNotifications failed:", error);
+    console.error("initNotifications failed:", error);
   }
 }
 

@@ -1,4 +1,13 @@
 {
+  "sidebar": {
+    "brand": "DataHarvX",
+    "dashboard": "Panel",
+    "campaigns": "Campañas",
+    "leads": "Leads",
+    "billing": "Facturación",
+    "settings": "Configuración"
+  },
+
   "auth": {
     "sign_in": {
       "sign_in_with_email": "Iniciar sesión con correo electrónico",
@@ -6,8 +15,7 @@
       "buttonCTA": "Iniciar sesión",
       "dont_have_account": "¿No tienes una cuenta? Regístrate",
       "strip_line": "o inicia sesión con",
-      "success_message": "Successfully signed in.",
-
+      "success_message": "Inicio de sesión exitoso.",
       "errors": {
         "invalid_credentials": "Credenciales inválidas. Por favor, inténtalo de nuevo.",
         "account_locked": "Tu cuenta ha sido bloqueada. Contacta al soporte.",
@@ -19,7 +27,6 @@
         "password_too_short": "La contraseña debe tener al menos 8 caracteres."
       }
     },
-
     "sign_up": {
       "sign_up_with_email": "Registrarse con correo electrónico",
       "buttonCTA": "Crear cuenta",
@@ -56,19 +63,15 @@
       "title": "Restablecer contraseña",
       "buttonCTA": "Restablecer contraseña",
       "success_message": "La contraseña se restableció correctamente.",
-
       "otp": "Código de verificación (OTP)",
       "otp_placeholder": "Introduce el código OTP",
       "otp_required": "El código OTP es obligatorio.",
       "otp_length": "El código OTP debe tener 6 dígitos.",
       "otp_numeric": "El código OTP solo debe contener números.",
-
       "new_password": "Nueva contraseña",
       "new_password_placeholder": "Introduce la nueva contraseña",
-
       "confirm_password": "Confirmar contraseña",
       "confirm_password_placeholder": "Confirma la nueva contraseña",
-
       "password_required": "La contraseña es obligatoria.",
       "password_too_short": "La contraseña debe tener al menos 8 caracteres.",
       "password_mismatch": "Las contraseñas no coinciden."
@@ -99,6 +102,164 @@
         "google_signin_success": "Inicio de sesión con Google exitoso",
         "operation_successful": "Operación realizada con éxito"
       }
+    }
+  },
+
+  "campaigns": {
+    "title": "Campañas de Email",
+    "create": "Crear Campaña",
+    "table": {
+      "campaign": "Campaña",
+      "status": "Estado",
+      "emailsSent": "Emails Enviados",
+      "openRate": "Tasa de Apertura",
+      "actions": "Acciones"
+    },
+    "status": {
+      "active": "Activa",
+      "paused": "Pausada",
+      "draft": "Borrador"
+    },
+    "actions": {
+      "view": "Ver"
+    }
+  },
+
+  "leads": {
+    "widget": {
+      "recent_title": "Leads recientes",
+      "total": "Total {total}"
+    },
+    "empty": "Aún no hay leads",
+    "actions": {
+      "view_all": "Ver todos"
+    },
+    "table": {
+      "name": "Nombre",
+      "email": "Correo",
+      "company": "Empresa",
+      "jobTitle": "Cargo",
+      "status": "Estado",
+      "createdAt": "Creado"
+    },
+    "status": {
+      "new": "Nuevo",
+      "converted": "Convertido"
+    }
+  },
+
+  "folders": {
+    "title": "Carpetas",
+    "create": "Crear Carpeta",
+    "search": {
+      "placeholder": "Buscar carpetas..."
+    },
+    "filters": {
+      "all": "Todas"
+    },
+    "table": {
+      "name": "Nombre",
+      "status": "Estado",
+      "createdAt": "Creado el",
+      "updatedAt": "Actualizado el",
+      "actions": "Acciones"
+    },
+    "status": {
+      "active": "Activa",
+      "deleted": "Eliminada"
+    },
+    "actions": {
+      "view": "Ver",
+      "delete": "Eliminar",
+      "restore": "Restaurar"
+    },
+    "drawer": {
+      "title": "Detalles de la Carpeta",
+      "close": "Cerrar"
+    },
+    "fields": {
+      "id": "ID",
+      "name": "Nombre",
+      "userId": "ID de usuario",
+      "status": "Estado",
+      "createdAt": "Creado el",
+      "updatedAt": "Actualizado el"
+    }
+  },
+
+  "settings": {
+    "dateTime": {
+      "title": "Fecha y hora",
+      "timezone": "Zona horaria",
+      "timeFormat": "Formato de hora",
+      "twentyFourHours": "24 horas",
+      "twelveHours": "12 horas",
+      "dateFormat": "Formato de fecha"
+    },
+    "notifications": {
+      "title": "Notificaciones",
+      "deactivateBrevoActivity": "Desactivar notificaciones sobre la actividad de Brevo",
+      "smsCreditEmailAlert": "Recibir un correo cuando tu crédito de SMS baje del umbral que estableciste"
+    },
+    "invoices": {
+      "title": "Tus facturas",
+      "receiveByEmail": "¿Quieres recibir tus facturas por correo cuando renueves tu plan?"
+    },
+    "accountAccess": {
+      "title": "Acceso a tu cuenta",
+      "allowSupportAccess": "¿Autorizas a Brevo a acceder a tu cuenta para brindar soporte?"
+    },
+    "actions": {
+      "save": "Guardar"
+    },
+    "closeAccount": {
+      "title": "Cerrar tu cuenta",
+      "button": "Cerrar tu cuenta definitivamente",
+      "helpText": "Todos los datos de esta cuenta se eliminarán permanentemente"
+    },
+    "errors": {
+      "required": "Este campo es obligatorio."
+    }
+  },
+
+  "profile": {
+    "title": "Perfil",
+    "avatar": "Foto de perfil",
+    "uploadAvatar": "Subir avatar",
+    "firstName": "Nombre",
+    "lastName": "Apellido",
+    "email": "Correo electrónico",
+    "save": "Guardar cambios",
+    "changePassword": "Cambiar contraseña",
+    "errors": {
+      "firstName": "El nombre es obligatorio.",
+      "lastName": "El apellido es obligatorio.",
+      "email": "El correo es obligatorio.",
+      "invalidEmail": "Formato de correo inválido."
+    }
+  },
+
+  "dashboard": {
+    "charts": {
+      "weekly_leads": "Leads añadidos (últimos 7 días)"
+    }
+  },
+
+  "notifications": {
+    "title": "Notificaciones",
+    "empty": "No tienes notificaciones.",
+    "actions": {
+      "mark_all_read": "Marcar todo como leído",
+      "clear_all": "Borrar todo"
+    },
+    "badge": {
+      "new": "NUEVO"
+    },
+    "level": {
+      "error": "error",
+      "warning": "advertencia",
+      "success": "éxito",
+      "info": "info"
     }
   }
 }

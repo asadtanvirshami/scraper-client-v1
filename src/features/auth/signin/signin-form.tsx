@@ -19,13 +19,12 @@ const SignInForm: React.FC = () => {
   const router = useRouter();
 
   const handleSubmit = (values: { email: string; password: string }) => {
-    console.log(values);
     logInMutation.mutateAsync(values, {
       onSuccess: async (data) => {
         const redirect = data.data.redirect;
         const userData = data.data.user;
         const token = data.data.token;
-        console.log(userData);
+
         setAuthCookies({
           accessToken: token,
           refreshToken: "",
@@ -106,6 +105,7 @@ const SignInForm: React.FC = () => {
 
       <Form.Item className="!mb-4">
         <Button
+          disabled={logInMutation.isPending}
           loading={logInMutation.isPending}
           htmlType="submit"
           className="!w-full !h-11 !rounded-xl !border-0 !text-white font-medium

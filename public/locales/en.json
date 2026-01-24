@@ -1,4 +1,13 @@
 {
+  "sidebar": {
+    "brand": "DataHarvX",
+    "dashboard": "Dashboard",
+    "campaigns": "Campaigns",
+    "leads": "Leads",
+    "billing": "Billing",
+    "settings": "Settings"
+  },
+
   "auth": {
     "sign_in": {
       "sign_in_with_email": "Sign in with email",
@@ -99,6 +108,164 @@
         "google_signin_success": "Signed in with Google successfully",
         "operation_successful": "Operation successful"
       }
+    }
+  },
+
+  "campaigns": {
+    "title": "Email Campaigns",
+    "create": "Create Campaign",
+    "table": {
+      "campaign": "Campaign",
+      "status": "Status",
+      "emailsSent": "Emails Sent",
+      "openRate": "Open Rate",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "paused": "Paused",
+      "draft": "Draft"
+    },
+    "actions": {
+      "view": "View"
+    }
+  },
+
+  "leads": {
+    "widget": {
+      "recent_title": "Recent Leads",
+      "total": "Total {total}"
+    },
+    "empty": "No leads yet",
+    "actions": {
+      "view_all": "View all"
+    },
+    "table": {
+      "name": "Name",
+      "email": "Email",
+      "company": "Company",
+      "jobTitle": "Job Title",
+      "status": "Status",
+      "createdAt": "Created"
+    },
+    "status": {
+      "new": "New",
+      "converted": "Converted"
+    }
+  },
+
+  "folders": {
+    "title": "Folders",
+    "create": "Create Folder",
+    "search": {
+      "placeholder": "Search folders..."
+    },
+    "filters": {
+      "all": "All"
+    },
+    "table": {
+      "name": "Name",
+      "status": "Status",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "deleted": "Deleted"
+    },
+    "actions": {
+      "view": "View",
+      "delete": "Delete",
+      "restore": "Restore"
+    },
+    "drawer": {
+      "title": "Folder Details",
+      "close": "Close"
+    },
+    "fields": {
+      "id": "ID",
+      "name": "Name",
+      "userId": "User ID",
+      "status": "Status",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At"
+    }
+  },
+
+  "dashboard": {
+    "charts": {
+      "weekly_leads": "Leads added (last 7 days)"
+    }
+  },
+
+  "settings": {
+    "dateTime": {
+      "title": "Date and Time",
+      "timezone": "Time zone",
+      "timeFormat": "Time format",
+      "twentyFourHours": "24 hours",
+      "twelveHours": "12 hours",
+      "dateFormat": "Date format"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "deactivateBrevoActivity": "Deactivate notifications about Brevo activity",
+      "smsCreditEmailAlert": "Receive an email when your SMS credit falls below the threshold you set"
+    },
+    "invoices": {
+      "title": "Your Invoices",
+      "receiveByEmail": "Do you want to receive your invoices by email when you renew your plan?"
+    },
+    "accountAccess": {
+      "title": "Your Account Access",
+      "allowSupportAccess": "Do you authorize Brevo to access your account to provide support?"
+    },
+    "actions": {
+      "save": "Save"
+    },
+    "closeAccount": {
+      "title": "Close your account",
+      "button": "Definitively close your account",
+      "helpText": "All data in this account will be permanently deleted"
+    },
+    "errors": {
+      "required": "This field is required."
+    }
+  },
+
+  "profile": {
+    "title": "Profile",
+    "avatar": "Profile picture",
+    "uploadAvatar": "Upload avatar",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "email": "Email",
+    "save": "Save changes",
+    "changePassword": "Change password",
+    "errors": {
+      "firstName": "First name is required.",
+      "lastName": "Last name is required.",
+      "email": "Email is required.",
+      "invalidEmail": "Invalid email format."
+    }
+  },
+
+  "notifications": {
+    "title": "Notifications",
+    "empty": "You have no notifications.",
+    "actions": {
+      "mark_all_read": "Mark all as read",
+      "clear_all": "Clear all"
+    },
+    "badge": {
+      "new": "NEW"
+    },
+    "level": {
+      "error": "error",
+      "warning": "warning",
+      "success": "success",
+      "info": "info"
     }
   }
 }

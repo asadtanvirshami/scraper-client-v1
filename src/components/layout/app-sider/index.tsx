@@ -1,36 +1,62 @@
 "use client";
 
-import { Avatar, Layout, Menu } from "antd";
+import { Layout, Menu } from "antd";
 import {
-  UserCircleIcon,
   ChartBarSquareIcon,
-  DocumentCheckIcon,
+  MegaphoneIcon,
+  UserGroupIcon,
+  Cog6ToothIcon,
+  CreditCardIcon,
 } from "@heroicons/react/24/outline";
+import { useIntl } from "react-intl";
 
 const { Sider } = Layout;
 
-const items = [
-  <UserCircleIcon className="w-5 h-5" />,
-  <ChartBarSquareIcon className="w-5 h-5" />,
-  <DocumentCheckIcon className="w-5 h-5" />,
-  <DocumentCheckIcon className="w-5 h-5" />,
-  <DocumentCheckIcon className="w-5 h-5" />,
-  <DocumentCheckIcon className="w-5 h-5" />,
-  <DocumentCheckIcon className="w-5 h-5" />,
-  <DocumentCheckIcon className="w-5 h-5" />,
-].map((icon, index) => ({
-  key: String(index + 1),
-  icon,
-  label: `nav ${index + 1}`,
-}));
-
 const AppSider = () => {
+  const intl = useIntl();
+
+  const items = [
+    {
+      key: "dashboard",
+      icon: <ChartBarSquareIcon className="w-5 h-5" />,
+      label: intl.formatMessage({ id: "sidebar.dashboard" }),
+    },
+    {
+      key: "campaigns",
+      icon: <MegaphoneIcon className="w-5 h-5" />,
+      label: intl.formatMessage({ id: "sidebar.campaigns" }),
+    },
+    {
+      key: "leads",
+      icon: <UserGroupIcon className="w-5 h-5" />,
+      label: intl.formatMessage({ id: "sidebar.leads" }),
+    },
+    {
+      key: "billing",
+      icon: <CreditCardIcon className="w-5 h-5" />,
+      label: intl.formatMessage({ id: "sidebar.billing" }),
+    },
+    {
+      key: "settings",
+      icon: <Cog6ToothIcon className="w-5 h-5" />,
+      label: intl.formatMessage({ id: "sidebar.settings" }),
+    },
+  ];
+
   return (
-    <Sider className="flex flex-col" breakpoint="lg" collapsedWidth="0">
-      <div>
-        <h1 className="text-2xl p-4 ml-3">Brand Logo</h1>
-        <Menu className="!border-r-0" mode="inline" items={items} />
+    <Sider breakpoint="lg" collapsedWidth="0">
+      <div className="px-6 py-4">
+        <h1 className="text-2xl font-bold">
+          {intl.formatMessage({ id: "sidebar.brand" })}
+        </h1>
       </div>
+
+      <Menu
+        mode="inline"
+        className="!border-r-0"
+        items={items}
+        defaultSelectedKeys={["dashboard"]}
+      />
     </Sider>
   );
 };
