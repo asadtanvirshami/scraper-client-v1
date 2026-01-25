@@ -21,33 +21,14 @@ import {
   StarOutlined,
 } from "@ant-design/icons";
 import { FormattedMessage, useIntl } from "react-intl";
-
-type Feedback = {
-  _id: string;
-  user_name?: string;
-  user_email?: string;
-  rating?: number;
-  message?: string;
-  type?: string;
-  status?: string;
-  createdAt?: string;
-};
-
-type ServerFilters = {
-  page: number;
-  limit: number;
-  search?: string;
-  type?: string;
-  status?: string;
-  rating?: number;
-};
+import { Feedback, FeedbackFilters } from "../hooks/use-feedback";
 
 type Props = {
   feedback?: Feedback[];
   total?: number;
   loading?: boolean;
-  value: ServerFilters;
-  onFetch: (filters: ServerFilters) => void;
+  value: FeedbackFilters;
+  onFetch: (filters: FeedbackFilters) => void;
 };
 
 const FeedbackTable: React.FC<Props> = ({
@@ -65,15 +46,7 @@ const FeedbackTable: React.FC<Props> = ({
 
   React.useEffect(() => setSearchDraft(filters.search ?? ""), [filters.search]);
 
-  const antdFilteredValue = useMemo(() => {
-    return {
-      type: filters.type ? [filters.type] : null,
-      status: filters.status ? [filters.status] : null,
-      rating: filters.rating ? [String(filters.rating)] : null,
-    };
-  }, [filters.type, filters.status, filters.rating]);
-
-  const fetchNow = (next: Partial<ServerFilters>) => {
+  const fetchNow = (next: Partial<FeedbackFilters>) => {
     onFetch({ ...filters, ...next });
   };
 
@@ -101,88 +74,40 @@ const FeedbackTable: React.FC<Props> = ({
       key: "user",
       render: (_, record) => (
         <div>
-          <div className="font-medium">{record.user_name || "Anonymous"}</div>
-          <div className="text-sm text-gray-500">{record.user_email || "-"}</div>
+          {record.user_id ? (
+            <>
+              <div className="font-medium">
+                {record.user_id.first_name} {record.user_id.last_name}
+              </div>
+              <div className="text-sm text-gray-500">{record.user_id.email}</div>
+            </>
+          ) : (
+            <div className="text-gray-500">Anonymous</div>
+          )}
         </div>
       ),
     },
     {
-      title: "Rating",
-      dataIndex: "rating",
-      key: "rating",
-      filters: [
-        { text: "5 Stars", value: "5" },
-        { text: "4 Stars", value: "4" },
-        { text: "3 Stars", value: "3" },
-        { text: "2 Stars", value: "2" },
-        { text: "1 Star", value: "1" },
-      ],
-      filteredValue: antdFilteredValue.rating as any,
-      render: (rating?: number) => (
-        <Rate disabled value={rating} style={{ fontSize: 14 }} />
+      title: "Feedback",
+      dataIndex: "feedback",
+      key: "feedback",
+      ellipsis: true,
+      width: 300,
+      render: (feedback?: string) => (
+        <div title={feedback} className="max-w-xs truncate">
+          {feedback || "-"}
+        </div>
       ),
-    },
-    {
-      title: "Type",
-      dataIndex: "type",
-      key: "type",
-      filters: [
-        { text: "General", value: "general" },
-        { text: "Bug Report", value: "bug" },
-        { text: "Feature Request", value: "feature" },
-        { text: "Complaint", value: "complaint" },
-      ],
-      filteredValue: antdFilteredValue.type as any,
-      render: (type?: string) => {
-        const colorMap: Record<string, string> = {
-          general: "blue",
-          bug: "red",
-          feature: "green",
-          complaint: "orange",
-        };
-        return (
-          <Tag color={colorMap[type || "general"] || "blue"}>
-            {type?.toUpperCase() || "GENERAL"}
-          </Tag>
-        );
-      },
     },
     {
       title: "Status",
-      dataIndex: "status",
-      key: "status",
-      filters: [
-        { text: "New", value: "new" },
-        { text: "In Review", value: "review" },
-        { text: "Resolved", value: "resolved" },
-        { text: "Closed", value: "closed" },
-      ],
-      filteredValue: antdFilteredValue.status as any,
-      render: (status?: string) => {
-        const colorMap: Record<string, string> = {
-          new: "blue",
-          review: "orange",
-          resolved: "green",
-          closed: "default",
-        };
-        return (
-          <Badge
-            status={colorMap[status || "new"] as any}
-            text={status?.toUpperCase() || "NEW"}
-          />
-        );
-      },
-    },
-    {
-      title: "Message",
-      dataIndex: "message",
-      key: "message",
-      ellipsis: true,
-      width: 300,
-      render: (message?: string) => (
-        <div title={message} className="max-w-xs truncate">
-          {message || "-"}
-        </div>
+      dataIndex: "is_deleted",
+      key: "is_deleted",
+      render: (is_deleted?: boolean) => (
+        <Badge
+          status={is_deleted ? "error" : "success"}
+          text={is_deleted ? "DELETED" : "ACTIVE"}
+        />
       ),
     },
     {
@@ -201,12 +126,7 @@ const FeedbackTable: React.FC<Props> = ({
     const page = pagination.current ?? 1;
     const limit = pagination.pageSize ?? 10;
 
-    const type = (tableFilters.type?.[0] as string) || "";
-    const status = (tableFilters.status?.[0] as string) || "";
-    const ratingRaw = (tableFilters.rating?.[0] as string) ?? "";
-    const rating = ratingRaw ? parseInt(ratingRaw) : undefined;
-
-    fetchNow({ page, limit, type, status, rating });
+    fetchNow({ page, limit });
   };
 
   const isDirtySearch = (searchDraft || "").trim() !== (filters.search || "");
@@ -227,7 +147,7 @@ const FeedbackTable: React.FC<Props> = ({
           allowClear
           prefix={<SearchOutlined />}
           value={searchDraft}
-          placeholder="Search user name, email, message..."
+          placeholder="Search user name, email, feedback..."
           onChange={(e) => setSearchDraft(e.target.value)}
           className="sm:max-w-md"
         />
@@ -261,7 +181,7 @@ const FeedbackTable: React.FC<Props> = ({
           showSizeChanger: true,
         }}
         size="large"
-        scroll={{ x: 1000 }}
+        scroll={{ x: 800 }}
         locale={{ emptyText: "No feedback found" }}
       />
     </Card>
