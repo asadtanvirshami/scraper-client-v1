@@ -12,7 +12,6 @@ import {
   Typography,
   Input,
   Badge,
-  message,
 } from "antd";
 import {
   ReloadOutlined,
@@ -21,38 +20,14 @@ import {
   ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import { FormattedMessage, useIntl } from "react-intl";
-
-type BugReport = {
-  _id: string;
-  title?: string;
-  description?: string;
-  user_name?: string;
-  user_email?: string;
-  priority?: string;
-  status?: string;
-  category?: string;
-  steps_to_reproduce?: string;
-  expected_behavior?: string;
-  actual_behavior?: string;
-  createdAt?: string;
-  updatedAt?: string;
-};
-
-type ServerFilters = {
-  page: number;
-  limit: number;
-  search?: string;
-  priority?: string;
-  status?: string;
-  category?: string;
-};
+import { BugReport, BugFilters } from "../hooks/use-bug-reports";
 
 type Props = {
   bugReports?: BugReport[];
   total?: number;
   loading?: boolean;
-  value: ServerFilters;
-  onFetch: (filters: ServerFilters) => void;
+  value: BugFilters;
+  onFetch: (filters: BugFilters) => void;
   onUpdateBug?: (id: string, payload: Partial<BugReport>) => Promise<void> | void;
 };
 
@@ -72,15 +47,7 @@ const BugReportsTable: React.FC<Props> = ({
 
   React.useEffect(() => setSearchDraft(filters.search ?? ""), [filters.search]);
 
-  const antdFilteredValue = useMemo(() => {
-    return {
-      priority: filters.priority ? [filters.priority] : null,
-      status: filters.status ? [filters.status] : null,
-      category: filters.category ? [filters.category] : null,
-    };
-  }, [filters.priority, filters.status, filters.category]);
-
-  const fetchNow = (next: Partial<ServerFilters>) => {
+  const fetchNow = (next: Partial<BugFilters>) => {
     onFetch({ ...filters, ...next });
   };
 
@@ -102,28 +69,16 @@ const BugReportsTable: React.FC<Props> = ({
     });
   };
 
-  const updateBugStatus = async (bug: BugReport, newStatus: string) => {
-    try {
-      if (onUpdateBug) {
-        await onUpdateBug(bug._id, { status: newStatus });
-        message.success("Bug status updated successfully");
-        fetchNow({});
-      }
-    } catch {
-      message.error("Failed to update bug status");
-    }
-  };
-
   const columns: ColumnsType<BugReport> = [
     {
-      title: "Title",
-      dataIndex: "title",
-      key: "title",
+      title: "Bug Description",
+      dataIndex: "bug",
+      key: "bug",
       ellipsis: true,
-      width: 200,
-      render: (title?: string) => (
-        <div title={title} className="font-medium">
-          {title || "-"}
+      width: 300,
+      render: (bug?: string) => (
+        <div title={bug} className="font-medium">
+          {bug || "-"}
         </div>
       ),
     },
@@ -132,21 +87,28 @@ const BugReportsTable: React.FC<Props> = ({
       key: "user",
       render: (_, record) => (
         <div>
-          <div className="font-medium">{record.user_name || "Anonymous"}</div>
-          <div className="text-sm text-gray-500">{record.user_email || "-"}</div>
+          {record.user_id ? (
+            <>
+              <div className="font-medium">
+                {record.user_id.first_name} {record.user_id.last_name}
+              </div>
+              <div className="text-sm text-gray-500">{record.user_id.email}</div>
+            </>
+          ) : (
+            <div className="text-gray-500">Anonymous</div>
+          )}
         </div>
       ),
     },
     {
-      title: "Description",
-      dataIndex: "description",
-      key: "description",
-      ellipsis: true,
-      width: 250,
-      render: (description?: string) => (
-        <div title={description} className="max-w-xs truncate">
-          {description || "-"}
-        </div>
+      title: "Status",
+      dataIndex: "is_deleted",
+      key: "is_deleted",
+      render: (is_deleted?: boolean) => (
+        <Badge
+          status={is_deleted ? "error" : "success"}
+          text={is_deleted ? "DELETED" : "ACTIVE"}
+        />
       ),
     },
     {
@@ -172,11 +134,7 @@ const BugReportsTable: React.FC<Props> = ({
     const page = pagination.current ?? 1;
     const limit = pagination.pageSize ?? 10;
 
-    const priority = (tableFilters.priority?.[0] as string) || "";
-    const status = (tableFilters.status?.[0] as string) || "";
-    const category = (tableFilters.category?.[0] as string) || "";
-
-    fetchNow({ page, limit, priority, status, category });
+    fetchNow({ page, limit });
   };
 
   const isDirtySearch = (searchDraft || "").trim() !== (filters.search || "");
@@ -197,7 +155,7 @@ const BugReportsTable: React.FC<Props> = ({
           allowClear
           prefix={<SearchOutlined />}
           value={searchDraft}
-          placeholder="Search title, description, user..."
+          placeholder="Search bug description..."
           onChange={(e) => setSearchDraft(e.target.value)}
           className="sm:max-w-md"
         />
@@ -231,7 +189,7 @@ const BugReportsTable: React.FC<Props> = ({
           showSizeChanger: true,
         }}
         size="large"
-        scroll={{ x: 1200 }}
+        scroll={{ x: 800 }}
         locale={{ emptyText: "No bug reports found" }}
       />
     </Card>

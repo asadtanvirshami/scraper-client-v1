@@ -6,6 +6,7 @@ import FeedbackTable from "@/features/dashboard/admin/components/feedback-table"
 import BugReportsTable from "@/features/dashboard/admin/components/bug-reports-table";
 import { Row, Col } from "antd";
 import { useState } from "react";
+import { useBugReports } from "@/features/dashboard/admin/hooks/use-bug-reports";
 
 const Page = () => {
   // State for table filters and pagination
@@ -34,6 +35,9 @@ const Page = () => {
     status: undefined as string | undefined,
     category: undefined as string | undefined,
   });
+
+  // Fetch bug reports from API
+  const { data: bugData, isLoading: bugLoading, error: bugError } = useBugReports(bugFilters);
 
   // Wrapper functions to handle type compatibility
   const handleUserFetch = (filters: any) => setUserFilters(filters);
@@ -76,9 +80,9 @@ const Page = () => {
         <Row gutter={[16, 16]}>
           <Col xs={24}>
             <BugReportsTable
-              bugReports={[]}
-              total={0}
-              loading={false}
+              bugReports={bugData?.data || []}
+              total={bugData?.pagination?.total || 0}
+              loading={bugLoading}
               value={bugFilters}
               onFetch={handleBugFetch}
             />
