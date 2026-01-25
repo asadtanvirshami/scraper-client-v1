@@ -8,6 +8,7 @@ import { Row, Col } from "antd";
 import { useState } from "react";
 import { useBugReports } from "@/features/dashboard/admin/hooks/use-bug-reports";
 import { useFeedback } from "@/features/dashboard/admin/hooks/use-feedback";
+import { useUsers } from "@/features/dashboard/admin/hooks/use-users";
 
 const Page = () => {
   // State for table filters and pagination
@@ -38,6 +39,7 @@ const Page = () => {
   });
 
   // Fetch data from APIs
+  const { data: usersData, isLoading: usersLoading, error: usersError } = useUsers(userFilters);
   const { data: bugData, isLoading: bugLoading, error: bugError } = useBugReports(bugFilters);
   const { data: feedbackData, isLoading: feedbackLoading, error: feedbackError } = useFeedback(feedbackFilters);
 
@@ -54,9 +56,9 @@ const Page = () => {
         <Row gutter={[16, 16]}>
           <Col xs={24}>
             <UsersTable
-              users={[]}
-              total={0}
-              loading={false}
+              users={usersData?.data?.users || []}
+              total={usersData?.data?.totalCount || 0}
+              loading={usersLoading}
               value={userFilters}
               onFetch={handleUserFetch}
             />

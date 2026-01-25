@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useMemo, useState } from "react";
 import type { ColumnsType, TablePaginationConfig } from "antd/es/table";
 import type { FilterValue } from "antd/es/table/interface";
@@ -23,32 +21,14 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { FormattedMessage, useIntl } from "react-intl";
-
-type User = {
-  _id: string;
-  first_name?: string;
-  last_name?: string;
-  email?: string;
-  is_blocked?: boolean;
-  is_deleted?: boolean;
-  createdAt?: string;
-  last_login?: string;
-};
-
-type ServerFilters = {
-  page: number;
-  limit: number;
-  search?: string;
-  is_blocked?: boolean | undefined;
-  is_deleted?: boolean | undefined;
-};
+import { User, UserFilters } from "../hooks/use-users";
 
 type Props = {
   users?: User[];
   total?: number;
   loading?: boolean;
-  value: ServerFilters;
-  onFetch: (filters: ServerFilters) => void;
+  value: UserFilters;
+  onFetch: (filters: UserFilters) => void;
   onDeleteUser?: (user: User) => Promise<void> | void;
   onUpdateUser?: (id: string, payload: Partial<User>) => Promise<void> | void;
 };
@@ -84,7 +64,7 @@ const UsersTable: React.FC<Props> = ({
     };
   }, [filters.is_blocked, filters.is_deleted]);
 
-  const fetchNow = (next: Partial<ServerFilters>) => {
+  const fetchNow = (next: Partial<UserFilters>) => {
     onFetch({ ...filters, ...next });
   };
 
@@ -141,9 +121,20 @@ const UsersTable: React.FC<Props> = ({
     },
     {
       title: "Email",
+      dataIndex: "email",
       key: "email",
       ellipsis: true,
-      render: (_, record) => record.email || "-",
+      render: (email?: string) => email || "-",
+    },
+    {
+      title: "Role",
+      dataIndex: "role",
+      key: "role",
+      render: (role?: string) => (
+        <Tag color={role === "admin" ? "red" : "blue"}>
+          {role?.toUpperCase() || "USER"}
+        </Tag>
+      ),
     },
     {
       title: "Status",
