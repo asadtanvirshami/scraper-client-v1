@@ -87,6 +87,7 @@
         "invalid_otp": "Invalid OTP",
         "invalid_email_or_password": "Invalid email address or password",
         "account_blocked": "This account has been blocked",
+        "account_deleted": "This account has been deleted",
         "account_not_verified": "This account is not verified. Please verify your email.",
         "no_account_found": "No account found with this email",
         "incorrect_password": "Incorrect password",
@@ -131,14 +132,59 @@
     }
   },
 
+  "commons": {
+    "add": "Add",
+    "search": "Search",
+    "reset": "Reset",
+    "delete": "Delete",
+    "delete_selected": "Delete selected",
+    "actions": "Actions",
+    "cancel": "Cancel",
+    "save": "Save",
+    "create": "Create",
+    "saved": "Saved",
+    "save_failed": "Save failed",
+    "deleted": "Deleted",
+    "delete_failed": "Delete failed",
+    "clear": "Clear",
+    "bulk_delete_failed": "Bulk delete failed"
+  },
+
+  "support": {
+    "bug": {
+      "title": "Report a bug",
+      "description": "Tell us what happened so we can fix it quickly.",
+      "field": "Bug details",
+      "placeholder": "Example: Clicking “Save” shows an error on the Leads page...",
+      "required": "Please describe the bug.",
+      "submit": "Submit bug",
+      "success": "Bug report sent.",
+      "fail": "Failed to send bug report."
+    },
+    "feedback": {
+      "title": "Send feedback",
+      "description": "Share ideas to improve the product.",
+      "field": "Feedback",
+      "placeholder": "Example: Add filters for date range and export CSV...",
+      "required": "Please write your feedback.",
+      "submit": "Submit feedback",
+      "success": "Feedback sent. Thank you!",
+      "fail": "Failed to send feedback."
+    },
+    "max_length": "Maximum {max} characters."
+  },
+
   "leads": {
     "widget": {
-      "recent_title": "Recent Leads",
+      "recent_title": "Leads",
       "total": "Total {total}"
     },
     "empty": "No leads yet",
     "actions": {
       "view_all": "View all"
+    },
+    "search": {
+      "placeholder": "Search name, email, company..."
     },
     "table": {
       "name": "Name",
@@ -146,11 +192,56 @@
       "company": "Company",
       "jobTitle": "Job Title",
       "status": "Status",
-      "createdAt": "Created"
+      "type": "Type",
+      "createdAt": "Created",
+      "phones": "Phones"
     },
     "status": {
       "new": "New",
       "converted": "Converted"
+    },
+    "confirm": {
+      "delete_one": "Delete this lead?",
+      "delete_selected": "Delete {count} selected lead(s)?"
+    },
+    "drawer": {
+      "add_title": "Add Lead",
+      "view_title": "Lead Details",
+      "edit_title": "Edit Lead",
+      "placeholder": "This is a placeholder. Later you can put a real form here.",
+      "fields_title": "Fields (example)",
+      "fields": {
+        "first_name": "First name",
+        "last_name": "Last name",
+        "email": "Emails",
+        "company": "Company",
+        "job_title": "Job title",
+        "type": "Source"
+      }
+    },
+    "details": {
+      "name": "Name",
+      "email": "Emails",
+      "phones": "Phone numbers",
+      "company": "Company",
+      "job_title": "Job title",
+      "type": "Type",
+      "status": "Status",
+      "created": "Created"
+    },
+    "form": {
+      "first_name": "First name",
+      "last_name": "Last name",
+      "emails": "Emails",
+      "phones": "Phone numbers",
+      "add_email": "Add email",
+      "add_phone": "Add phone",
+      "email_invalid": "Invalid email address",
+      "company": "Company",
+      "job_title": "Job title",
+      "type": "Source",
+      "message": "Message",
+      "is_converted": "Converted"
     }
   },
 
@@ -200,13 +291,8 @@
   },
 
   "settings": {
-    "dateTime": {
-      "title": "Date and Time",
-      "timezone": "Time zone",
-      "timeFormat": "Time format",
-      "twentyFourHours": "24 hours",
-      "twelveHours": "12 hours",
-      "dateFormat": "Date format"
+    "general": {
+      "title": "General"
     },
     "notifications": {
       "title": "Notifications",
@@ -227,7 +313,11 @@
     "closeAccount": {
       "title": "Close your account",
       "button": "Definitively close your account",
-      "helpText": "All data in this account will be permanently deleted"
+      "helpText": "All data in this account will be permanently deleted",
+      "confirmTitle": "Close account?",
+      "confirmText": "This action is permanent. Your account and all associated data will be permanently deleted. Are you sure you want to continue?",
+      "confirmOk": "Yes, close my account",
+      "confirmCancel": "Cancel"
     },
     "errors": {
       "required": "This field is required."
@@ -242,12 +332,30 @@
     "lastName": "Last name",
     "email": "Email",
     "save": "Save changes",
-    "changePassword": "Change password",
+
     "errors": {
       "firstName": "First name is required.",
       "lastName": "Last name is required.",
       "email": "Email is required.",
       "invalidEmail": "Invalid email format."
+    }
+  },
+
+  "password_and_security": {
+    "title": "Password and security",
+    "description": "Reset your password securely by requesting a one-time password (OTP) sent to your registered email address.",
+    "resetPassword": "Reset password",
+    "confirm": {
+      "title": "Reset your password?",
+      "description": "We will send a one-time password (OTP) to your registered email address to reset your password.",
+      "confirmButton": "Send OTP",
+      "cancelButton": "Cancel"
+    },
+    "success": {
+      "otpSent": "OTP sent successfully"
+    },
+    "error": {
+      "otpFailed": "Failed to send OTP. Please try again."
     }
   },
 

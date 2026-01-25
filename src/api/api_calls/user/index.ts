@@ -6,7 +6,7 @@ import { getAccessToken } from "@/lib/cookies";
 const token = getAccessToken();
 
 export async function UpdateProfile(input: UpdateProfilePayload): Promise<GenericResponse> {
-  const { data } = await api.put(apiEndpoints.user.update, input, {
+  const { data } = await api.put(apiEndpoints.user.updateMe, input, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

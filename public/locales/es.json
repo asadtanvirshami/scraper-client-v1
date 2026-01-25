@@ -83,6 +83,7 @@
         "invalid_otp": "OTP inválido",
         "invalid_email_or_password": "Correo electrónico o contraseña incorrectos",
         "account_blocked": "Esta cuenta ha sido bloqueada",
+        "account_deleted": "Esta cuenta ha sido eliminada",
         "account_not_verified": "Esta cuenta no está verificada. Por favor, verifica tu correo electrónico.",
         "no_account_found": "No se encontró ninguna cuenta con este correo electrónico",
         "incorrect_password": "Contraseña incorrecta",
@@ -125,26 +126,116 @@
     }
   },
 
+  "commons": {
+    "add": "Añadir",
+    "search": "Buscar",
+    "reset": "Restablecer",
+    "delete": "Eliminar",
+    "delete_selected": "Eliminar seleccionados",
+    "actions": "Acciones",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "create": "Crear",
+    "saved": "Guardado",
+    "save_failed": "Error al guardar",
+    "deleted": "Eliminado",
+    "delete_failed": "Error al eliminar",
+    "bulk_delete_failed": "Error al eliminar en lote",
+     "clear": "Limpiar"
+  },
+
+  "support": {
+    "bug": {
+      "title": "Reportar un error",
+      "description": "Cuéntanos qué pasó para que podamos solucionarlo rápido.",
+      "field": "Detalles del error",
+      "placeholder": "Ejemplo: Al hacer clic en “Guardar” aparece un error en la página de Leads...",
+      "required": "Por favor describe el error.",
+      "submit": "Enviar error",
+      "success": "Reporte enviado.",
+      "fail": "No se pudo enviar el reporte."
+    },
+    "feedback": {
+      "title": "Enviar sugerencias",
+      "description": "Comparte ideas para mejorar el producto.",
+      "field": "Sugerencias",
+      "placeholder": "Ejemplo: Agregar filtros por rango de fechas y exportar CSV...",
+      "required": "Por favor escribe tu sugerencia.",
+      "submit": "Enviar sugerencia",
+      "success": "Sugerencia enviada. ¡Gracias!",
+      "fail": "No se pudo enviar la sugerencia."
+    },
+    "max_length": "Máximo {max} caracteres."
+  },
+
   "leads": {
     "widget": {
-      "recent_title": "Leads recientes",
+      "recent_title": "Leads",
       "total": "Total {total}"
     },
     "empty": "Aún no hay leads",
     "actions": {
       "view_all": "Ver todos"
     },
+    "search": {
+      "placeholder": "Buscar por nombre, email, empresa..."
+    },
     "table": {
       "name": "Nombre",
-      "email": "Correo",
+      "email": "Email",
       "company": "Empresa",
       "jobTitle": "Cargo",
       "status": "Estado",
-      "createdAt": "Creado"
+      "type": "Tipo",
+      "createdAt": "Creado",
+      "phones": "Teléfonos"
     },
     "status": {
       "new": "Nuevo",
       "converted": "Convertido"
+    },
+    "confirm": {
+      "delete_one": "¿Eliminar este lead?",
+      "delete_selected": "¿Eliminar {count} lead(s) seleccionado(s)?"
+    },
+    "drawer": {
+      "add_title": "Añadir Lead",
+      "view_title": "Detalles del Lead",
+      "edit_title": "Editar Lead",
+      "placeholder": "Esto es un placeholder. Más adelante puedes poner un formulario real aquí.",
+      "fields_title": "Campos (ejemplo)",
+      "fields": {
+        "first_name": "Nombre",
+        "last_name": "Apellidos",
+        "email": "Emails",
+        "company": "Empresa",
+        "job_title": "Cargo",
+        "type": "Origen"
+      }
+    },
+    "details": {
+      "name": "Nombre",
+      "email": "Emails",
+      "phones": "Números de teléfono",
+      "company": "Empresa",
+      "job_title": "Cargo",
+      "type": "Tipo",
+      "status": "Estado",
+      "created": "Creado"
+    },
+    "form": {
+      "first_name": "Nombre",
+      "last_name": "Apellidos",
+      "emails": "Emails",
+      "phones": "Números de teléfono",
+      "add_email": "Añadir email",
+      "add_phone": "Añadir teléfono",
+      "email_invalid": "Email inválido",
+      "company": "Empresa",
+      "job_title": "Cargo",
+      "type": "Origen",
+      "message": "Mensaje",
+      "is_converted": "Convertido"
     }
   },
 
@@ -188,13 +279,8 @@
   },
 
   "settings": {
-    "dateTime": {
-      "title": "Fecha y hora",
-      "timezone": "Zona horaria",
-      "timeFormat": "Formato de hora",
-      "twentyFourHours": "24 horas",
-      "twelveHours": "12 horas",
-      "dateFormat": "Formato de fecha"
+    "general": {
+      "title": "General"
     },
     "notifications": {
       "title": "Notificaciones",
@@ -215,10 +301,33 @@
     "closeAccount": {
       "title": "Cerrar tu cuenta",
       "button": "Cerrar tu cuenta definitivamente",
-      "helpText": "Todos los datos de esta cuenta se eliminarán permanentemente"
+      "helpText": "Todos los datos de esta cuenta se eliminarán permanentemente",
+
+      "confirmTitle": "¿Cerrar la cuenta?",
+      "confirmText": "Esta acción es permanente. Tu cuenta y todos los datos asociados se eliminarán de forma definitiva. ¿Estás seguro de que deseas continuar?",
+      "confirmOk": "Sí, cerrar mi cuenta",
+      "confirmCancel": "Cancelar"
     },
     "errors": {
       "required": "Este campo es obligatorio."
+    }
+  },
+
+  "password_and_security": {
+    "title": "Contraseña y seguridad",
+    "description": "Restablece tu contraseña de forma segura solicitando una contraseña de un solo uso (OTP) enviada a tu correo electrónico registrado.",
+    "resetPassword": "Restablecer contraseña",
+    "confirm": {
+      "title": "¿Restablecer tu contraseña?",
+      "description": "Enviaremos una contraseña de un solo uso (OTP) a tu correo electrónico registrado para restablecer tu contraseña.",
+      "confirmButton": "Enviar OTP",
+      "cancelButton": "Cancelar"
+    },
+    "success": {
+      "otpSent": "OTP enviado correctamente"
+    },
+    "error": {
+      "otpFailed": "No se pudo enviar el OTP. Inténtalo de nuevo."
     }
   },
 

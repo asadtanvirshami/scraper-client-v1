@@ -40,7 +40,10 @@ const levelTag = (level: Level) => {
   if (level === "error")
     return (
       <Tag color="red">
-        <FormattedMessage id="notifications.level.error" defaultMessage="error" />
+        <FormattedMessage
+          id="notifications.level.error"
+          defaultMessage="error"
+        />
       </Tag>
     );
   if (level === "warning")
@@ -73,10 +76,11 @@ export default function NotificationsBellAntd() {
   const { id } = useUserInfo();
   const [open, setOpen] = React.useState(false);
 
-  const { items, unread, isLoading: isLoadingNotifications } = useNotifications(
-    id,
-    true
-  );
+  const {
+    items,
+    unread,
+    isLoading: isLoadingNotifications,
+  } = useNotifications(id ?? "", true);
 
   const markAllReadNotifications = useMarkAllRead();
   const clearAllNotifications = useClearAllNotifications();
@@ -100,8 +104,8 @@ export default function NotificationsBellAntd() {
 
   const handleDeleteAll = async () =>
     await clearAllNotifications.mutateAsync(
-      { userId: id },
-      { onSuccess: () => dispatch(clearAll()) }
+      { userId: id ?? "" },
+      { onSuccess: () => dispatch(clearAll()) },
     );
 
   const handleMarkAllRead = async () =>
@@ -281,7 +285,7 @@ export default function NotificationsBellAntd() {
                       <Divider style={{ margin: "10px 0 0" }} />
                     </div>
                   );
-                }
+                },
               )}
             </div>
           )}

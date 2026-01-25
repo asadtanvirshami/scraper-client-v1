@@ -16,6 +16,8 @@ const useUserInfo = () => {
     role: user?.role,
     blocked: user?.blocked,
     is_verified: user?.is_verified,
+    is_notifications_enabled: user?.is_notifications_enabled,
+    is_update_enabled: user?.is_update_enabled,
   };
 };
 

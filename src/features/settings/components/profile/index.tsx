@@ -33,7 +33,6 @@ const ProfileForm: React.FC = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const [form] = Form.useForm<ProfileFormValues>();
-  const [saving, setSaving] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const updateProfileMutation = useUpdateProfile();
   const { user } = useUserInfo();
@@ -41,9 +40,6 @@ const ProfileForm: React.FC = () => {
   const onSave = async () => {
     try {
       const values = await form.validateFields();
-      console.log(values);
-
-      setSaving(true);
       await updateProfileMutation.mutateAsync(
         {
           _id: user?._id ?? "",
@@ -60,8 +56,8 @@ const ProfileForm: React.FC = () => {
           },
         },
       );
-    } finally {
-      setSaving(false);
+    } catch (error) {
+      console.error("Profile update error:", error);
     }
   };
 
@@ -157,15 +153,13 @@ const ProfileForm: React.FC = () => {
           </Form.Item>
 
           <Space style={{ marginTop: 8 }}>
-            <Button type="primary" loading={saving} onClick={onSave}>
-              {intl.formatMessage({ id: "profile.save" })}
-            </Button>
-
             <Button
-              type="link"
-              onClick={() => router.push("/auth/reset-password")}
+              type="primary"
+              loading={updateProfileMutation.isPending}
+              disabled={updateProfileMutation.isPending}
+              onClick={onSave}
             >
-              {intl.formatMessage({ id: "profile.changePassword" })}
+              {intl.formatMessage({ id: "profile.save" })}
             </Button>
           </Space>
         </Form>

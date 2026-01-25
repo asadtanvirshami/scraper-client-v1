@@ -12,7 +12,10 @@ function getErrorMessage(error: unknown): string {
     if (message.includes("invalid-credentials"))
       return "auth.messages.errors.invalid_email_or_password";
 
-    if (message.includes("user-blocked"))
+    if (message.includes("account-deleted"))
+      return "auth.messages.errors.account_deleted";
+    
+    if (message.includes("account-blocked"))
       return "auth.messages.errors.account_blocked";
 
     if (message.includes("account-not-verified"))

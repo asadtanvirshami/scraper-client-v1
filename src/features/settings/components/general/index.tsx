@@ -1,178 +1,209 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import {
   Button,
-  Card,
   Checkbox,
   Divider,
   Form,
-  Radio,
-  Select,
+  Modal,
   Space,
   Typography,
+  message,
 } from "antd";
 import { useIntl } from "react-intl";
+import { useUserInfo } from "@/helpers/use-user";
+import { useUpdateProfile } from "../../hooks";
+import { logoutUser, updateProfile } from "@/redux/slices/user/user-slice";
+import { useDispatch } from "react-redux";
+import { persistor } from "@/redux/store";
+import { clearAuthCookies } from "@/lib/cookies";
+import { useRouter } from "next/navigation";
 
 const { Title, Text } = Typography;
 
 type FormValues = {
-  timezone: string;
-  timeFormat: "24" | "12";
-  dateFormat: "DD-MM-YYYY" | "MM-DD-YYYY";
-  deactivateBrevoActivity: boolean;
-  smsCreditEmailAlert: boolean;
-  invoicesByEmail: boolean;
-  allowSupportAccess: boolean;
+  is_notifications_enabled: boolean;
+  is_update_enabled: boolean;
 };
 
 const SettingsPreferences: React.FC = () => {
   const intl = useIntl();
+  const dispatch = useDispatch();
   const [form] = Form.useForm<FormValues>();
-  const [saving, setSaving] = useState(false);
+  const router = useRouter();
 
-  const timezoneOptions = [
-    { value: "GMT+05:00 Karachi", label: "(GMT+05:00) Karachi" },
-    { value: "GMT+00:00 UTC", label: "(GMT+00:00) UTC" },
-    { value: "GMT+01:00 Madrid", label: "(GMT+01:00) Madrid" },
-    { value: "GMT+04:00 Dubai", label: "(GMT+04:00) Dubai" },
-  ];
+  const { is_notifications_enabled, is_update_enabled, id } = useUserInfo();
+  const updateProfileMutation = useUpdateProfile();
+
+  // Keep form values in sync with user info (important when redux rehydrates)
+  useEffect(() => {
+    form.setFieldsValue({
+      is_notifications_enabled: Boolean(is_notifications_enabled),
+      is_update_enabled: Boolean(is_update_enabled),
+    });
+  }, [form, is_notifications_enabled, is_update_enabled]);
 
   const onSave = async () => {
+    const userId = id ?? "";
+    if (!userId) {
+      message.error(
+        intl.formatMessage({
+          id: "settings.errors.userIdMissing",
+          defaultMessage: "User id missing",
+        }),
+      );
+      return;
+    }
+
     try {
       const values = await form.validateFields();
-      setSaving(true);
 
-      // TODO: call your API here
-      // await updateSettings(values);
+      const payload = {
+        _id: userId,
+        is_notifications_enabled: Boolean(values.is_notifications_enabled),
+        is_update_enabled: Boolean(values.is_update_enabled),
+      };
 
-      console.log("Saved settings:", values);
-    } finally {
-      setSaving(false);
+      const res = await updateProfileMutation.mutateAsync(payload);
+
+      const userData = res?.data;
+      if (userData) dispatch(updateProfile(userData));
+
+      message.success(
+        intl.formatMessage({
+          id: "settings.success.saved",
+          defaultMessage: "Settings saved",
+        }),
+      );
+    } catch (error: any) {
+      console.error("Profile update error:", error);
+      message.error(
+        intl.formatMessage({
+          id: "settings.errors.saveFailed",
+          defaultMessage: "Failed to save settings",
+        }),
+      );
     }
   };
 
   const onCloseAccount = () => {
-    // TODO: open confirmation modal + call API
-    console.log("Close account clicked");
+    Modal.confirm({
+      title: intl.formatMessage({
+        id: "settings.closeAccount.confirmTitle",
+        defaultMessage: "Close account?",
+      }),
+      content: intl.formatMessage({
+        id: "settings.closeAccount.confirmText",
+        defaultMessage:
+          "This action is permanent. Are you sure you want to continue?",
+      }),
+      okText: intl.formatMessage({
+        id: "settings.closeAccount.confirmOk",
+        defaultMessage: "Yes, close it",
+      }),
+      cancelText: intl.formatMessage({
+        id: "settings.closeAccount.confirmCancel",
+        defaultMessage: "Cancel",
+      }),
+      okButtonProps: { danger: true },
+      centered: true,
+      onOk: async () => {
+        await updateProfileMutation.mutateAsync(
+          {
+            _id: id,
+            is_deleted: true,
+          },
+          {
+            onSuccess: async () => {
+              try {
+                // 1️⃣ Clear Redux state
+                dispatch(logoutUser());
+
+                // 2️⃣ Purge persisted Redux state
+                await persistor.purge();
+
+                // 3️⃣ Clear auth cookies
+                clearAuthCookies();
+
+                // 4️⃣ Redirect to sign-in
+                router.replace("/auth/signin");
+              } catch (error) {
+                console.error("Logout failed:", error);
+              }
+            },
+          },
+        );
+
+        message.info(
+          intl.formatMessage({
+            id: "settings.closeAccount.success",
+          }),
+        );
+      },
+    });
   };
 
   return (
     <div className="w-full">
-      {/* Date & Time */}
       <Title level={4} style={{ marginTop: 0 }}>
-        {intl.formatMessage({ id: "settings.dateTime.title" })}
+        {intl.formatMessage({ id: "settings.general.title" })}
       </Title>
 
       <Form<FormValues>
         form={form}
         layout="vertical"
         initialValues={{
-          timezone: "GMT+05:00 Karachi",
-          timeFormat: "24",
-          dateFormat: "DD-MM-YYYY",
-          deactivateBrevoActivity: false,
-          smsCreditEmailAlert: false,
-          invoicesByEmail: false,
-          allowSupportAccess: true,
+          is_notifications_enabled: Boolean(is_notifications_enabled),
+          is_update_enabled: Boolean(is_update_enabled),
         }}
       >
-        <Form.Item
-          label={intl.formatMessage({ id: "settings.dateTime.timezone" })}
-          name="timezone"
-          rules={[
-            {
-              required: true,
-              message: intl.formatMessage({ id: "settings.errors.required" }),
-            },
-          ]}
-        >
-          <Select options={timezoneOptions} style={{ maxWidth: 320 }} />
-        </Form.Item>
-
-        <Form.Item
-          label={intl.formatMessage({ id: "settings.dateTime.timeFormat" })}
-          name="timeFormat"
-        >
-          <Radio.Group>
-            <Radio value="24">
-              {intl.formatMessage({ id: "settings.dateTime.twentyFourHours" })}
-            </Radio>
-            <Radio value="12">
-              {intl.formatMessage({ id: "settings.dateTime.twelveHours" })}
-            </Radio>
-          </Radio.Group>
-        </Form.Item>
-
-        <Form.Item
-          label={intl.formatMessage({ id: "settings.dateTime.dateFormat" })}
-          name="dateFormat"
-        >
-          <Radio.Group>
-            <Radio value="DD-MM-YYYY">DD-MM-YYYY</Radio>
-            <Radio value="MM-DD-YYYY">MM-DD-YYYY</Radio>
-          </Radio.Group>
-        </Form.Item>
-
-        <Divider />
-
         {/* Notifications */}
         <Title level={5} style={{ marginBottom: 8 }}>
           {intl.formatMessage({ id: "settings.notifications.title" })}
         </Title>
 
-        <Space orientation="vertical" size={10}>
+        <Space direction="vertical" size={10}>
           <Form.Item
-            name="deactivateBrevoActivity"
+            name="is_notifications_enabled"
             valuePropName="checked"
-            noStyle
+            style={{ marginBottom: 0 }}
           >
             <Checkbox>
               {intl.formatMessage({
-                id: "settings.notifications.deactivateBrevoActivity",
+                id: "settings.notifications.toggle",
+                defaultMessage: "Enable notifications",
               })}
             </Checkbox>
           </Form.Item>
-
-          {/* <Form.Item name="smsCreditEmailAlert" valuePropName="checked" noStyle>
-            <Checkbox>
-              {intl.formatMessage({
-                id: "settings.notifications.smsCreditEmailAlert",
-              })}
-            </Checkbox>
-          </Form.Item> */}
         </Space>
 
         <Divider />
 
-        {/* Invoices */}
+        {/* Updates / Invoices */}
         <Title level={5} style={{ marginBottom: 8 }}>
           {intl.formatMessage({ id: "settings.invoices.title" })}
         </Title>
 
-        <Form.Item name="invoicesByEmail" valuePropName="checked" noStyle>
-          <Checkbox>
-            {intl.formatMessage({ id: "settings.invoices.receiveByEmail" })}
-          </Checkbox>
-        </Form.Item>
-
-        <Divider />
-
-        {/* Account Access */}
-        <Title level={5} style={{ marginBottom: 8 }}>
-          {intl.formatMessage({ id: "settings.accountAccess.title" })}
-        </Title>
-
-        <Form.Item name="allowSupportAccess" valuePropName="checked" noStyle>
+        <Form.Item
+          name="is_update_enabled"
+          valuePropName="checked"
+          style={{ marginBottom: 0 }}
+        >
           <Checkbox>
             {intl.formatMessage({
-              id: "settings.accountAccess.allowSupportAccess",
+              id: "settings.invoices.receiveByEmail",
             })}
           </Checkbox>
         </Form.Item>
 
         <div style={{ marginTop: 18 }}>
-          <Button type="primary" loading={saving} onClick={onSave}>
+          <Button
+            type="primary"
+            loading={updateProfileMutation.isPending}
+            disabled={updateProfileMutation.isPending}
+            onClick={onSave}
+          >
             {intl.formatMessage({ id: "settings.actions.save" })}
           </Button>
         </div>

@@ -1,8 +1,7 @@
+import LeadsLayout from "@/features/leads/leads-layout";
 
 const LeadsPage = () => {
-  return (
-    <div>LeadsPage</div>
-  )
-}
+  return <LeadsLayout />;
+};
 
-export default LeadsPage
+export default LeadsPage;

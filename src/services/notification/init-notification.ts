@@ -14,7 +14,7 @@ const token = getAccessToken();
 export async function initNotifications(dispatch: AppDispatch, userId: string) {
   try {
     const { data } = await api.get(
-      apiEndpoints.notifications.get(0, 10),
+      apiEndpoints.notifications.get({offset: 0, limit: 10}),
       {
         headers: {
           Authorization: `Bearer ${token}`,

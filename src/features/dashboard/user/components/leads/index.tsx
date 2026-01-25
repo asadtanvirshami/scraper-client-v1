@@ -19,6 +19,7 @@ const LeadsWidget: React.FC<LeadsWidgetProps> = ({
     {
       title: <FormattedMessage id="leads.table.name" defaultMessage="Name" />,
       key: "name",
+
       render: (_, record) =>
         `${record.first_name || ""} ${record.last_name || ""}`.trim() || "-",
     },
@@ -27,7 +28,7 @@ const LeadsWidget: React.FC<LeadsWidgetProps> = ({
       dataIndex: "email",
       key: "email",
       ellipsis: true,
-      render: (value: Lead["email"]) => value || "-",
+      render: (value: Lead["emails"]) => value || "-",
     },
     {
       title: (
@@ -68,6 +69,21 @@ const LeadsWidget: React.FC<LeadsWidgetProps> = ({
           <Tag color="blue">
             <FormattedMessage id="leads.status.new" defaultMessage="New" />
           </Tag>
+        ),
+    },
+    {
+      title: (
+        <FormattedMessage id="leads.table.status" defaultMessage="Status" />
+      ),
+      dataIndex: "type",
+      key: "type",
+      render: (value?: string) =>
+        value === "LINKEDIN" ? (
+          <Tag color="blue">{value}</Tag>
+        ) : value === "INSTAGRAM" ? (
+          <Tag color="red">{value}</Tag>
+        ) : (
+          <Tag color="green">{value}</Tag>
         ),
     },
     {

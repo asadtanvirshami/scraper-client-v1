@@ -9,6 +9,7 @@ type WeeklyLeadsAreaChartProps = {
   countsByType?: {
     INSTAGRAM?: number[];
     LINKEDIN?: number[];
+    MANUAL?: number[];
   };
   isLoading?: boolean;
 };
@@ -23,7 +24,8 @@ const WeeklyLeadsAreaChart: React.FC<WeeklyLeadsAreaChartProps> = ({
 }) => {
   const hasTypeData =
     (countsByType?.INSTAGRAM?.length ?? 0) > 0 ||
-    (countsByType?.LINKEDIN?.length ?? 0) > 0;
+    (countsByType?.LINKEDIN?.length ?? 0) > 0 ||
+    (countsByType?.MANUAL?.length ?? 0) > 0;
 
   // ✅ Keep type keys consistent with backend: INSTAGRAM / LINKEDIN
   const data = hasTypeData
@@ -38,6 +40,11 @@ const WeeklyLeadsAreaChart: React.FC<WeeklyLeadsAreaChartProps> = ({
           leads: value ?? 0,
           type: "LINKEDIN",
         })),
+        ...(countsByType?.MANUAL || []).map((value, i) => ({
+          date: labels[i],
+          leads: value ?? 0,
+          type: "MANUAL",
+        })),
       ]
     : labels.map((date, index) => ({
         date,
@@ -45,26 +52,25 @@ const WeeklyLeadsAreaChart: React.FC<WeeklyLeadsAreaChartProps> = ({
         type: "TOTAL",
       }));
 
-const config: any = {
-  data,
-  xField: "date",
-  yField: "leads",
-  seriesField: "type",
-  smooth: true,
-  autoFit: true,
-  height: MAX_CHART_HEIGHT,
+  const config: any = {
+    data,
+    xField: "date",
+    yField: "leads",
+    seriesField: "type",
+    smooth: true,
+    autoFit: true,
+    height: MAX_CHART_HEIGHT,
+    
+    // ✅ Keep area style simple (supported everywhere)
+    areaStyle: { fillOpacity: 0.25 },
 
-  // ✅ Keep area style simple (supported everywhere)
-  areaStyle: { fillOpacity: 0.25 },
+    // ✅ line + points can also be color-driven automatically by series color
+    line: { size: 2 },
 
-  // ✅ line + points can also be color-driven automatically by series color
-  line: { size: 2 },
+    legend: { position: "top" },
 
-  legend: { position: "top" },
-
-  tooltip: { shared: true, showMarkers: true },
-};
-
+    tooltip: { shared: true, showMarkers: true },
+  };
 
   return (
     <Card
@@ -75,6 +81,11 @@ const config: any = {
         />
       }
       loading={isLoading}
+      bodyStyle={{
+        paddingBottom: 8,
+        maxHeight: MAX_CHART_HEIGHT + 60,
+        overflow: "hidden",
+      }}
     >
       <Area colorField="type" {...config} />
     </Card>

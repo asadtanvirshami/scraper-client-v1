@@ -9,6 +9,8 @@ interface User {
   avatar_url: string;
   plan: string;
   is_verified: boolean;
+  is_update_enabled: boolean;
+  is_notifications_enabled: boolean;
   blocked?: boolean;
 }
 

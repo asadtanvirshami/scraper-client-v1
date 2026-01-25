@@ -4,4 +4,5 @@ export type GenericResponse = {
   message: string;
   data: any;
   redirect: string | null;
+  pagination: any;
 };

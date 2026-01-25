@@ -13,7 +13,7 @@ export async function fetchNotifications(
   limit = 10
 ): Promise<GenericResponse> {
   const { data } = await api.get(
-    apiEndpoints.notifications.get(offset, limit),
+    apiEndpoints.notifications.get({offset, limit}),
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -31,7 +31,7 @@ export async function fetchAllNotificationsAdmin(
   limit = 10
 ): Promise<GenericResponse> {
   const { data } = await api.get(
-    apiEndpoints.notifications.getAllAdmin(offset, limit),
+    apiEndpoints.notifications.getAllAdmin({offset, limit}),
     {
       headers: {
         Authorization: `Bearer ${token}`,
