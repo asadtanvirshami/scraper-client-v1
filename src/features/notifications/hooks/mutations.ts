@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import type { GenericResponse } from "../../../api/api_calls/type";
+import type { GenericResponse } from "@/types/api";
 
 import {
   markAllNotificationsRead,

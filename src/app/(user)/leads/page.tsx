@@ -1,4 +1,4 @@
-import LeadsLayout from "@/features/leads/leads-layout";
+import LeadsLayout from "@/features/leads";
 
 const LeadsPage = () => {
   return <LeadsLayout />;

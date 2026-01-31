@@ -27,6 +27,7 @@
         "password_too_short": "Password must be at least 8 characters long."
       }
     },
+
     "sign_up": {
       "sign_up_with_email": "Sign up with email",
       "buttonCTA": "Create Account",
@@ -147,7 +148,17 @@
     "deleted": "Deleted",
     "delete_failed": "Delete failed",
     "clear": "Clear",
-    "bulk_delete_failed": "Bulk delete failed"
+    "bulk_delete_failed": "Bulk delete failed",
+    "view": "View",
+    "range_presets": {
+      "last7": "Last 7 days",
+      "last30": "Last 30 days",
+      "thisMonth": "This month"
+    },
+    "range_placeholder": {
+      "start": "Start date",
+      "end": "End date"
+    }
   },
 
   "support": {
@@ -175,6 +186,14 @@
   },
 
   "leads": {
+    "page": {
+      "title": "Leads",
+      "subtitle": "Manage and track your leads."
+    },
+    "insights": {
+      "title": "Insights",
+      "subtitle": "Pick a date range to update charts & insights."
+    },
     "widget": {
       "recent_title": "Leads",
       "total": "Total {total}"
@@ -285,8 +304,28 @@
   },
 
   "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Track performance and leads activity.",
+
+    "filters": {
+      "title": "Filters",
+      "subtitle": "Pick a date range to update charts."
+    },
     "charts": {
       "weekly_leads": "Leads added (last 7 days)"
+    },
+    "stats": {
+      "totalLeads": "Total Leads",
+      "converted": "Converted",
+      "conversionRate": "Conv. Rate",
+      "avgPerDay": "Avg / day",
+      "subtitles": {
+        "customRange": "Custom range",
+        "lastDays": "Last {days} days",
+        "markedConverted": "Marked as converted",
+        "convertedOverTotal": "Converted / total",
+        "averagePerDay": "Average per day"
+      }
     }
   },
 
@@ -374,6 +413,68 @@
       "warning": "warning",
       "success": "success",
       "info": "info"
+    }
+  },
+  "insights": {
+    "cards": {
+      "total_leads": {
+        "title": "Total leads",
+        "subtitle": {
+          "delta": "Compared to yesterday • {todayLabel}",
+          "all_sources": "All sources combined"
+        }
+      },
+      "converted": {
+        "title": "Converted",
+        "subtitle": {
+          "percent_of_total": "{percent}% of total",
+          "dash": "—"
+        }
+      },
+      "deleted": {
+        "title": "Deleted",
+        "subtitle": {
+          "percent_of_total": "{percent}% of total",
+          "dash": "—"
+        }
+      },
+      "by_type": {
+        "title": "By type",
+        "subtitle": {
+          "no_breakdown": "No type breakdown"
+        }
+      }
+    },
+    "labels": {
+      "today": "today"
+    }
+  },
+  "scraper": {
+    "card": {
+      "title": "Start Scraping",
+      "subtitle": "Scrape leads from LinkedIn or Instagram and save them to your leads.",
+      "manage": "Manage"
+    },
+    "start": "Start",
+    "linkedin": {
+      "title": "LinkedIn",
+      "desc": "Scrape profile details + contacts if available."
+    },
+    "instagram": {
+      "title": "Instagram",
+      "desc": "Scrape public profile details like username and bio."
+    },
+    "modal": {
+      "linkedin": "Start LinkedIn scraping",
+      "instagram": "Start Instagram scraping",
+      "profileUrl": "Profile URL",
+      "profileUrlRequired": "Profile URL is required",
+      "ok": "Start scraping",
+      "note": "If LinkedIn uses SignalHire, leads may appear after the callback finishes."
+    },
+    "status": {
+      "running": "RUNNING",
+      "ready": "READY"
     }
   }
 }

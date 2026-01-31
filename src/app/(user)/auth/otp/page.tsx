@@ -1,9 +1,8 @@
-import OTPCard from '@/features/auth/otp/components/otp-card'
-import React from 'react'
+import OTPLayout from "@/features/auth/otp"
 
 const OTPPage = () => {
   return (
-    <OTPCard/>
+    <OTPLayout/>
   )
 }
 

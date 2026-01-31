@@ -2,7 +2,7 @@
 
 import React, { useRef, useState } from "react";
 import { Button, Form, Input, Typography } from "antd";
-import { useOTPResend, useVerifyOtp } from "../hooks/";
+import { useOTPResend, useVerifyOtp } from "../hooks";
 
 const { Text } = Typography;
 
@@ -84,7 +84,7 @@ const OTPForm: React.FC<OTPFormProps> = ({
           <Input
             key={index}
             value={digit}
-            ref={(el) => (inputsRef.current[index] = el)}
+            ref={(el) => (inputsRef.current[index] = (el as HTMLInputElement) || null)}
             onChange={(e) => handleChange(e.target.value, index)}
             onKeyDown={(e) => handleKeyDown(e, index)}
             onPaste={handlePaste}

@@ -1,4 +1,4 @@
-import UserLayout from "@/features/dashboard/user/user-layout";
+import UserLayout from "@/features/dashboard/u";
 
 const Page = () => {
   return <UserLayout />;

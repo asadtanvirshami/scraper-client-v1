@@ -1,5 +1,3 @@
-import { TradeRaw } from "@/features/dashboard/types/trade-type";
-import { StrategyData } from "@/features/strategy/type";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface DialogData {
@@ -13,7 +11,7 @@ interface DialogState {
       formType: "trade" | "account" | "strategy" | "change-password" | null;
       mode: "add" | "edit" | "view";
       size: "sm" | "md" | "lg" | "xl";
-      data: TradeRaw;
+      data: any;
     };
   };
 }

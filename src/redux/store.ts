@@ -3,10 +3,8 @@ import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 
 import userReducer from "./slices/user/user-slice";
-import accountReducer from "./slices/trade-account/trade_account-slice";
 import dialogReducer from "./slices/dialog/dialog-slice";
 import notificationReducer from "./slices/notification/slice";
-import sheetReducer from "./slices/sheet/slice";
 
 // UNIQUE persist configs
 const userPersistConfig = {
@@ -14,23 +12,12 @@ const userPersistConfig = {
   storage,
 };
 
-const tradeAccountPersistConfig = {
-  key: "trade_account",
-  storage,
-};
-
 // Persist ONLY these slices
 const persistedUser = persistReducer(userPersistConfig, userReducer);
-const persistedAccount = persistReducer(
-  tradeAccountPersistConfig,
-  accountReducer
-);
 
 // Root reducer
 const rootReducer = combineReducers({
   user: persistedUser,
-  trade_account: persistedAccount,
-  sheet: sheetReducer,
   dialog: dialogReducer,
   notification: notificationReducer,
 });

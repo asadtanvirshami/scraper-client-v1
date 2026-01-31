@@ -1,4 +1,4 @@
-import SignUpLayout from '@/features/auth/signup/layout'
+import SignUpLayout from '@/features/auth/signup'
 
 
 const SignUpPage = () => {

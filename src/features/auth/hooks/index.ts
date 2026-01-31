@@ -2,7 +2,7 @@ import { ForgotPassword, Login, ResendOTP, ResetPassword, VerifyOTP } from "@/ap
 import { useMutation } from "@tanstack/react-query";
 import { Register } from "@/api/api_calls/auth";
 import { notification } from "@/lib/notification";
-import { getErrorMessage } from "@/extractor/auth";
+import { getErrorMessage } from "@/utils/extractor/auth";
 import { useRouter } from "next/navigation";
 
 export function useVerifyOtp() {

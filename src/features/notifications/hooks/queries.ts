@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useAppDispatch, useAppSelector } from "@/redux/hook";
 import initNotifications from "@/services/notification/init-notification";
-import type { PaginatedResponse } from "../type";
+import type { PaginatedResponse } from "@/types/notifications";
 
 import { fetchNotifications } from "@/api/api_calls/notifications"; // ✅ use your API calls
 

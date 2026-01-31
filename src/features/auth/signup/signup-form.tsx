@@ -4,7 +4,7 @@ import React from "react";
 import { Button, Divider, Form, Input, Typography } from "antd";
 import { MailOutlined, LockOutlined, GoogleOutlined } from "@ant-design/icons";
 import { FormattedMessage, useIntl } from "react-intl";
-import { useSignUp } from "../hooks/";
+import { useSignUp } from "../hooks";
 
 const { Link, Text } = Typography;
 

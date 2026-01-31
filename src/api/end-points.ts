@@ -14,8 +14,15 @@ export const apiEndpoints = {
     verifyJWT: "/auth/verification",
   },
 
+  scrapper: {
+    instagram: "/scrapper/scrap-instagram",
+    linkedin: "/scrapper/scrap-linkedin",
+    // callback is server-to-server, frontend doesn't call it
+  },
+
   dashboard: {
-    get: "/dashboard",
+    get: (params?: { days?: number; dateFrom?: string; dateTo?: string }) =>
+      withPagination("/dashboard", params ?? {}),
   },
 
   support: {
@@ -66,6 +73,15 @@ export const apiEndpoints = {
       folder_id?: string;
       is_converted?: boolean;
     }) => withPagination("/lead/download", params),
+  },
+
+  folders: {
+    create: "/folder/create",
+    update: `/folder/update`,
+    delete: (id: string) => `/folder/delete/${id}`,
+    bulkDelete: `/folder/bulk-delete`,
+    get: (params: { offset?: number; limit?: number }) =>
+      withPagination("/folder/get", params),
   },
 
   notifications: {

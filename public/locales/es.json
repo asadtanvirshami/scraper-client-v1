@@ -141,9 +141,18 @@
     "deleted": "Eliminado",
     "delete_failed": "Error al eliminar",
     "bulk_delete_failed": "Error al eliminar en lote",
-     "clear": "Limpiar"
+    "clear": "Limpiar",
+    "view": "Ver",
+    "range_presets": {
+      "last7": "Últimos 7 días",
+      "last30": "Últimos 30 días",
+      "thisMonth": "Este mes"
+    },
+    "range_placeholder": {
+      "start": "Fecha de inicio",
+      "end": "Fecha de fin"
+    }
   },
-
   "support": {
     "bug": {
       "title": "Reportar un error",
@@ -169,6 +178,14 @@
   },
 
   "leads": {
+    "page": {
+      "title": "Leads",
+      "subtitle": "Gestiona y haz seguimiento de tus leads."
+    },
+    "insights": {
+      "title": "Insights",
+      "subtitle": "Selecciona un rango de fechas para actualizar gráficos e insights."
+    },
     "widget": {
       "recent_title": "Leads",
       "total": "Total {total}"
@@ -349,8 +366,36 @@
   },
 
   "dashboard": {
+    "title": "Panel",
+    "subtitle": "Supervisa el rendimiento y la actividad de leads.",
+
+    "filters": {
+      "title": "Filtros",
+      "subtitle": "Selecciona un rango de fechas para actualizar los gráficos."
+    },
     "charts": {
       "weekly_leads": "Leads añadidos (últimos 7 días)"
+    },
+    "stats": {
+      "totalLeads": "Total de leads",
+      "converted": "Convertidos",
+      "conversionRate": "Tasa de conv.",
+      "avgPerDay": "Prom. / día",
+      "subtitles": {
+        "customRange": "Rango personalizado",
+        "lastDays": "Últimos {days} días",
+        "markedConverted": "Marcados como convertidos",
+        "convertedOverTotal": "Convertidos / total",
+        "averagePerDay": "Promedio por día"
+      }
+    },
+    "page": {
+      "title": "Leads",
+      "subtitle": "Gestiona y haz seguimiento de tus leads."
+    },
+    "insights": {
+      "title": "Insights",
+      "subtitle": "Selecciona un rango de fechas para actualizar gráficos e insights."
     }
   },
 
@@ -369,6 +414,68 @@
       "warning": "advertencia",
       "success": "éxito",
       "info": "info"
+    }
+  },
+  "insights": {
+    "cards": {
+      "total_leads": {
+        "title": "Total de leads",
+        "subtitle": {
+          "delta": "Comparado con ayer • {todayLabel}",
+          "all_sources": "Todas las fuentes combinadas"
+        }
+      },
+      "converted": {
+        "title": "Convertidos",
+        "subtitle": {
+          "percent_of_total": "{percent}% del total",
+          "dash": "—"
+        }
+      },
+      "deleted": {
+        "title": "Eliminados",
+        "subtitle": {
+          "percent_of_total": "{percent}% del total",
+          "dash": "—"
+        }
+      },
+      "by_type": {
+        "title": "Por tipo",
+        "subtitle": {
+          "no_breakdown": "Sin desglose por tipo"
+        }
+      }
+    },
+    "labels": {
+      "today": "hoy"
+    }
+  },
+  "scraper": {
+    "card": {
+      "title": "Iniciar scraping",
+      "subtitle": "Extrae leads de LinkedIn o Instagram y guárdalos en tus leads.",
+      "manage": "Gestionar"
+    },
+    "start": "Iniciar",
+    "linkedin": {
+      "title": "LinkedIn",
+      "desc": "Extrae detalles del perfil + contactos si están disponibles."
+    },
+    "instagram": {
+      "title": "Instagram",
+      "desc": "Extrae detalles públicos del perfil como el usuario y la bio."
+    },
+    "modal": {
+      "linkedin": "Iniciar scraping de LinkedIn",
+      "instagram": "Iniciar scraping de Instagram",
+      "profileUrl": "URL del perfil",
+      "profileUrlRequired": "La URL del perfil es obligatoria",
+      "ok": "Iniciar scraping",
+      "note": "Si LinkedIn usa SignalHire, los leads pueden aparecer después de que termine el callback."
+    },
+    "status": {
+      "running": "EN PROCESO",
+      "ready": "LISTO"
     }
   }
 }

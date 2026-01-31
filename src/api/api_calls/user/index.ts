@@ -1,7 +1,8 @@
 import api from "@/api/axios";
-import { GenericResponse } from "../type";
 import { apiEndpoints } from "@/api/end-points";
 import { getAccessToken } from "@/lib/cookies";
+import { GenericResponse } from "@/types/api";
+import { UpdateProfilePayload } from "@/types/api/user";
 
 const token = getAccessToken();
 
