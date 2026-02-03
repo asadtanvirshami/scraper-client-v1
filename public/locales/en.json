@@ -4,8 +4,13 @@
     "dashboard": "Dashboard",
     "campaigns": "Campaigns",
     "leads": "Leads",
+    "folders": "Folders",
     "billing": "Billing",
-    "settings": "Settings"
+    "settings": "Settings",
+    "role": {
+      "admin": "Admin",
+      "user": "Workspace"
+    }
   },
 
   "auth": {
@@ -49,6 +54,7 @@
         "password_too_short": "Password must be at least 8 characters long."
       }
     },
+
     "forgot_password": {
       "title": "Forgot Password",
       "forgot_password": "Forgot your password?",
@@ -60,6 +66,7 @@
         "invalid_email_format": "The email format is invalid."
       }
     },
+
     "reset_password": {
       "title": "Reset Password",
       "buttonCTA": "Reset Password",
@@ -81,6 +88,7 @@
       "password_too_short": "Password must be at least 8 characters long.",
       "password_mismatch": "Passwords do not match."
     },
+
     "messages": {
       "errors": {
         "user_not_found": "User not found",
@@ -150,6 +158,7 @@
     "clear": "Clear",
     "bulk_delete_failed": "Bulk delete failed",
     "view": "View",
+    "end_of_list": "End of list",
     "range_presets": {
       "last7": "Last 7 days",
       "last30": "Last 30 days",
@@ -158,7 +167,9 @@
     "range_placeholder": {
       "start": "Start date",
       "end": "End date"
-    }
+    },
+    "select_all": "Select all",
+    "clear_selection": "Clear selection"
   },
 
   "support": {
@@ -200,7 +211,8 @@
     },
     "empty": "No leads yet",
     "actions": {
-      "view_all": "View all"
+      "view_all": "View all",
+      "download": "Download"
     },
     "search": {
       "placeholder": "Search name, email, company..."
@@ -251,14 +263,21 @@
     "form": {
       "first_name": "First name",
       "last_name": "Last name",
+      "folder": "Folder",
+      "folder_placeholder": "Select a folder",
       "emails": "Emails",
       "phones": "Phone numbers",
       "add_email": "Add email",
       "add_phone": "Add phone",
       "email_invalid": "Invalid email address",
+      "email_placeholder": "email@example.com",
+      "phone_placeholder": "+123456789",
       "company": "Company",
       "job_title": "Job title",
       "type": "Source",
+      "type_instagram": "Instagram",
+      "type_linkedin": "LinkedIn",
+      "type_manual": "Manual",
       "message": "Message",
       "is_converted": "Converted"
     }
@@ -267,13 +286,21 @@
   "folders": {
     "title": "Folders",
     "create": "Create Folder",
+    "edit": "Edit Folder",
     "search": {
       "placeholder": "Search folders..."
+    },
+    "placeholders": {
+      "name": "e.g. Security Leads"
+    },
+    "errors": {
+      "name_required": "Name is required."
     },
     "filters": {
       "all": "All"
     },
     "table": {
+      "empty": "No folders",
       "name": "Name",
       "status": "Status",
       "createdAt": "Created At",
@@ -293,6 +320,10 @@
       "title": "Folder Details",
       "close": "Close"
     },
+    "details": {
+      "title": "Folder",
+      "subtitle": "View and manage leads inside this folder."
+    },
     "fields": {
       "id": "ID",
       "name": "Name",
@@ -306,13 +337,13 @@
   "dashboard": {
     "title": "Dashboard",
     "subtitle": "Track performance and leads activity.",
-
     "filters": {
       "title": "Filters",
       "subtitle": "Pick a date range to update charts."
     },
     "charts": {
-      "weekly_leads": "Leads added (last 7 days)"
+      "weekly_leads": "Leads added (last 7 days)",
+      "leads_by_type_bar": "Leads added (by type)"
     },
     "stats": {
       "totalLeads": "Total Leads",
@@ -371,7 +402,7 @@
     "lastName": "Last name",
     "email": "Email",
     "save": "Save changes",
-
+    "changePassword": "Change password",
     "errors": {
       "firstName": "First name is required.",
       "lastName": "Last name is required.",
@@ -415,6 +446,7 @@
       "info": "info"
     }
   },
+
   "insights": {
     "cards": {
       "total_leads": {
@@ -449,6 +481,7 @@
       "today": "today"
     }
   },
+
   "scraper": {
     "card": {
       "title": "Start Scraping",

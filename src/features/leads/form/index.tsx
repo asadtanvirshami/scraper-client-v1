@@ -85,13 +85,11 @@ const LeadForm: React.FC<Props> = ({
   const [folderOptions, setFolderOptions] = useState<Folder[]>([]);
 
   useEffect(() => {
-    // reset on new search
     setFolderPage(1);
     setFolderOptions([]);
   }, [folderSearch]);
 
   useEffect(() => {
-    // append new page results
     if (folderPage === 1) setFolderOptions(folders);
     else setFolderOptions((prev) => [...prev, ...folders]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -106,16 +104,39 @@ const LeadForm: React.FC<Props> = ({
     [folderOptions]
   );
 
+  const typeOptions = useMemo(
+    () => [
+      {
+        value: "INSTAGRAM",
+        label: intl.formatMessage({
+          id: "leads.form.type_instagram",
+          defaultMessage: "Instagram",
+        }),
+      },
+      {
+        value: "LINKEDIN",
+        label: intl.formatMessage({
+          id: "leads.form.type_linkedin",
+          defaultMessage: "LinkedIn",
+        }),
+      },
+      {
+        value: "MANUAL",
+        label: intl.formatMessage({
+          id: "leads.form.type_manual",
+          defaultMessage: "Manual",
+        }),
+      },
+    ],
+    [intl]
+  );
+
   // -----------------------------
   // Prefill form (edit/view)
   // -----------------------------
   useEffect(() => {
     if (!initialValues) return;
 
-    // Your lead can come in multiple shapes:
-    // 1) folder_id: "abc"
-    // 2) folder_id: { _id, name } (populated)
-    // 3) folder: { _id, name } (populated)
     const rawFolderId: any = (initialValues as any)?.folder_id;
     const populatedFolder: any = (initialValues as any)?.folder;
 
@@ -133,14 +154,11 @@ const LeadForm: React.FC<Props> = ({
     const folderFieldValue: FolderSelectValue = initialFolderId
       ? {
           value: initialFolderId,
-          // ✅ label MUST be renderable (string/ReactNode), not an object
           label: initialFolderName || initialFolderId,
         }
       : null;
 
     form.setFieldsValue({
-      // IMPORTANT: do NOT blindly spread objects that might be rendered later
-      // Keep it explicit for fields we use in the form.
       first_name: (initialValues as any)?.first_name,
       last_name: (initialValues as any)?.last_name,
       company: (initialValues as any)?.company,
@@ -151,7 +169,9 @@ const LeadForm: React.FC<Props> = ({
       scrape_status: (initialValues as any)?.scrape_status ?? true,
       folder_id: folderFieldValue,
 
-      emails: (initialValues as any)?.emails?.length ? (initialValues as any)?.emails : [""],
+      emails: (initialValues as any)?.emails?.length
+        ? (initialValues as any)?.emails
+        : [""],
       phone_numbers: (initialValues as any)?.phone_numbers?.length
         ? (initialValues as any)?.phone_numbers
         : [""],
@@ -166,10 +186,7 @@ const LeadForm: React.FC<Props> = ({
 
     const payload = {
       ...values,
-
-      // ✅ store only id string in backend
       folder_id: folderSelect?.value || null,
-
       emails: (values.emails || []).filter(Boolean),
       phone_numbers: (values.phone_numbers || []).filter(Boolean),
       scrape_status: true,
@@ -177,9 +194,7 @@ const LeadForm: React.FC<Props> = ({
       id: (initialValues as any)?._id,
     };
 
-    // ✅ remove the labelInValue object to avoid accidental usage downstream
     delete (payload as any).folder_id_label;
-    // (keeping folder_id as string already)
 
     if (onSubmit) await onSubmit(payload);
   };
@@ -194,9 +209,7 @@ const LeadForm: React.FC<Props> = ({
     const reachedBottom =
       target.scrollTop + target.clientHeight >= target.scrollHeight - 24;
 
-    if (reachedBottom) {
-      setFolderPage((p) => p + 1);
-    }
+    if (reachedBottom) setFolderPage((p) => p + 1);
   };
 
   return (
@@ -232,7 +245,9 @@ const LeadForm: React.FC<Props> = ({
       {/* FOLDER */}
       <Form.Item
         name="folder_id"
-        label={<FormattedMessage id="leads.form.folder" defaultMessage="Folder" />}
+        label={
+          <FormattedMessage id="leads.form.folder" defaultMessage="Folder" />
+        }
       >
         <Select
           showSearch
@@ -247,11 +262,9 @@ const LeadForm: React.FC<Props> = ({
           loading={foldersLoading}
           onPopupScroll={onFolderPopupScroll}
           notFoundContent={foldersLoading ? <Spin size="small" /> : null}
-          onChange={(obj) => {
-            // obj: { value, label } | null
-            form.setFieldValue("folder_id", obj || null);
-          }}
-          dropdownRender={(menu) => (
+          onChange={(obj) => form.setFieldValue("folder_id", obj || null)}
+          // ✅ dropdownRender -> popupRender
+          popupRender={(menu) => (
             <div>
               {menu}
               {(foldersFetching || foldersLoading) && (
@@ -277,28 +290,39 @@ const LeadForm: React.FC<Props> = ({
         <Form.List name="emails">
           {(fields, { add, remove }) => (
             <>
-              {fields.map((field) => (
-                <Space key={field.key} className="w-full" align="baseline">
-                  <Form.Item
-                    {...field}
-                    rules={[
-                      {
-                        type: "email",
-                        message: intl.formatMessage({
-                          id: "leads.form.email_invalid",
-                        }),
-                      },
-                    ]}
-                    className="flex-1"
-                  >
-                    <Input placeholder="email@example.com" />
-                  </Form.Item>
+              {fields.map((field) => {
+                // ✅ FIX: do NOT spread `key` into JSX
+                const { key, ...restField } = field;
 
-                  {!isView && fields.length > 1 && (
-                    <MinusCircleOutlined onClick={() => remove(field.name)} />
-                  )}
-                </Space>
-              ))}
+                return (
+                  <Space key={key} className="w-full" align="baseline">
+                    <Form.Item
+                      key={key}
+                      {...restField}
+                      rules={[
+                        {
+                          type: "email",
+                          message: intl.formatMessage({
+                            id: "leads.form.email_invalid",
+                          }),
+                        },
+                      ]}
+                      className="flex-1"
+                    >
+                      <Input
+                        placeholder={intl.formatMessage({
+                          id: "leads.form.email_placeholder",
+                          defaultMessage: "email@example.com",
+                        })}
+                      />
+                    </Form.Item>
+
+                    {!isView && fields.length > 1 && (
+                      <MinusCircleOutlined onClick={() => remove(field.name)} />
+                    )}
+                  </Space>
+                );
+              })}
 
               {!isView && (
                 <Button
@@ -320,17 +344,26 @@ const LeadForm: React.FC<Props> = ({
         <Form.List name="phone_numbers">
           {(fields, { add, remove }) => (
             <>
-              {fields.map((field) => (
-                <Space key={field.key} className="w-full" align="baseline">
-                  <Form.Item {...field} className="flex-1">
-                    <Input placeholder="+123456789" />
-                  </Form.Item>
+              {fields.map((field) => {
+                const { key, ...restField } = field;
 
-                  {!isView && fields.length > 1 && (
-                    <MinusCircleOutlined onClick={() => remove(field.name)} />
-                  )}
-                </Space>
-              ))}
+                return (
+                  <Space key={key} className="w-full" align="baseline">
+                    <Form.Item key={key} {...restField} className="flex-1">
+                      <Input
+                        placeholder={intl.formatMessage({
+                          id: "leads.form.phone_placeholder",
+                          defaultMessage: "+123456789",
+                        })}
+                      />
+                    </Form.Item>
+
+                    {!isView && fields.length > 1 && (
+                      <MinusCircleOutlined onClick={() => remove(field.name)} />
+                    )}
+                  </Space>
+                );
+              })}
 
               {!isView && (
                 <Button
@@ -374,13 +407,7 @@ const LeadForm: React.FC<Props> = ({
         label={<FormattedMessage id="leads.form.type" />}
         rules={[{ required: true }]}
       >
-        <Select
-          options={[
-            { value: "INSTAGRAM", label: "Instagram" },
-            { value: "LINKEDIN", label: "LinkedIn" },
-            { value: "MANUAL", label: "Manual" },
-          ]}
-        />
+        <Select options={typeOptions} />
       </Form.Item>
 
       {/* MESSAGE */}

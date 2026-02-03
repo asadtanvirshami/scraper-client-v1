@@ -3,7 +3,7 @@ import { withPagination } from "@/helpers/query-helper";
 export const apiEndpoints = {
   auth: {
     signin: "/auth/login",
-    google: "/auth/google-login",
+    google: "/auth/google-signin",
     logout: "/auth/logout",
     signup: "/auth/register",
     verifyOtp: "/auth/verify-otp",

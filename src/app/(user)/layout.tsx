@@ -1,6 +1,7 @@
 "use client";
 import { DrawerProvider } from "@/components/layout/app-drawer/user-app-drawer";
 //app/(user)/layout.tsx
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 // import TestPanel from "@/components/common/test-panel"; //(only dev)
 import AppLayout from "@/components/layout/app-layout";
@@ -9,11 +10,15 @@ import React, { memo } from "react";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <Providers>
-      <DrawerProvider>
-        <AppLayout childrens={children} />
-      </DrawerProvider>
-    </Providers>
+    <GoogleOAuthProvider
+      clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID as string}
+    >
+      <Providers>
+        <DrawerProvider>
+          <AppLayout childrens={children} />
+        </DrawerProvider>
+      </Providers>
+    </GoogleOAuthProvider>
   );
 };
 

@@ -1,13 +1,12 @@
 import React from 'react';
 import { Tabs } from 'antd';
 import type { TabsProps } from 'antd';
-import SettingsPreferences from '../form/support';
+import SettingsPreferences from '../form/general';
 import ProfileForm from '../form/profile';
 import PasswordSecruityForm from '../form/password-security';
 import SupportTabContent from '../form/support';
 
 const onChange = (key: string) => {
-  console.log(key);
 };
 
 const items: TabsProps['items'] = [

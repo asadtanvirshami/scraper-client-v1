@@ -72,7 +72,7 @@ export type Lead = {
 
   company?: string;
   job_title?: string;
-
+  folder_id?: string;
   scrape_status?: boolean;
   is_converted?: boolean;
   createdAt?: string | Date;

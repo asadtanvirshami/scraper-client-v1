@@ -103,12 +103,15 @@ export default function NotificationsBellAntd() {
     return g;
   }, [items]);
 
-  const handleDeleteAll = async () => await clearAllNotifications.mutateAsync();
+  const handleDeleteAll = async () =>
+    await clearAllNotifications.mutateAsync(id as string, {
+      onSuccess: () => dispatch(clearAll()),
+    });
 
-  // const handleMarkAllRead = async () =>
-  //   await markAllReadNotifications.mutateAsync(id, {
-  //     onSuccess: () => dispatch(markAllRead()),
-  //   });
+  const handleMarkAllRead = async () =>
+    await markAllReadNotifications.mutateAsync(id as string, {
+      onSuccess: () => dispatch(markAllRead()),
+    });
 
   const headerStyle: React.CSSProperties = {
     display: "flex",
@@ -149,7 +152,7 @@ export default function NotificationsBellAntd() {
             </Text>
 
             <Space size={6}>
-              {/* <Button
+              <Button
                 size="small"
                 type="text"
                 disabled={items.length === 0 || isLoading}
@@ -159,7 +162,7 @@ export default function NotificationsBellAntd() {
                   id="notifications.actions.mark_all_read"
                   defaultMessage="Mark all as read"
                 />
-              </Button> */}
+              </Button>
 
               <Button
                 size="small"

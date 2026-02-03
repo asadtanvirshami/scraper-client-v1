@@ -43,7 +43,7 @@ type Props = {
   leads?: Lead[];
   total?: number;
   loading?: boolean;
-
+  folder_id?: string;
   value: ServerFilters;
   onFetch: (filters: ServerFilters) => void;
 
@@ -58,6 +58,7 @@ type Props = {
 };
 
 const LeadsTableServer: React.FC<Props> = ({
+  folder_id,
   user_id,
   leads = [],
   total = 0,
@@ -78,14 +79,11 @@ const LeadsTableServer: React.FC<Props> = ({
 
   const filters = value;
 
-  // ✅ draft search input (NO server call until click button)
   const [searchDraft, setSearchDraft] = useState(filters.search ?? "");
   React.useEffect(() => setSearchDraft(filters.search ?? ""), [filters.search]);
 
-  // ✅ selection (disabled when showFilters=false)
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
-  // ✅ antd table filteredValue (only used when showFilters=true)
   const antdFilteredValue = useMemo(() => {
     if (!showFilters) {
       return { type: null, is_converted: null };
@@ -143,6 +141,7 @@ const LeadsTableServer: React.FC<Props> = ({
         <LeadForm
           mode="create"
           onClose={closeDrawer}
+          initialValues={{folder_id}}
           onSubmit={async (payload) => {
             try {
               if (onCreateLead) await onCreateLead(payload);
@@ -174,7 +173,7 @@ const LeadsTableServer: React.FC<Props> = ({
               message.success(intl.formatMessage({ id: "commons.saved" }));
               closeDrawer();
               fetchNow({});
-            } catch (e){
+            } catch (e) {
               message.error(intl.formatMessage({ id: "commons.save_failed" }));
             }
           }}
@@ -233,7 +232,10 @@ const LeadsTableServer: React.FC<Props> = ({
     },
     {
       title: (
-        <FormattedMessage id="leads.table.jobTitle" defaultMessage="Job Title" />
+        <FormattedMessage
+          id="leads.table.jobTitle"
+          defaultMessage="Job Title"
+        />
       ),
       dataIndex: "job_title",
       key: "job_title",
@@ -241,7 +243,9 @@ const LeadsTableServer: React.FC<Props> = ({
       render: (v) => v || "-",
     },
     {
-      title: <FormattedMessage id="leads.table.status" defaultMessage="Status" />,
+      title: (
+        <FormattedMessage id="leads.table.status" defaultMessage="Status" />
+      ),
       dataIndex: "is_converted",
       key: "is_converted",
       ...(showFilters
@@ -251,7 +255,10 @@ const LeadsTableServer: React.FC<Props> = ({
                 text: <FormattedMessage id="leads.status.converted" />,
                 value: "true",
               },
-              { text: <FormattedMessage id="leads.status.new" />, value: "false" },
+              {
+                text: <FormattedMessage id="leads.status.new" />,
+                value: "false",
+              },
             ],
             filteredValue: antdFilteredValue.is_converted as any,
           }
@@ -325,7 +332,6 @@ const LeadsTableServer: React.FC<Props> = ({
     },
   ];
 
-  // ✅ When showFilters=false, avoid triggering server calls from table sort/filter/pagination
   const handleChange = (
     pagination: TablePaginationConfig,
     tableFilters: Record<string, FilterValue | null>,
@@ -355,7 +361,10 @@ const LeadsTableServer: React.FC<Props> = ({
   return (
     <Card
       title={
-        <FormattedMessage id="leads.widget.recent_title" defaultMessage="Leads" />
+        <FormattedMessage
+          id="leads.widget.recent_title"
+          defaultMessage="Leads"
+        />
       }
       extra={
         <Space>

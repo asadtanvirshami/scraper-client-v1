@@ -1,232 +1,166 @@
 "use client";
 
-import React, { useEffect } from "react";
-import {
-  Button,
-  Checkbox,
-  Divider,
-  Form,
-  Modal,
-  Space,
-  Typography,
-  message,
-} from "antd";
-import { useIntl } from "react-intl";
+import { Card, Typography, Button, Form, Input, Space, message } from "antd";
+import { FormattedMessage, useIntl } from "react-intl";
 import { useUserInfo } from "@/helpers/use-user";
-import { useUpdateProfile } from "@/features/user/hooks";
-import { logoutUser, updateProfile } from "@/redux/slices/user/user-slice";
-import { useDispatch } from "react-redux";
-import { persistor } from "@/redux/store";
-import { clearAuthCookies } from "@/lib/cookies";
-import { useRouter } from "next/navigation";
+import { useCreateBug, useCreateFeedback } from "../../hooks";
 
-const { Title, Text } = Typography;
+const { Text, Title } = Typography;
 
-type FormValues = {
-  is_notifications_enabled: boolean;
-  is_update_enabled: boolean;
-};
+const MAX_LEN = 1000;
 
-const SettingsPreferences: React.FC = () => {
+const SupportTabContent = () => {
   const intl = useIntl();
-  const dispatch = useDispatch();
-  const [form] = Form.useForm<FormValues>();
-  const router = useRouter();
+  const { id: user_id } = useUserInfo();
 
-  const { is_notifications_enabled, is_update_enabled, id } = useUserInfo();
-  const updateProfileMutation = useUpdateProfile();
+  const [bugForm] = Form.useForm();
+  const [feedbackForm] = Form.useForm();
 
-  // Keep form values in sync with user info (important when redux rehydrates)
-  useEffect(() => {
-    form.setFieldsValue({
-      is_notifications_enabled: Boolean(is_notifications_enabled),
-      is_update_enabled: Boolean(is_update_enabled),
-    });
-  }, [form, is_notifications_enabled, is_update_enabled]);
+  const createBug = useCreateBug();
+  const createFeedback = useCreateFeedback();
 
-  const onSave = async () => {
-    const userId = id ?? "";
-    if (!userId) {
-      message.error(
-        intl.formatMessage({
-          id: "settings.errors.userIdMissing",
-          defaultMessage: "User id missing",
-        }),
-      );
-      return;
-    }
-
+  const submitBug = async () => {
     try {
-      const values = await form.validateFields();
+      const values = await bugForm.validateFields();
+      await createBug.mutateAsync({
+        user_id: user_id as any,
+        bug: values.bug.trim(),
+      });
 
-      const payload = {
-        _id: userId,
-        is_notifications_enabled: Boolean(values.is_notifications_enabled),
-        is_update_enabled: Boolean(values.is_update_enabled),
-      };
-
-      const res = await updateProfileMutation.mutateAsync(payload);
-
-      const userData = res?.data;
-      if (userData) dispatch(updateProfile(userData));
-
-      message.success(
-        intl.formatMessage({
-          id: "settings.success.saved",
-          defaultMessage: "Settings saved",
-        }),
-      );
-    } catch (error: any) {
-      console.error("Profile update error:", error);
-      message.error(
-        intl.formatMessage({
-          id: "settings.errors.saveFailed",
-          defaultMessage: "Failed to save settings",
-        }),
-      );
+      message.success(intl.formatMessage({ id: "support.bug.success" }));
+      bugForm.resetFields();
+    } catch (e: any) {
+      if (e?.errorFields) return; // antd validation
+      message.error(intl.formatMessage({ id: "support.bug.fail" }));
     }
   };
 
-  const onCloseAccount = () => {
-    Modal.confirm({
-      title: intl.formatMessage({
-        id: "settings.closeAccount.confirmTitle",
-        defaultMessage: "Close account?",
-      }),
-      content: intl.formatMessage({
-        id: "settings.closeAccount.confirmText",
-        defaultMessage:
-          "This action is permanent. Are you sure you want to continue?",
-      }),
-      okText: intl.formatMessage({
-        id: "settings.closeAccount.confirmOk",
-        defaultMessage: "Yes, close it",
-      }),
-      cancelText: intl.formatMessage({
-        id: "settings.closeAccount.confirmCancel",
-        defaultMessage: "Cancel",
-      }),
-      okButtonProps: { danger: true },
-      centered: true,
-      onOk: async () => {
-        await updateProfileMutation.mutateAsync(
-          {
-            _id: id,
-            is_deleted: true,
-          },
-          {
-            onSuccess: async () => {
-              try {
-                // 1️⃣ Clear Redux state
-                dispatch(logoutUser());
+  const submitFeedback = async () => {
+    try {
+      const values = await feedbackForm.validateFields();
+      await createFeedback.mutateAsync({
+        user_id: user_id as any,
+        feedback: values.feedback.trim(),
+      });
 
-                // 2️⃣ Purge persisted Redux state
-                await persistor.purge();
-
-                // 3️⃣ Clear auth cookies
-                clearAuthCookies();
-
-                // 4️⃣ Redirect to sign-in
-                router.replace("/auth/signin");
-              } catch (error) {
-                console.error("Logout failed:", error);
-              }
-            },
-          },
-        );
-
-        message.info(
-          intl.formatMessage({
-            id: "settings.closeAccount.success",
-          }),
-        );
-      },
-    });
+      message.success(intl.formatMessage({ id: "support.feedback.success" }));
+      feedbackForm.resetFields();
+    } catch (e: any) {
+      if (e?.errorFields) return;
+      message.error(intl.formatMessage({ id: "support.feedback.fail" }));
+    }
   };
 
   return (
-    <div className="w-full">
-      <Title level={4} style={{ marginTop: 0 }}>
-        {intl.formatMessage({ id: "settings.general.title" })}
-      </Title>
-
-      <Form<FormValues>
-        form={form}
-        layout="vertical"
-        initialValues={{
-          is_notifications_enabled: Boolean(is_notifications_enabled),
-          is_update_enabled: Boolean(is_update_enabled),
-        }}
-      >
-        {/* Notifications */}
-        <Title level={5} style={{ marginBottom: 8 }}>
-          {intl.formatMessage({ id: "settings.notifications.title" })}
+    <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {/* ✅ Report a bug */}
+      <Card className="w-full">
+        <Title level={4} className="!mb-1">
+          <FormattedMessage id="support.bug.title" />
         </Title>
-
-        <Space direction="vertical" size={10}>
-          <Form.Item
-            name="is_notifications_enabled"
-            valuePropName="checked"
-            style={{ marginBottom: 0 }}
-          >
-            <Checkbox>
-              {intl.formatMessage({
-                id: "settings.notifications.toggle",
-                defaultMessage: "Enable notifications",
-              })}
-            </Checkbox>
-          </Form.Item>
-        </Space>
-
-        <Divider />
-
-        {/* Updates / Invoices */}
-        <Title level={5} style={{ marginBottom: 8 }}>
-          {intl.formatMessage({ id: "settings.invoices.title" })}
-        </Title>
-
-        <Form.Item
-          name="is_update_enabled"
-          valuePropName="checked"
-          style={{ marginBottom: 0 }}
-        >
-          <Checkbox>
-            {intl.formatMessage({
-              id: "settings.invoices.receiveByEmail",
-            })}
-          </Checkbox>
-        </Form.Item>
-
-        <div style={{ marginTop: 18 }}>
-          <Button
-            type="primary"
-            loading={updateProfileMutation.isPending}
-            disabled={updateProfileMutation.isPending}
-            onClick={onSave}
-          >
-            {intl.formatMessage({ id: "settings.actions.save" })}
-          </Button>
-        </div>
-      </Form>
-
-      <Divider style={{ marginTop: 24 }} />
-
-      {/* Close account */}
-      <Title level={5} style={{ marginBottom: 8 }}>
-        {intl.formatMessage({ id: "settings.closeAccount.title" })}
-      </Title>
-
-      <Space direction="vertical" size={10}>
-        <Button danger type="primary" onClick={onCloseAccount}>
-          {intl.formatMessage({ id: "settings.closeAccount.button" })}
-        </Button>
-
         <Text type="secondary">
-          {intl.formatMessage({ id: "settings.closeAccount.helpText" })}
+          <FormattedMessage id="support.bug.description" />
         </Text>
-      </Space>
+
+        <Form form={bugForm} layout="vertical" className="mt-4">
+          <Form.Item
+            name="bug"
+            label={<FormattedMessage id="support.bug.field" />}
+            rules={[
+              {
+                required: true,
+                message: intl.formatMessage({ id: "support.bug.required" }),
+              },
+              {
+                max: MAX_LEN,
+                message: intl.formatMessage(
+                  { id: "support.max_length" },
+                  { max: MAX_LEN },
+                ),
+              },
+            ]}
+          >
+            <Input.TextArea
+              rows={6}
+              showCount
+              maxLength={MAX_LEN}
+              placeholder={intl.formatMessage({ id: "support.bug.placeholder" })}
+            />
+          </Form.Item>
+
+          <Space>
+            <Button
+              type="primary"
+              onClick={submitBug}
+              loading={createBug.isPending}
+              disabled={createBug.isPending}
+            >
+              <FormattedMessage id="support.bug.submit" />
+            </Button>
+            <Button onClick={() => bugForm.resetFields()} disabled={createBug.isPending}>
+              <FormattedMessage id="commons.clear" defaultMessage="Clear" />
+            </Button>
+          </Space>
+        </Form>
+      </Card>
+
+      {/* ✅ Send feedback */}
+      <Card className="w-full">
+        <Title level={4} className="!mb-1">
+          <FormattedMessage id="support.feedback.title" />
+        </Title>
+        <Text type="secondary">
+          <FormattedMessage id="support.feedback.description" />
+        </Text>
+
+        <Form form={feedbackForm} layout="vertical" className="mt-4">
+          <Form.Item
+            name="feedback"
+            label={<FormattedMessage id="support.feedback.field" />}
+            rules={[
+              {
+                required: true,
+                message: intl.formatMessage({ id: "support.feedback.required" }),
+              },
+              {
+                max: MAX_LEN,
+                message: intl.formatMessage(
+                  { id: "support.max_length" },
+                  { max: MAX_LEN },
+                ),
+              },
+            ]}
+          >
+            <Input.TextArea
+              rows={6}
+              showCount
+              maxLength={MAX_LEN}
+              placeholder={intl.formatMessage({
+                id: "support.feedback.placeholder",
+              })}
+            />
+          </Form.Item>
+
+          <Space>
+            <Button
+              type="primary"
+              onClick={submitFeedback}
+              loading={createFeedback.isPending}
+              disabled={createFeedback.isPending}
+            >
+              <FormattedMessage id="support.feedback.submit" />
+            </Button>
+            <Button
+              onClick={() => feedbackForm.resetFields()}
+              disabled={createFeedback.isPending}
+            >
+              <FormattedMessage id="commons.clear" defaultMessage="Clear" />
+            </Button>
+          </Space>
+        </Form>
+      </Card>
     </div>
   );
 };
 
-export default SettingsPreferences;
+export default SupportTabContent;

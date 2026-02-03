@@ -24,9 +24,9 @@ import {
 } from "@ant-design/icons";
 import { useIntl } from "react-intl";
 import type { Folder, FolderTableProps } from "@/types/folders";
+import { useRouter } from "next/navigation"; // ✅ add
 
 const { Text } = Typography;
-
 
 const FolderTable: React.FC<FolderTableProps> = ({
   data = [],
@@ -48,13 +48,10 @@ const FolderTable: React.FC<FolderTableProps> = ({
   onEditFolder,
 }) => {
   const intl = useIntl();
+  const router = useRouter(); // ✅ add
 
-  // if server-mode is provided, use it; otherwise client-mode
   const isServerMode = Boolean(value && onFetch);
 
-  // -----------------------------
-  // Search state (button-only search)
-  // -----------------------------
   const [searchDraft, setSearchDraft] = useState<string>(value?.search ?? "");
   React.useEffect(() => {
     setSearchDraft(value?.search ?? "");
@@ -62,18 +59,15 @@ const FolderTable: React.FC<FolderTableProps> = ({
 
   const applySearch = () => {
     const term = (searchDraft || "").trim();
-
     if (isServerMode) {
       if ((value?.search || "") === term) return;
-      onSelectedRowKeysChange?.([]); // ✅ reset selection on search
+      onSelectedRowKeysChange?.([]);
       onFetch?.({ ...value!, page: 1, search: term });
-      return;
     }
   };
 
   const resetSearch = () => {
     setSearchDraft("");
-
     if (isServerMode) {
       onSelectedRowKeysChange?.([]);
       onFetch?.({ ...value!, page: 1, search: "" });
@@ -83,9 +77,6 @@ const FolderTable: React.FC<FolderTableProps> = ({
   const isDirtySearch =
     (searchDraft || "").trim() !== ((value?.search ?? "") || "").trim();
 
-  // -----------------------------
-  // Client-side filtering fallback
-  // -----------------------------
   const filteredData = useMemo(() => {
     if (isServerMode) return data;
 
@@ -97,9 +88,6 @@ const FolderTable: React.FC<FolderTableProps> = ({
     );
   }, [data, isServerMode, searchDraft]);
 
-  // -----------------------------
-  // Selection helpers (select all current page)
-  // -----------------------------
   const currentPageRowKeys = useMemo(() => {
     return (filteredData || [])
       .map((f) => (f as any)?._id ?? (f as any)?.id ?? (f as any)?.name)
@@ -107,18 +95,16 @@ const FolderTable: React.FC<FolderTableProps> = ({
       .map(String);
   }, [filteredData]);
 
-  const selectAllCurrentPage = () => onSelectedRowKeysChange?.(currentPageRowKeys);
+  const selectAllCurrentPage = () =>
+    onSelectedRowKeysChange?.(currentPageRowKeys);
   const clearSelection = () => onSelectedRowKeysChange?.([]);
 
-  // -----------------------------
-  // Modals (create/edit)
-  // -----------------------------
   const [createOpen, setCreateOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [editing, setEditing] = useState<Folder | null>(null);
 
   const [createForm] = Form.useForm<{ name: string }>();
-  const [editForm] = Form.useForm<{_id: string; name: string }>();
+  const [editForm] = Form.useForm<{ _id: string; name: string }>();
 
   const openCreate = () => {
     createForm.resetFields();
@@ -144,15 +130,25 @@ const FolderTable: React.FC<FolderTableProps> = ({
       const clean = String(name || "").trim();
       await onCreateFolder({ name: clean });
 
-      message.success(intl.formatMessage({ id: "commons.saved", defaultMessage: "Saved" }));
+      message.success(
+        intl.formatMessage({ id: "commons.saved", defaultMessage: "Saved" }),
+      );
       closeCreate();
 
-      // ✅ refresh list
       if (isServerMode) {
-        onFetch?.({ page: 1, limit: value?.limit ?? pageSize, search: value?.search ?? "" });
+        onFetch?.({
+          page: 1,
+          limit: value?.limit ?? pageSize,
+          search: value?.search ?? "",
+        });
       }
     } catch {
-      message.error(intl.formatMessage({ id: "commons.save_failed", defaultMessage: "Save failed" }));
+      message.error(
+        intl.formatMessage({
+          id: "commons.save_failed",
+          defaultMessage: "Save failed",
+        }),
+      );
     }
   };
 
@@ -161,23 +157,30 @@ const FolderTable: React.FC<FolderTableProps> = ({
     try {
       const { name } = await editForm.validateFields();
       const clean = String(name || "").trim();
-      await onEditFolder({ folder_id:editing?._id, name: clean });
+      await onEditFolder({ folder_id: editing?._id, name: clean });
 
-      message.success(intl.formatMessage({ id: "commons.saved", defaultMessage: "Saved" }));
+      message.success(
+        intl.formatMessage({ id: "commons.saved", defaultMessage: "Saved" }),
+      );
       closeEdit();
 
-      // ✅ refresh list (stay on current page)
       if (isServerMode) {
-        onFetch?.({ page: value!.page, limit: value!.limit, search: value?.search ?? "" });
+        onFetch?.({
+          page: value!.page,
+          limit: value!.limit,
+          search: value?.search ?? "",
+        });
       }
     } catch {
-      message.error(intl.formatMessage({ id: "commons.save_failed", defaultMessage: "Save failed" }));
+      message.error(
+        intl.formatMessage({
+          id: "commons.save_failed",
+          defaultMessage: "Save failed",
+        }),
+      );
     }
   };
 
-  // -----------------------------
-  // Bulk delete (reset name search + page 1)
-  // -----------------------------
   const deleteSelected = async () => {
     if (!onDeleteAll) return;
 
@@ -191,7 +194,6 @@ const FolderTable: React.FC<FolderTableProps> = ({
         `${intl.formatMessage({ id: "commons.deleted", defaultMessage: "Deleted" })} ${ids.length}`,
       );
 
-      // ✅ requirement: after bulk delete -> reset selection + reset search + go page 1
       onSelectedRowKeysChange?.([]);
       setSearchDraft("");
 
@@ -199,13 +201,15 @@ const FolderTable: React.FC<FolderTableProps> = ({
         onFetch?.({ page: 1, limit: value?.limit ?? pageSize, search: "" });
       }
     } catch {
-      message.error(intl.formatMessage({ id: "commons.bulk_delete_failed", defaultMessage: "Bulk delete failed" }));
+      message.error(
+        intl.formatMessage({
+          id: "commons.bulk_delete_failed",
+          defaultMessage: "Bulk delete failed",
+        }),
+      );
     }
   };
 
-  // -----------------------------
-  // Columns
-  // -----------------------------
   const columns: ColumnsType<Folder> = [
     {
       title: intl.formatMessage({ id: "folders.table.name" }),
@@ -244,7 +248,10 @@ const FolderTable: React.FC<FolderTableProps> = ({
           <Button
             size="small"
             icon={<EditOutlined />}
-            onClick={() => openEdit(record)}
+            onClick={(e) => {
+              e.stopPropagation(); // ✅ prevent row click
+              openEdit(record);
+            }}
             disabled={!onEditFolder}
           />
         </Space>
@@ -252,23 +259,18 @@ const FolderTable: React.FC<FolderTableProps> = ({
     },
   ];
 
-  // -----------------------------
-  // Server pagination wiring
-  // -----------------------------
   const handleChange = (pagination: TablePaginationConfig) => {
     if (!isServerMode) return;
 
     const page = pagination.current ?? 1;
     const limit = pagination.pageSize ?? value!.limit ?? pageSize;
 
-    // ✅ page change should not wipe search
     onFetch?.({
       page,
       limit,
       search: value?.search ?? "",
     });
 
-    // ✅ avoid bulk actions across pages
     onSelectedRowKeysChange?.([]);
   };
 
@@ -277,8 +279,15 @@ const FolderTable: React.FC<FolderTableProps> = ({
       ? {
           selectedRowKeys,
           onChange: (keys: React.Key[]) => onSelectedRowKeysChange(keys),
+          onCell: () => ({
+            onClick: (e: React.MouseEvent) => e.stopPropagation(), // ✅ checkbox click won't navigate
+          }),
         }
       : undefined;
+
+  // ✅ helper for consistent id
+  const getFolderId = (record: Folder) =>
+    String((record as any)?._id ?? (record as any)?.id ?? "");
 
   return (
     <Card
@@ -361,6 +370,15 @@ const FolderTable: React.FC<FolderTableProps> = ({
           }),
         }}
         onChange={handleChange}
+        // ✅ make rows clickable
+        onRow={(record) => ({
+          onClick: () => {
+            const id = getFolderId(record);
+            if (!id) return; // avoid navigating for client-mode rows without id
+            router.push(`/folders/${id}`);
+          },
+          style: { cursor: "pointer" },
+        })}
         pagination={
           showFilters
             ? isServerMode
@@ -378,7 +396,7 @@ const FolderTable: React.FC<FolderTableProps> = ({
         }
       />
 
-      {/* ✅ Create modal */}
+      {/* Create modal */}
       <Modal
         open={createOpen}
         onCancel={closeCreate}
@@ -412,14 +430,13 @@ const FolderTable: React.FC<FolderTableProps> = ({
         </Form>
       </Modal>
 
-      {/* ✅ Edit modal */}
+      {/* Edit modal */}
       <Modal
         open={editOpen}
         onCancel={closeEdit}
         onOk={submitEdit}
         title={intl.formatMessage({ id: "folders.edit", defaultMessage: "Edit Folder" })}
         okText={intl.formatMessage({ id: "commons.save", defaultMessage: "Save" })}
-        destroyOnClose
       >
         <Form form={editForm} layout="vertical">
           <Form.Item

@@ -4,7 +4,7 @@ export const useFetchFolders = (params?: any) => {
   const query = useQuery({
     queryKey: ["folders", "list", params],
     queryFn: () => fetchFolders(params ?? {}),
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: false,  
     placeholderData: keepPreviousData,
   });
 

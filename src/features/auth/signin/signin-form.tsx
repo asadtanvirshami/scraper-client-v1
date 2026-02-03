@@ -4,17 +4,19 @@ import React from "react";
 import { Button, Divider, Form, Input, Typography } from "antd";
 import { MailOutlined, LockOutlined, GoogleOutlined } from "@ant-design/icons";
 import { FormattedMessage } from "react-intl";
-import { useLogin } from "../hooks";
+import { useGoogleSignin, useLogin } from "../hooks";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "@/redux/slices/user/user-slice";
 import { persistor } from "@/redux/store";
 import { useRouter } from "next/navigation";
 import { setAuthCookies } from "@/lib/cookies";
+import { GoogleLogin } from "@react-oauth/google";
 
 const { Link, Text } = Typography;
 
 const SignInForm: React.FC = () => {
   const logInMutation = useLogin();
+  const googleSigninMutation = useGoogleSignin();
   const dispatch = useDispatch();
   const router = useRouter();
 
@@ -37,11 +39,38 @@ const SignInForm: React.FC = () => {
         // Small delay to ensure Redux state is persisted
         await new Promise((resolve) => setTimeout(resolve, 100));
         // Navigate to dashboard
-        router.replace(`${redirect}/${userData._id}`);
+        router.replace(redirect);
       },
     });
-    console.log(logInMutation.data);
   };
+
+  const onGoogleSuccess = async (credentialResponse: any) => {
+    await googleSigninMutation.mutateAsync(credentialResponse, {
+      onSuccess: async (data) => {
+        const redirect = data.data.redirect;
+        const userData = data.data.user;
+        const token = data.data.token;
+
+        setAuthCookies({
+          accessToken: token,
+          refreshToken: "",
+        });
+
+        // Dispatch user data to Redux
+        dispatch(loginSuccess(userData));
+        // Flush persistor to ensure state is saved before navigation
+        await persistor.flush();
+        // Small delay to ensure Redux state is persisted
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        // Navigate to dashboard
+        router.replace(redirect);
+      },
+    });
+  };
+  const onGoogleError = async () => {
+    console.log("Login Failed");
+  };
+
   return (
     <Form
       onFinish={handleSubmit}
@@ -123,10 +152,10 @@ const SignInForm: React.FC = () => {
       </Divider>
 
       <div className="flex items-center justify-center gap-4">
-        <Button
-          shape="circle"
-          className="!h-10 !w-10 !bg-yellow-500 !rounded-full !bg-white/70 !border-white/60 hover:!bg-white"
-          icon={<GoogleOutlined className="text-[18px] text-black/70" />}
+        <GoogleLogin
+          onSuccess={onGoogleSuccess}
+          onError={onGoogleError}
+          useOneTap
         />
       </div>
     </Form>
