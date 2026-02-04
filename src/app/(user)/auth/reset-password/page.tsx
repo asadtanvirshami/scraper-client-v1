@@ -1,4 +1,4 @@
-import ResetPasswordLayout from "@/features/auth/reset-password/layout";
+import ResetPasswordLayout from "@/features/auth/reset-password";
 
 const ResetPasswordPage = () => {
   return <ResetPasswordLayout />;

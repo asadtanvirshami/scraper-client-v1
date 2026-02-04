@@ -1,11 +1,11 @@
 import api from "@/api/axios";
 import { apiEndpoints } from "@/api/end-points";
 import type {
-  GenericResponse,
   Lead,
   LeadsListParams,
   LeadsSummaryParams,
-} from "@/types/leads";
+} from "@/types/api/leads";
+import { GenericResponse } from "@/types/api";
 
 export type DownloadLeadsParams = {
   user_id: string;
@@ -28,7 +28,7 @@ export async function DownloadAllLeads(
 // ✅ LIST
 export async function FetchAllLeadsList(
   input: LeadsListParams,
-): Promise<GenericResponse<Lead[]>> {
+): Promise<GenericResponse> {
   const { data } = await api.get(apiEndpoints.leads.list(input as any));
   return data;
 }
@@ -36,7 +36,7 @@ export async function FetchAllLeadsList(
 // ✅ SUMMARY
 export async function FetchAllLeadsSummary(
   input: LeadsSummaryParams,
-): Promise<GenericResponse<any>> {
+): Promise<GenericResponse> {
   const { data } = await api.get(apiEndpoints.leads.summary(input as any));
   return data;
 }
@@ -90,6 +90,6 @@ export async function DeleteLead(
 export async function BulkDeleteLeads(
   lead_ids: string[],
 ): Promise<GenericResponse<any>> {
-  const { data } = await api.de(apiEndpoints.leads.bulk_delete, { lead_ids });
+  const { data } = await api.post(apiEndpoints.leads.bulk_delete, { lead_ids });
   return data;
 }

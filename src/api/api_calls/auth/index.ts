@@ -1,5 +1,4 @@
-import axios from "axios";
-import { GenericResponse } from "../type";
+import { GenericResponse } from "@/types/api";
 import api from "@/api/axios";
 import { apiEndpoints } from "@/api/end-points";
 
@@ -26,6 +25,13 @@ export async function Login(input: {
   password: string;
 }): Promise<GenericResponse> {
   const { data } = await api.post(apiEndpoints.auth.signin, input);
+  return data;
+}
+
+export async function GoogleSignIn (input: {
+  credentials: string;
+}): Promise<GenericResponse> {
+  const { data } = await api.post(apiEndpoints.auth.google, input);
   return data;
 }
 

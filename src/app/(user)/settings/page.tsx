@@ -1,4 +1,4 @@
-import SettingsLayout from "@/features/settings/layout";
+import SettingsLayout from "@/features/settings";
 
 
 const page = () => {

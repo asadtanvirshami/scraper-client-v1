@@ -4,8 +4,99 @@
     "dashboard": "Dashboard",
     "campaigns": "Campaigns",
     "leads": "Leads",
+    "folders": "Folders",
     "billing": "Billing",
-    "settings": "Settings"
+    "settings": "Settings",
+    "role": {
+      "admin": "Admin",
+      "user": "Workspace"
+    }
+  },
+
+  "admin": {
+    "panel_title": "Administration Panel",
+    "panel_subtitle": "Monitor users, access, and system activity.",
+    "kpis": {
+      "total_users": "Total users",
+      "blocked_users": "Blocked users",
+      "feedbacks": "Feedbacks",
+      "bugs": "Bugs",
+      "new_in_range": "New in range: {count}",
+      "avg_per_day": "Avg/day: {count}"
+    },
+    "charts": {
+      "users_created": {
+        "title": "Users created",
+        "subtitle": "New users over the selected period.",
+        "empty_title": "No activity in this range",
+        "empty_subtitle": "Try expanding the date range.",
+        "tooltip": "{count} users"
+      }
+    },
+    "feedbacks": {
+      "title": "Feedbacks",
+      "total": "Total {total}",
+      "empty": "No feedbacks",
+      "search": {
+        "placeholder": "Search feedback text..."
+      },
+      "table": {
+        "feedback": "Feedback",
+        "user": "User",
+        "created": "Created",
+        "updated": "Updated"
+      },
+      "confirm": {
+        "delete_one": "Delete this feedback?",
+        "delete_selected": "Delete {count} selected item(s)?"
+      }
+    },
+    "bugs": {
+      "title": "Bugs",
+      "total": "Total {total}",
+      "empty": "No bugs",
+      "search": {
+        "placeholder": "Search bug text..."
+      },
+      "table": {
+        "bug": "Bug",
+        "user": "User",
+        "created": "Created",
+        "updated": "Updated"
+      },
+      "confirm": {
+        "delete_one": "Delete this bug?",
+        "delete_selected": "Delete {count} selected item(s)?",
+        "bulk_delete": "Delete selected users?",
+        "bulk_delete_desc": "This will delete {count} user(s). This action cannot be undone.",
+        "delete_all": "Delete all users?",
+        "delete_all_desc": "This will delete all users matching current filters. This action cannot be undone."
+      }
+    },
+    "users": {
+      "details": {
+        "title": "User details"
+      },
+      "title": "Users",
+      "total": "Total {total}",
+      "empty": "No users",
+      "search": {
+        "placeholder": "Search name or email..."
+      },
+      "table": {
+        "name": "Name",
+        "email": "Email",
+        "role": "Role",
+        "provider": "Auth Provider",
+        "verified": "Verified",
+        "blocked": "Blocked",
+        "created": "Created"
+      },
+      "confirm": {
+        "delete_one": "Delete this user?",
+        "delete_selected": "Delete {count} selected user(s)?"
+      }
+    }
   },
 
   "auth": {
@@ -27,6 +118,7 @@
         "password_too_short": "Password must be at least 8 characters long."
       }
     },
+
     "sign_up": {
       "sign_up_with_email": "Sign up with email",
       "buttonCTA": "Create Account",
@@ -48,6 +140,7 @@
         "password_too_short": "Password must be at least 8 characters long."
       }
     },
+
     "forgot_password": {
       "title": "Forgot Password",
       "forgot_password": "Forgot your password?",
@@ -59,6 +152,7 @@
         "invalid_email_format": "The email format is invalid."
       }
     },
+
     "reset_password": {
       "title": "Reset Password",
       "buttonCTA": "Reset Password",
@@ -80,6 +174,7 @@
       "password_too_short": "Password must be at least 8 characters long.",
       "password_mismatch": "Passwords do not match."
     },
+
     "messages": {
       "errors": {
         "user_not_found": "User not found",
@@ -133,6 +228,17 @@
   },
 
   "commons": {
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "confirm_verify": "Verify this user?",
+    "confirm_unverify": "Unverify this user?",
+    "confirm_block": "Block this user?",
+    "confirm_unblock": "Unblock this user?",
+    "created": "Created",
+    "bulk_delete": "Delete Selected ({count})",
+    "yes": "Yes",
+    "no": "No",
     "add": "Add",
     "search": "Search",
     "reset": "Reset",
@@ -147,7 +253,33 @@
     "deleted": "Deleted",
     "delete_failed": "Delete failed",
     "clear": "Clear",
-    "bulk_delete_failed": "Bulk delete failed"
+    "bulk_delete_failed": "Bulk delete failed",
+    "view": "View",
+    "end_of_list": "End of list",
+    "range_presets": {
+      "last7": "Last 7 days",
+      "last30": "Last 30 days",
+      "thisMonth": "This month"
+    },
+    "redirecting_title": "Redirecting",
+    "redirecting_signin": "Redirecting to sign in…",
+    "delete_all": "Delete All",
+    "confirm_delete_one": "Delete this item?",
+    "confirm_delete_selected": "Delete {count} selected item(s)?",
+    "confirm_delete_all": "Delete all items?",
+    "confirm_delete_all_desc": "This action cannot be undone.",
+    "blocked": "User blocked",
+    "unblocked": "User unblocked",
+    "verified": "User verified",
+    "unverified": "User unverified",
+    "block_failed": "User block failed",
+    "verify_failed": "User verify failed",
+    "range_placeholder": {
+      "start": "Start date",
+      "end": "End date"
+    },
+    "select_all": "Select all",
+    "clear_selection": "Clear selection"
   },
 
   "support": {
@@ -175,13 +307,24 @@
   },
 
   "leads": {
+    "page": {
+      "title": "Leads",
+      "subtitle": "Manage and track your leads."
+    },
+    "insights": {
+      "title": "Insights",
+      "subtitle": "Pick a date range to update charts & insights."
+    },
     "widget": {
       "recent_title": "Leads",
       "total": "Total {total}"
     },
     "empty": "No leads yet",
     "actions": {
-      "view_all": "View all"
+      "delete": "Delete",
+      "view_all": "View all",
+      "download": "Download",
+      "add_to_leads": "Add to leads"
     },
     "search": {
       "placeholder": "Search name, email, company..."
@@ -232,29 +375,48 @@
     "form": {
       "first_name": "First name",
       "last_name": "Last name",
+      "folder": "Folder",
+      "folder_placeholder": "Select a folder",
       "emails": "Emails",
       "phones": "Phone numbers",
       "add_email": "Add email",
       "add_phone": "Add phone",
       "email_invalid": "Invalid email address",
+      "email_placeholder": "email@example.com",
+      "phone_placeholder": "+123456789",
       "company": "Company",
       "job_title": "Job title",
       "type": "Source",
+      "type_instagram": "Instagram",
+      "type_linkedin": "LinkedIn",
+      "type_manual": "Manual",
       "message": "Message",
       "is_converted": "Converted"
+    },
+    "scrape": {
+      "success": "Lead added successfully.",
+      "failed": "Failed to add lead."
     }
   },
 
   "folders": {
     "title": "Folders",
     "create": "Create Folder",
+    "edit": "Edit Folder",
     "search": {
       "placeholder": "Search folders..."
+    },
+    "placeholders": {
+      "name": "e.g. Security Leads"
+    },
+    "errors": {
+      "name_required": "Name is required."
     },
     "filters": {
       "all": "All"
     },
     "table": {
+      "empty": "No folders",
       "name": "Name",
       "status": "Status",
       "createdAt": "Created At",
@@ -274,6 +436,10 @@
       "title": "Folder Details",
       "close": "Close"
     },
+    "details": {
+      "title": "Folder",
+      "subtitle": "View and manage leads inside this folder."
+    },
     "fields": {
       "id": "ID",
       "name": "Name",
@@ -285,12 +451,54 @@
   },
 
   "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Track performance and leads activity.",
+    "filters": {
+      "title": "Filters",
+      "subtitle": "Pick a date range to update charts."
+    },
     "charts": {
-      "weekly_leads": "Leads added (last 7 days)"
+      "weekly_leads": "Leads added (last 7 days)",
+      "leads_by_type_bar": "Leads added (by type)"
+    },
+    "stats": {
+      "totalLeads": "Total Leads",
+      "converted": "Converted",
+      "conversionRate": "Conv. Rate",
+      "avgPerDay": "Avg / day",
+      "subtitles": {
+        "customRange": "Custom range",
+        "lastDays": "Last {days} days",
+        "markedConverted": "Marked as converted",
+        "convertedOverTotal": "Converted / total",
+        "averagePerDay": "Average per day"
+      }
+    }
+  },
+
+  "errors": {
+    "global": {
+      "title": "Something went wrong",
+      "subtitle": "An unexpected error occurred. Try again.",
+      "try_again": "Try again",
+      "go_home": "Go home",
+      "details": "Error details:"
+    },
+    "404": {
+      "title": "Page not found",
+      "subtitle": "The page you’re looking for doesn’t exist or has been moved.",
+      "go_signin": "Go to sign in",
+      "go_home": "Home"
     }
   },
 
   "settings": {
+    "tabs": {
+      "general": "General",
+      "profile": "Profile",
+      "password_security": "Password & Security",
+      "support": "Support & Feedback"
+    },
     "general": {
       "title": "General"
     },
@@ -332,7 +540,7 @@
     "lastName": "Last name",
     "email": "Email",
     "save": "Save changes",
-
+    "changePassword": "Change password",
     "errors": {
       "firstName": "First name is required.",
       "lastName": "Last name is required.",
@@ -374,6 +582,70 @@
       "warning": "warning",
       "success": "success",
       "info": "info"
+    }
+  },
+
+  "insights": {
+    "cards": {
+      "total_leads": {
+        "title": "Total leads",
+        "subtitle": {
+          "delta": "Compared to yesterday • {todayLabel}",
+          "all_sources": "All sources combined"
+        }
+      },
+      "converted": {
+        "title": "Converted",
+        "subtitle": {
+          "percent_of_total": "{percent}% of total",
+          "dash": "—"
+        }
+      },
+      "deleted": {
+        "title": "Deleted",
+        "subtitle": {
+          "percent_of_total": "{percent}% of total",
+          "dash": "—"
+        }
+      },
+      "by_type": {
+        "title": "By type",
+        "subtitle": {
+          "no_breakdown": "No type breakdown"
+        }
+      }
+    },
+    "labels": {
+      "today": "today"
+    }
+  },
+
+  "scraper": {
+    "card": {
+      "title": "Start Scraping",
+      "subtitle": "Scrape leads from LinkedIn or Instagram and save them to your leads.",
+      "manage": "Manage"
+    },
+    "start": "Start",
+    "linkedin": {
+      "title": "LinkedIn",
+      "desc": "Scrape profile details + contacts if available."
+    },
+    "instagram": {
+      "title": "Instagram",
+      "desc": "Scrape public profile details like username and bio."
+    },
+    "modal": {
+      "linkedin": "Start LinkedIn scraping",
+      "instagram": "Start Instagram scraping",
+      "profileUrl": "Profile URL",
+      "profileUrlRequired": "Profile URL is required",
+      "ok": "Start scraping",
+      "note": "If LinkedIn uses SignalHire, leads may appear after the callback finishes."
+    },
+    "status": {
+      "running": "RUNNING",
+      "ready": "READY"
     }
   }
 }

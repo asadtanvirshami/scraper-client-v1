@@ -1,6 +1,6 @@
 import api from "@/api/axios";
 import { apiEndpoints } from "@/api/end-points";
-import { GenericResponse } from "../type";
+import { GenericResponse } from "@/types/api";
 import { getAccessToken } from "@/lib/cookies";
 
 const token = getAccessToken();
@@ -10,15 +10,15 @@ const token = getAccessToken();
  */
 export async function fetchNotifications(
   offset = 0,
-  limit = 10
+  limit = 10,
 ): Promise<GenericResponse> {
   const { data } = await api.get(
-    apiEndpoints.notifications.get({offset, limit}),
+    apiEndpoints.notifications.get({ offset, limit }),
     {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
   return data;
 }
@@ -28,15 +28,15 @@ export async function fetchNotifications(
  */
 export async function fetchAllNotificationsAdmin(
   offset = 0,
-  limit = 10
+  limit = 10,
 ): Promise<GenericResponse> {
   const { data } = await api.get(
-    apiEndpoints.notifications.getAllAdmin({offset, limit}),
+    apiEndpoints.notifications.getAllAdmin({ offset, limit }),
     {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
   return data;
 }
@@ -45,17 +45,13 @@ export async function fetchAllNotificationsAdmin(
  * Create a single notification (ADMIN / SYSTEM)
  */
 export async function createNotification(
-  payload: Record<string, any>
+  payload: Record<string, any>,
 ): Promise<GenericResponse> {
-  const { data } = await api.post(
-    apiEndpoints.notifications.create,
-    payload,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+  const { data } = await api.post(apiEndpoints.notifications.create, payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
   return data;
 }
 
@@ -63,7 +59,7 @@ export async function createNotification(
  * Bulk create notifications (ADMIN)
  */
 export async function bulkCreateNotifications(
-  payload: Record<string, any>[]
+  payload: Record<string, any>[],
 ): Promise<GenericResponse> {
   const { data } = await api.post(
     apiEndpoints.notifications.bulkCreate,
@@ -72,7 +68,7 @@ export async function bulkCreateNotifications(
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
   return data;
 }
@@ -80,15 +76,17 @@ export async function bulkCreateNotifications(
 /**
  * Mark ALL notifications as read (USER)
  */
-export async function markAllNotificationsRead(): Promise<GenericResponse> {
-  const { data } = await api.patch(
+export async function markAllNotificationsRead(
+  id: string,
+): Promise<GenericResponse> {
+  const { data } = await api.post(
     apiEndpoints.notifications.markAllRead,
-    {},
+    { _id: id },
     {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
   return data;
 }
@@ -97,7 +95,7 @@ export async function markAllNotificationsRead(): Promise<GenericResponse> {
  * Mark ONE notification as read (USER)
  */
 export async function markNotificationRead(
-  notificationId: string
+  notificationId: string,
 ): Promise<GenericResponse> {
   const { data } = await api.patch(
     apiEndpoints.notifications.markOneRead(notificationId),
@@ -106,7 +104,7 @@ export async function markNotificationRead(
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
   return data;
 }
@@ -114,14 +112,15 @@ export async function markNotificationRead(
 /**
  * Delete ALL notifications (USER)
  */
-export async function deleteAllNotifications(): Promise<GenericResponse> {
-  const { data } = await api.delete(
+export async function deleteAllNotifications(id:string): Promise<GenericResponse> {
+  const { data } = await api.post(
     apiEndpoints.notifications.deleteAll,
+    { _id: id },
     {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
   return data;
 }
@@ -130,7 +129,7 @@ export async function deleteAllNotifications(): Promise<GenericResponse> {
  * Delete ONE notification (USER)
  */
 export async function deleteNotification(
-  notificationId: string
+  notificationId: string,
 ): Promise<GenericResponse> {
   const { data } = await api.delete(
     apiEndpoints.notifications.deleteOne(notificationId),
@@ -138,7 +137,7 @@ export async function deleteNotification(
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
   return data;
 }
@@ -147,7 +146,7 @@ export async function deleteNotification(
  * Bulk delete notifications (USER)
  */
 export async function bulkDeleteNotifications(
-  notificationIds: string[]
+  notificationIds: string[],
 ): Promise<GenericResponse> {
   const { data } = await api.post(
     apiEndpoints.notifications.bulkDelete,
@@ -156,7 +155,7 @@ export async function bulkDeleteNotifications(
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
   return data;
 }

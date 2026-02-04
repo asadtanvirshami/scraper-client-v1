@@ -1,7 +1,11 @@
-import UserLayout from "@/features/dashboard/user/user-layout";
+import UserLayout from "@/features/dashboard/u";
 
-const Page = () => {
-  return <UserLayout />;
+type PageProps = {
+  params: Promise<{ id: string }>; // ✅ params is a Promise in your runtime
 };
 
-export default Page;
+export default async function Page({ params }: PageProps) {
+  const { id } = await params;
+  if (!id) return null;
+  return <UserLayout id={id} />;
+}

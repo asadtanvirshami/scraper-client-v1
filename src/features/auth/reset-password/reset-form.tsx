@@ -1,6 +1,6 @@
 import { Button, Form, Input } from "antd";
 import { FormattedMessage, useIntl } from "react-intl";
-import { useResetPassword } from "../hooks";
+import { useResetPassword } from "../hooks/";
 
 type ResetPasswordValues = {
   otp: string;
@@ -12,9 +12,9 @@ const ResetPasswordForm = () => {
   const intl = useIntl();
   const resetPassMutation = useResetPassword();
   const onFinish = async (values: ResetPasswordValues) => {
-    const newValues= {
+    const newValues = {
       ...values,
-      email: localStorage.getItem("email") || "asadtanvir20@gmail.com"
+      email: localStorage.getItem("email") || "asadtanvir20@gmail.com",
     };
     await resetPassMutation.mutateAsync(newValues);
   };
@@ -34,21 +34,21 @@ const ResetPasswordForm = () => {
           {
             required: true,
             message: intl.formatMessage({
-              id: "auth.reset_password.otp_required"
-            })
+              id: "auth.reset_password.otp_required",
+            }),
           },
           {
             len: 6,
             message: intl.formatMessage({
-              id: "auth.reset_password.otp_length"
-            })
+              id: "auth.reset_password.otp_length",
+            }),
           },
           {
             pattern: /^\d+$/,
             message: intl.formatMessage({
-              id: "auth.reset_password.otp_numeric"
-            })
-          }
+              id: "auth.reset_password.otp_numeric",
+            }),
+          },
         ]}
       >
         <Input
@@ -56,7 +56,7 @@ const ResetPasswordForm = () => {
           inputMode="numeric"
           maxLength={6}
           placeholder={intl.formatMessage({
-            id: "auth.reset_password.otp_placeholder"
+            id: "auth.reset_password.otp_placeholder",
           })}
         />
       </Form.Item>
@@ -70,21 +70,21 @@ const ResetPasswordForm = () => {
           {
             required: true,
             message: intl.formatMessage({
-              id: "auth.reset_password.password_required"
-            })
+              id: "auth.reset_password.password_required",
+            }),
           },
           {
             min: 8,
             message: intl.formatMessage({
-              id: "auth.reset_password.password_too_short"
-            })
-          }
+              id: "auth.reset_password.password_too_short",
+            }),
+          },
         ]}
       >
         <Input.Password
           size="large"
           placeholder={intl.formatMessage({
-            id: "auth.reset_password.new_password_placeholder"
+            id: "auth.reset_password.new_password_placeholder",
           })}
         />
       </Form.Item>
@@ -99,8 +99,8 @@ const ResetPasswordForm = () => {
           {
             required: true,
             message: intl.formatMessage({
-              id: "auth.reset_password.password_required"
-            })
+              id: "auth.reset_password.password_required",
+            }),
           },
           ({ getFieldValue }) => ({
             validator(_, value) {
@@ -110,24 +110,30 @@ const ResetPasswordForm = () => {
               return Promise.reject(
                 new Error(
                   intl.formatMessage({
-                    id: "auth.reset_password.password_mismatch"
-                  })
-                )
+                    id: "auth.reset_password.password_mismatch",
+                  }),
+                ),
               );
-            }
-          })
+            },
+          }),
         ]}
       >
         <Input.Password
           size="large"
           placeholder={intl.formatMessage({
-            id: "auth.reset_password.confirm_password_placeholder"
+            id: "auth.reset_password.confirm_password_placeholder",
           })}
         />
       </Form.Item>
 
       <Form.Item style={{ marginTop: 8 }}>
-        <Button loading={resetPassMutation.isPending} type="primary" size="large" htmlType="submit" block>
+        <Button
+          loading={resetPassMutation.isPending}
+          type="primary"
+          size="large"
+          htmlType="submit"
+          block
+        >
           <FormattedMessage id="auth.reset_password.buttonCTA" />
         </Button>
       </Form.Item>

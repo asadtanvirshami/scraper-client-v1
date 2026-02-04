@@ -8,14 +8,16 @@ type LeadsSummaryParams = {
   limit?: number;
   offset?: number;
   user_id?: string;
+  createdAt?: string;
+  updatedAt?: string;
   scrape_status?: boolean;
   scrape_id?: string;
   _id?: string;
 };
 
 type LeadsListParams = {
-  page: number;
-  limit: number;
+  page?: number;
+  limit?: number;
   offset?: number;
   user_id?: string;
   search?: string;

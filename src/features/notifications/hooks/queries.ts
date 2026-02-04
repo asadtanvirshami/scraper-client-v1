@@ -4,13 +4,15 @@ import { useEffect } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useAppDispatch, useAppSelector } from "@/redux/hook";
 import initNotifications from "@/services/notification/init-notification";
-import type { PaginatedResponse } from "../type";
+import type { PaginatedResponse } from "@/types/notifications";
 
 import { fetchNotifications } from "@/api/api_calls/notifications"; // ✅ use your API calls
 
 export function useNotifications(userId: string, enabled = false) {
   const dispatch = useAppDispatch();
-  const { items, unread, ids, isLoading } = useAppSelector((s) => s.notification);
+  const { items, unread, ids, isLoading } = useAppSelector(
+    (s) => s.notification,
+  );
 
   useEffect(() => {
     if (enabled) {
@@ -40,8 +42,11 @@ export const useNotificationsInfinite = (userId?: string) => {
     },
 
     getNextPageParam: (lastPage, allPages) => {
-      const loaded = allPages.reduce((sum, p) => sum + (p.data?.length || 0), 0);
-      if (loaded >= lastPage.totalCount) return undefined;
+      const loaded = allPages.reduce(
+        (sum, p) => sum + (p.data?.length || 0),
+        0,
+      );
+      if (loaded >= (lastPage.totalCount ?? Infinity)) return undefined;
       return loaded; // next offset
     },
   });

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import type { GenericResponse } from "../../../api/api_calls/type";
+import type { GenericResponse } from "@/types/api";
 
 import {
   markAllNotificationsRead,
@@ -12,10 +12,10 @@ import {
 } from "@/api/api_calls/notifications";
 
 export const useMarkAllRead = () =>
-  useMutation<GenericResponse, Error, void>({
+  useMutation<GenericResponse, Error, string>({
     mutationKey: ["notifications", "markAllRead"],
-    mutationFn: async () => {
-      return await markAllNotificationsRead();
+    mutationFn: async (id: string) => {
+      return await markAllNotificationsRead(id!);
     },
   });
 
@@ -45,10 +45,10 @@ export const useBulkDeleteNotifications = () =>
   });
 
 export const useClearAllNotifications = () =>
-  useMutation<GenericResponse, Error, void>({
+  useMutation<GenericResponse, Error, string>({
     mutationKey: ["notifications", "deleteAll"],
-    mutationFn: async () => {
-      return await deleteAllNotifications();
+    mutationFn: async (id: string) => {
+      return await deleteAllNotifications(id!);
     },
     onError(error) {
       console.error(error);

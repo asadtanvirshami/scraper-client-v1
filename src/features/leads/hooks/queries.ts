@@ -1,11 +1,12 @@
 import { FetchAllLeadsList, FetchAllLeadsSummary } from "@/api/api_calls/leads";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
 export const useFetchLeadsSummary = (params?: LeadsSummaryParams) => {
   const query = useQuery({
     queryKey: ["leads", "summary", params],
-    queryFn: () => FetchAllLeadsSummary(params ?? {}),
+    queryFn: () => FetchAllLeadsSummary(params as any ?? {}),
     refetchOnWindowFocus: false,
+    placeholderData: keepPreviousData,
   });
 
   return {
@@ -22,8 +23,9 @@ export const useFetchLeadsSummary = (params?: LeadsSummaryParams) => {
 export const useFetchLeadsList = (params?: LeadsListParams) => {
   const query = useQuery({
     queryKey: ["leads", "list", params],
-    queryFn: () => FetchAllLeadsList(params ?? {}),
+    queryFn: () => FetchAllLeadsList(params as any ?? {}),
     refetchOnWindowFocus: false,
+    placeholderData: keepPreviousData,
   });
   return {
     data: query.data,
@@ -35,5 +37,3 @@ export const useFetchLeadsList = (params?: LeadsListParams) => {
     isSuccess: query.isSuccess,
   };
 };
-
-

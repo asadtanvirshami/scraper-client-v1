@@ -1,180 +1,207 @@
 "use client";
 
 import { ConfigProvider, theme } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import esES from "antd/locale/es_ES";
+
 const { defaultAlgorithm, darkAlgorithm } = theme;
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [isDark, setIsDark] = useState<boolean | null>(null);
-  const yellowPrimary = "#fadb14"; // AntD "gold" vibe
-  const yellowHover = "#ffe58f";
-  const yellowActive = "#d4b106";
 
-  // Read theme from localStorage OR system
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
-
-    if (savedTheme === "dark") {
-      setIsDark(true);
-    } else if (savedTheme === "light") {
-      setIsDark(false);
-    } else {
-      const media = window.matchMedia("(prefers-color-scheme: dark)");
-      setIsDark(media.matches);
-    }
+    if (savedTheme === "dark") setIsDark(true);
+    else if (savedTheme === "light") setIsDark(false);
+    else setIsDark(window.matchMedia("(prefers-color-scheme: dark)").matches);
   }, []);
 
-  // Persist theme + (optional) sync Tailwind
   useEffect(() => {
     if (isDark === null) return;
-
     localStorage.setItem("theme", isDark ? "dark" : "light");
-
-    // Optional: for Tailwind dark mode
     document.documentElement.classList.toggle("dark", isDark);
   }, [isDark]);
 
-  if (isDark === null) return null; // prevents flicker
+  const palette = useMemo(() => {
+    // Pick ONE blue accent and use it everywhere for consistency
+    const BLUE = "#3B82F6"; // tailwind blue-500 (clean, modern)
+    const BLUE_HOVER = "#2563EB"; // blue-600
+    const BLUE_ACTIVE = "#1D4ED8"; // blue-700
+
+    const dark = {
+      // Accent (blue)
+      accent: BLUE,
+      accentHover: BLUE_HOVER,
+      accentActive: BLUE_ACTIVE,
+      accentSoft: "rgba(59,130,246,0.16)",
+
+      // Neutrals (black/white)
+      bgBase: "#09090B", // near-black
+      bgContainer: "rgba(24, 24, 27, 0.72)",
+      bgElevated: "rgba(24, 24, 27, 0.90)",
+
+      textBase: "rgba(255,255,255,0.92)",
+      textSecondary: "rgba(255,255,255,0.62)",
+
+      // IMPORTANT: keep borders neutral (no blue tint)
+      border: "rgba(255,255,255,0.12)",
+      borderStrong: "rgba(255,255,255,0.18)",
+
+      shadow2: "0 10px 30px rgba(0,0,0,0.45)",
+
+      appBg:
+        "radial-gradient(1200px 800px at 20% 10%, rgba(59,130,246,0.10), transparent 60%), radial-gradient(900px 600px at 80% 20%, rgba(255,255,255,0.03), transparent 60%), linear-gradient(180deg, #060607 0%, #09090b 100%)",
+
+      siderBg: "rgba(24, 24, 27, 0.60)",
+      selectedBg: "rgba(59,130,246,0.18)", // subtle blue selection
+      hoverBg: "rgba(255,255,255,0.06)",
+    };
+
+    const light = {
+      // Accent (blue)
+      accent: BLUE,
+      accentHover: BLUE_HOVER,
+      accentActive: BLUE_ACTIVE,
+      accentSoft: "rgba(59,130,246,0.12)",
+
+      // Neutrals (white/black)
+      bgBase: "#FFFFFF",
+      bgContainer: "rgba(255,255,255,0.88)",
+      bgElevated: "rgba(255,255,255,0.96)",
+
+      textBase: "rgba(0,0,0,0.92)",
+      textSecondary: "rgba(0,0,0,0.60)",
+
+      // IMPORTANT: keep borders neutral (no blue tint)
+      border: "rgba(0,0,0,0.10)",
+      borderStrong: "rgba(0,0,0,0.16)",
+
+      shadow2: "0 10px 30px rgba(0,0,0,0.10)",
+
+      appBg:
+        "radial-gradient(1200px 800px at 20% 10%, rgba(59,130,246,0.10), transparent 60%), radial-gradient(900px 600px at 80% 20%, rgba(0,0,0,0.02), transparent 60%), linear-gradient(180deg, #ffffff 0%, #fafafa 100%)",
+
+      siderBg: "rgba(0,0,0,0.03)",
+      selectedBg: "rgba(59,130,246,0.14)",
+      hoverBg: "rgba(0,0,0,0.04)",
+    };
+
+    return isDark ? dark : light;
+  }, [isDark]);
+
+  if (isDark === null) return null;
 
   return (
     <ConfigProvider
       locale={esES}
       theme={{
         algorithm: isDark ? darkAlgorithm : defaultAlgorithm,
-
-        // Global tokens (affect EVERYTHING)
         token: {
-          colorPrimary: yellowPrimary,
-          colorPrimaryHover: yellowHover,
-          colorPrimaryActive: yellowActive,
+          // ✅ Blue is the brand/accent
+          colorPrimary: palette.accent,
+          colorPrimaryHover: palette.accentHover,
+          colorPrimaryActive: palette.accentActive,
 
-          // Links / focus / borders / etc often follow primary
-          colorLink: yellowPrimary,
-          colorLinkHover: yellowHover,
+          // ✅ Stop AntD’s “blue glow” outlines
+          controlOutline: "transparent",
+          controlOutlineWidth: 0,
 
-          // Border radius / spacing if you want a “premium” feel
+          // ✅ Links use accent blue (not white/black)
+          colorLink: palette.accent,
+          colorLinkHover: palette.accentHover,
+
           borderRadius: 14,
 
-          // Dark/light surfaces tuned to make yellow pop nicely
-          colorBgBase: isDark ? "#0b0f14" : "#fffdf2",
-          colorBgContainer: isDark
-            ? "rgba(17, 24, 39, 0.72)"
-            : "rgba(255, 255, 255, 0.78)",
-          colorBgElevated: isDark
-            ? "rgba(17, 24, 39, 0.88)"
-            : "rgba(255, 255, 255, 0.92)",
+          // Info should also be blue accent
+          colorInfo: palette.accent,
+          colorInfoHover: palette.accentHover,
+          colorInfoActive: palette.accentActive,
 
-          colorTextBase: isDark ? "rgba(255,255,255,0.88)" : "rgba(0,0,0,0.88)",
-          colorText: isDark ? "rgba(255,255,255,0.88)" : "rgba(0,0,0,0.88)",
-          colorTextSecondary: isDark
-            ? "rgba(255,255,255,0.65)"
-            : "rgba(0,0,0,0.6)",
-          colorBorder: isDark
-            ? "rgba(255, 232, 120, 0.18)"
-            : "rgba(212, 177, 6, 0.22)",
+          // Backgrounds
+          colorBgBase: palette.bgBase,
+          colorBgContainer: palette.bgContainer,
+          colorBgElevated: palette.bgElevated,
 
-          // subtle “brand glow”
-          boxShadowSecondary: isDark
-            ? "0 10px 35px rgba(250, 219, 20, 0.08)"
-            : "0 10px 35px rgba(212, 177, 6, 0.12)",
+          // ✅ Neutral borders everywhere (prevents bluish borders)
+          colorBorder: palette.border,
+          colorBorderSecondary: palette.border,
+          colorSplit: palette.border,
+
+          // Text
+          colorTextBase: palette.textBase,
+          colorText: palette.textBase,
+          colorTextSecondary: palette.textSecondary,
+
+          // Shadows
+          boxShadowSecondary: palette.shadow2,
         },
 
-        // ✅ Component-level tokens (override special cases)
         components: {
           Layout: {
             headerBg: "transparent",
             bodyBg: "transparent",
             footerBg: "transparent",
-            siderBg: isDark
-              ? "rgba(17, 24, 39, 0.55)"
-              : "rgba(207, 207, 161, 0.55)",
+            siderBg: palette.siderBg,
             triggerBg: "transparent",
           },
 
-          Form: {
-            labelColor: isDark ? "rgba(255,255,255,0.78)" : "rgba(0,0,0,0.78)",
-            labelFontSize: 16,
-            labelRequiredMarkColor: "#fadb14",
-
-            // spacing + clarity
-            itemMarginBottom: 18,
-          },
-
-          Typography: {
-            colorTextHeading: isDark
-              ? "rgba(255,255,255,0.92)"
-              : "rgba(0,0,0,0.92)",
-            colorTextDescription: isDark
-              ? "rgba(255,255,255,0.72)"
-              : "rgba(0,0,0,0.65)",
-            colorText: isDark ? "rgba(255,255,255,0.88)" : "rgba(0,0,0,0.88)",
-            colorTextDisabled: isDark
-              ? "rgba(255,255,255,0.35)"
-              : "rgba(0,0,0,0.3)",
+          Card: {
+            headerBg: "transparent",
+            colorBgContainer: palette.bgContainer,
           },
 
           Button: {
-            colorPrimary: yellowPrimary,
-            colorPrimaryHover: yellowHover,
-            colorPrimaryActive: yellowActive,
+            // keep primary clean; subtle depth only
             primaryShadow: isDark
-              ? "0 10px 24px rgba(250, 219, 20, 0.16)"
-              : "0 10px 24px rgba(212, 177, 6, 0.20)",
+              ? "0 10px 24px rgba(0,0,0,0.55)"
+              : "0 10px 24px rgba(0,0,0,0.12)",
           },
 
           Menu: {
             itemBg: "transparent",
             subMenuItemBg: "transparent",
-            itemSelectedBg: isDark
-              ? "rgba(250, 219, 20, 0.14)"
-              : "rgba(250, 219, 20, 0.22)",
-            itemSelectedColor: isDark ? "#fff" : "rgba(0,0,0,0.88)",
-            itemHoverBg: isDark
-              ? "rgba(250, 219, 20, 0.10)"
-              : "rgba(250, 219, 20, 0.16)",
-          },
-
-          Card: {
-            headerBg: "transparent",
-            colorBgContainer: isDark
-              ? "rgba(17, 24, 39, 0.62)"
-              : "rgba(255,255,255,0.72)",
+            itemSelectedBg: palette.selectedBg,
+            itemSelectedColor: palette.textBase,
+            itemHoverBg: palette.hoverBg,
           },
 
           Input: {
-            activeBorderColor: yellowPrimary,
-            hoverBorderColor: yellowHover,
+            // ✅ Neutral borders, blue only on focus
+            activeBorderColor: palette.accent,
+            hoverBorderColor: palette.borderStrong,
+            activeShadow: `0 0 0 3px ${palette.accentSoft}`,
           },
 
           Select: {
-            optionSelectedBg: isDark
-              ? "rgba(250, 219, 20, 0.14)"
-              : "rgba(250, 219, 20, 0.18)",
+            // same idea as Input
+            optionSelectedBg: palette.selectedBg,
+            optionActiveBg: palette.hoverBg,
           },
 
           Tabs: {
-            inkBarColor: yellowPrimary,
-            itemSelectedColor: yellowPrimary,
-            itemHoverColor: yellowHover,
+            inkBarColor: palette.accent,
+            itemSelectedColor: palette.accent,
+            itemHoverColor: palette.accentHover,
+          },
+
+          Typography: {
+            colorTextHeading: palette.textBase,
+            colorTextDescription: palette.textSecondary,
+            colorText: palette.textBase,
+            colorTextDisabled: isDark
+              ? "rgba(255,255,255,0.35)"
+              : "rgba(0,0,0,0.35)",
+          },
+
+          Divider: {
+            colorSplit: palette.border,
           },
         },
       }}
     >
-      {/* ✅ AntD App gives proper message/notification context styling too */}
-      <section>
-        {/* ✅ Global gradient background wrapper */}
-        <div
-          style={{
-            minHeight: "100vh",
-            background: isDark
-              ? "radial-gradient(1200px 800px at 20% 10%, rgba(250,219,20,0.18), transparent 55%), radial-gradient(1000px 700px at 80% 20%, rgba(250,219,20,0.10), transparent 55%), linear-gradient(180deg, #070a0f 0%, #0b0f14 100%)"
-              : "radial-gradient(1200px 800px at 20% 10%, rgba(250,219,20,0.22), transparent 55%), radial-gradient(1000px 700px at 80% 20%, rgba(250,219,20,0.14), transparent 55%), linear-gradient(180deg, #fff7cc 0%, #ffffff 55%, #fffdf2 100%)",
-          }}
-        >
-          {children}
-        </div>
-      </section>
+      <div style={{ minHeight: "100vh", background: palette.appBg }}>
+        {children}
+      </div>
     </ConfigProvider>
   );
 }

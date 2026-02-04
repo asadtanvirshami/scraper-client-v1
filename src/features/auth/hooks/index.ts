@@ -1,8 +1,8 @@
-import { ForgotPassword, Login, ResendOTP, ResetPassword, VerifyOTP } from "@/api/api_calls/auth";
+import { ForgotPassword, GoogleSignIn, Login, ResendOTP, ResetPassword, VerifyOTP } from "@/api/api_calls/auth";
 import { useMutation } from "@tanstack/react-query";
 import { Register } from "@/api/api_calls/auth";
 import { notification } from "@/lib/notification";
-import { getErrorMessage } from "@/extractor/auth";
+import { getErrorMessage } from "@/utils/extractor/auth";
 import { useRouter } from "next/navigation";
 
 export function useVerifyOtp() {
@@ -121,6 +121,26 @@ export function useResetPassword () {
     onError: (error) => {
       const errorMessage = getErrorMessage(error);
       console.error("OTP resend error:", error);
+      notification.error({
+        messageKey: errorMessage,
+      });
+    },
+  });
+}
+
+export function useGoogleSignin () {
+  return useMutation({
+    mutationKey: ["google-signin"],
+    mutationFn: async (input: any) => await GoogleSignIn(input), // Use async/await to wrap the promise
+    onSuccess: (data) => {
+      notification.success({
+        messageKey: "auth.messages.success.account_created",
+      });
+      return data;
+    },
+    onError: (error) => {
+      const errorMessage = getErrorMessage(error);
+      console.error("Sign-up error:", error);
       notification.error({
         messageKey: errorMessage,
       });

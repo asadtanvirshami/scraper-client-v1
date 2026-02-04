@@ -4,8 +4,107 @@
     "dashboard": "Panel",
     "campaigns": "Campañas",
     "leads": "Leads",
+    "folders": "Carpetas",
     "billing": "Facturación",
-    "settings": "Configuración"
+    "settings": "Configuración",
+    "admin": {
+      "dashboard": "Dashboard",
+      "users": "Usuarios",
+      "bugs": "Errores",
+      "notifications": "Notificaciones",
+      "reports": "Informes"
+    },
+
+    "role": {
+      "admin": "Admin",
+      "user": "Espacio de trabajo"
+    }
+  },
+
+  "admin": {
+    "panel_title": "Panel de Administración",
+    "panel_subtitle": "Supervisa usuarios, accesos y actividad del sistema.",
+    "kpis": {
+      "total_users": "Total de usuarios",
+      "blocked_users": "Usuarios bloqueados",
+      "feedbacks": "Sugerencias",
+      "bugs": "Errores",
+      "new_in_range": "Nuevos en el rango: {count}",
+      "avg_per_day": "Prom./día: {count}"
+    },
+    "charts": {
+      "users_created": {
+        "title": "Usuarios creados",
+        "subtitle": "Nuevos usuarios durante el periodo seleccionado.",
+        "empty_title": "Sin actividad en este rango",
+        "empty_subtitle": "Prueba ampliando el rango de fechas.",
+        "tooltip": "{count} usuarios"
+      }
+    },
+    "feedbacks": {
+      "title": "Feedbacks",
+      "total": "Total {total}",
+      "empty": "No hay feedbacks",
+      "search": {
+        "placeholder": "Buscar en el texto del feedback..."
+      },
+      "table": {
+        "feedback": "Feedback",
+        "user": "Usuario",
+        "created": "Creado",
+        "updated": "Actualizado"
+      },
+      "confirm": {
+        "delete_one": "¿Eliminar este feedback?",
+        "delete_selected": "¿Eliminar {count} elemento(s) seleccionado(s)?"
+      }
+    },
+    "bugs": {
+      "title": "Bugs",
+      "total": "Total {total}",
+      "empty": "No hay bugs",
+      "search": {
+        "placeholder": "Buscar en el texto del bug..."
+      },
+      "table": {
+        "bug": "Bug",
+        "user": "Usuario",
+        "created": "Creado",
+        "updated": "Actualizado"
+      },
+      "confirm": {
+        "delete_one": "¿Eliminar este bug?",
+        "delete_selected": "¿Eliminar {count} elemento(s) seleccionado(s)?"
+      }
+    },
+    "users": {
+      "details": {
+        "title": "Detalles del usuario"
+      },
+      "title": "Usuarios",
+      "total": "Total {total}",
+      "empty": "No hay usuarios",
+      "search": {
+        "placeholder": "Buscar por nombre o correo..."
+      },
+      "table": {
+        "name": "Nombre",
+        "email": "Correo",
+        "role": "Rol",
+        "provider": "Proveedor de acceso",
+        "verified": "Verificado",
+        "blocked": "Bloqueado",
+        "created": "Creado"
+      },
+      "confirm": {
+        "bulk_delete": "¿Eliminar los usuarios seleccionados?",
+        "bulk_delete_desc": "Esto eliminará {count} usuario(s). Esta acción no se puede deshacer.",
+        "delete_all": "¿Eliminar todos los usuarios?",
+        "delete_all_desc": "Esto eliminará todos los usuarios que coincidan con los filtros actuales. Esta acción no se puede deshacer.",
+        "delete_one": "¿Eliminar este usuario?",
+        "delete_selected": "¿Eliminar {count} usuario(s) seleccionado(s)?"
+      }
+    }
   },
 
   "auth": {
@@ -27,6 +126,7 @@
         "password_too_short": "La contraseña debe tener al menos 8 caracteres."
       }
     },
+
     "sign_up": {
       "sign_up_with_email": "Registrarse con correo electrónico",
       "buttonCTA": "Crear cuenta",
@@ -48,6 +148,7 @@
         "password_too_short": "La contraseña debe tener al menos 8 caracteres."
       }
     },
+
     "forgot_password": {
       "title": "Restablecer contraseña",
       "forgot_password": "¿Olvidaste tu contraseña?",
@@ -59,23 +160,29 @@
         "invalid_email_format": "El formato del correo electrónico no es válido."
       }
     },
+
     "reset_password": {
       "title": "Restablecer contraseña",
       "buttonCTA": "Restablecer contraseña",
       "success_message": "La contraseña se restableció correctamente.",
+
       "otp": "Código de verificación (OTP)",
       "otp_placeholder": "Introduce el código OTP",
       "otp_required": "El código OTP es obligatorio.",
       "otp_length": "El código OTP debe tener 6 dígitos.",
       "otp_numeric": "El código OTP solo debe contener números.",
+
       "new_password": "Nueva contraseña",
       "new_password_placeholder": "Introduce la nueva contraseña",
+
       "confirm_password": "Confirmar contraseña",
       "confirm_password_placeholder": "Confirma la nueva contraseña",
+
       "password_required": "La contraseña es obligatoria.",
       "password_too_short": "La contraseña debe tener al menos 8 caracteres.",
       "password_mismatch": "Las contraseñas no coinciden."
     },
+
     "messages": {
       "errors": {
         "user_not_found": "Usuario no encontrado",
@@ -94,6 +201,8 @@
         "unexpected_error": "Ocurrió un error inesperado"
       },
       "success": {
+        "otp_sent": "OTP enviado correctamente",
+        "email_sent": "Correo enviado correctamente",
         "password_reset_email_sent": "Correo de restablecimiento de contraseña enviado",
         "account_created": "Cuenta creada correctamente",
         "signed_in_successfully": "Inicio de sesión exitoso",
@@ -127,6 +236,26 @@
   },
 
   "commons": {
+    "name": "Nombre",
+    "email": "Correo",
+    "role": "Rol",
+    "redirecting_title": "Redirigiendo",
+    "redirecting_signin": "Redirigiendo al inicio de sesión…",
+    "created": "Creado",
+    "bulk_delete": "Eliminar seleccionados ({count})",
+    "yes": "Sí",
+    "no": "No",
+    "delete_all": "Eliminar todos",
+    "confirm_delete_one": "¿Eliminar este elemento?",
+    "confirm_delete_selected": "¿Eliminar {count} elemento(s) seleccionado(s)?",
+    "confirm_delete_all": "¿Eliminar todos los elementos?",
+    "confirm_delete_all_desc": "Esta acción no se puede deshacer.",
+    "confirm_verify": "¿Verificar este usuario?",
+    "confirm_unverify": "¿Quitar verificación a este usuario?",
+    "confirm_block": "¿Bloquear este usuario?",
+    "confirm_unblock": "¿Desbloquear este usuario?",
+    "select_all": "Seleccionar todo",
+    "clear_selection": "Limpiar selección",
     "add": "Añadir",
     "search": "Buscar",
     "reset": "Restablecer",
@@ -141,7 +270,58 @@
     "deleted": "Eliminado",
     "delete_failed": "Error al eliminar",
     "bulk_delete_failed": "Error al eliminar en lote",
-     "clear": "Limpiar"
+    "clear": "Limpiar",
+    "view": "Ver",
+    "end_of_list": "Fin de la lista",
+    "blocked": "Usuario bloqueado",
+    "unblocked": "Usuario desbloqueado",
+    "verified": "Usuario verificado",
+    "unverified": "Usuario no verificado",
+    "block_failed": "Error al bloquear al usuario",
+    "verify_failed": "Error al verificar al usuario",
+    "range_presets": {
+      "last7": "Últimos 7 días",
+      "last30": "Últimos 30 días",
+      "thisMonth": "Este mes"
+    },
+    "range_placeholder": {
+      "start": "Fecha de inicio",
+      "end": "Fecha de fin"
+    }
+  },
+  "errors": {
+    "global": {
+      "title": "Algo salió mal",
+      "subtitle": "Ocurrió un error inesperado. Inténtalo de nuevo.",
+      "try_again": "Reintentar",
+      "go_home": "Ir al inicio",
+      "details": "Detalles del error:"
+    },
+    "404": {
+      "title": "Página no encontrada",
+      "subtitle": "La página que buscas no existe o fue movida.",
+      "go_signin": "Ir a iniciar sesión",
+      "go_home": "Inicio"
+    }
+  },
+
+  "users": {
+    "title": "Usuarios",
+    "create": "Crear Usuario",
+    "table": {
+      "name": "Nombre",
+      "email": "Correo",
+      "role": "Rol",
+      "actions": "Acciones"
+    },
+    "role": {
+      "admin": "Admin",
+      "user": "Espacio de trabajo"
+    },
+    "actions": {
+      "edit": "Editar",
+      "delete": "Eliminar"
+    }
   },
 
   "support": {
@@ -169,13 +349,23 @@
   },
 
   "leads": {
+    "page": {
+      "title": "Leads",
+      "subtitle": "Gestiona y haz seguimiento de tus leads."
+    },
+    "insights": {
+      "title": "Insights",
+      "subtitle": "Selecciona un rango de fechas para actualizar gráficos e insights."
+    },
     "widget": {
       "recent_title": "Leads",
       "total": "Total {total}"
     },
     "empty": "Aún no hay leads",
     "actions": {
-      "view_all": "Ver todos"
+      "view_all": "Ver todos",
+      "download": "Descargar",
+      "add_to_leads": "Añadir a leads"
     },
     "search": {
       "placeholder": "Buscar por nombre, email, empresa..."
@@ -190,6 +380,7 @@
       "createdAt": "Creado",
       "phones": "Teléfonos"
     },
+
     "status": {
       "new": "Nuevo",
       "converted": "Convertido"
@@ -226,29 +417,48 @@
     "form": {
       "first_name": "Nombre",
       "last_name": "Apellidos",
+      "folder": "Carpeta",
+      "folder_placeholder": "Selecciona una carpeta",
       "emails": "Emails",
       "phones": "Números de teléfono",
       "add_email": "Añadir email",
       "add_phone": "Añadir teléfono",
       "email_invalid": "Email inválido",
+      "email_placeholder": "email@example.com",
+      "phone_placeholder": "+123456789",
       "company": "Empresa",
       "job_title": "Cargo",
       "type": "Origen",
+      "type_instagram": "Instagram",
+      "type_linkedin": "LinkedIn",
+      "type_manual": "Manual",
       "message": "Mensaje",
       "is_converted": "Convertido"
+    },
+    "scrape": {
+      "success": "Lead añadido correctamente.",
+      "failed": "No se pudo añadir el lead."
     }
   },
 
   "folders": {
+    "edit": "Editar carpeta",
     "title": "Carpetas",
     "create": "Crear Carpeta",
     "search": {
       "placeholder": "Buscar carpetas..."
     },
+    "placeholders": {
+      "name": "p. ej., Leads de Seguridad"
+    },
+    "errors": {
+      "name_required": "El nombre es obligatorio."
+    },
     "filters": {
       "all": "Todas"
     },
     "table": {
+      "empty": "No hay carpetas",
       "name": "Nombre",
       "status": "Estado",
       "createdAt": "Creado el",
@@ -268,6 +478,10 @@
       "title": "Detalles de la Carpeta",
       "close": "Cerrar"
     },
+    "details": {
+      "title": "Carpeta",
+      "subtitle": "Ver y gestionar los leads dentro de esta carpeta."
+    },
     "fields": {
       "id": "ID",
       "name": "Nombre",
@@ -278,7 +492,39 @@
     }
   },
 
+  "dashboard": {
+    "title": "Panel",
+    "subtitle": "Supervisa el rendimiento y la actividad de leads.",
+    "filters": {
+      "title": "Filtros",
+      "subtitle": "Selecciona un rango de fechas para actualizar los gráficos."
+    },
+    "charts": {
+      "leads_by_type_bar": "Leads añadidos (por tipo)",
+      "weekly_leads": "Leads añadidos (últimos 7 días)"
+    },
+    "stats": {
+      "totalLeads": "Total de leads",
+      "converted": "Convertidos",
+      "conversionRate": "Tasa de conv.",
+      "avgPerDay": "Prom. / día",
+      "subtitles": {
+        "customRange": "Rango personalizado",
+        "lastDays": "Últimos {days} días",
+        "markedConverted": "Marcados como convertidos",
+        "convertedOverTotal": "Convertidos / total",
+        "averagePerDay": "Promedio por día"
+      }
+    }
+  },
+
   "settings": {
+    "tabs": {
+      "general": "General",
+      "profile": "Perfil",
+      "password_security": "Contraseña y seguridad",
+      "support": "Soporte y feedback"
+    },
     "general": {
       "title": "General"
     },
@@ -302,7 +548,6 @@
       "title": "Cerrar tu cuenta",
       "button": "Cerrar tu cuenta definitivamente",
       "helpText": "Todos los datos de esta cuenta se eliminarán permanentemente",
-
       "confirmTitle": "¿Cerrar la cuenta?",
       "confirmText": "Esta acción es permanente. Tu cuenta y todos los datos asociados se eliminarán de forma definitiva. ¿Estás seguro de que deseas continuar?",
       "confirmOk": "Sí, cerrar mi cuenta",
@@ -310,6 +555,23 @@
     },
     "errors": {
       "required": "Este campo es obligatorio."
+    }
+  },
+
+  "profile": {
+    "title": "Perfil",
+    "avatar": "Foto de perfil",
+    "uploadAvatar": "Subir avatar",
+    "firstName": "Nombre",
+    "lastName": "Apellido",
+    "email": "Correo electrónico",
+    "save": "Guardar cambios",
+    "changePassword": "Cambiar contraseña",
+    "errors": {
+      "firstName": "El nombre es obligatorio.",
+      "lastName": "El apellido es obligatorio.",
+      "email": "El correo es obligatorio.",
+      "invalidEmail": "Formato de correo inválido."
     }
   },
 
@@ -331,29 +593,6 @@
     }
   },
 
-  "profile": {
-    "title": "Perfil",
-    "avatar": "Foto de perfil",
-    "uploadAvatar": "Subir avatar",
-    "firstName": "Nombre",
-    "lastName": "Apellido",
-    "email": "Correo electrónico",
-    "save": "Guardar cambios",
-    "changePassword": "Cambiar contraseña",
-    "errors": {
-      "firstName": "El nombre es obligatorio.",
-      "lastName": "El apellido es obligatorio.",
-      "email": "El correo es obligatorio.",
-      "invalidEmail": "Formato de correo inválido."
-    }
-  },
-
-  "dashboard": {
-    "charts": {
-      "weekly_leads": "Leads añadidos (últimos 7 días)"
-    }
-  },
-
   "notifications": {
     "title": "Notificaciones",
     "empty": "No tienes notificaciones.",
@@ -369,6 +608,70 @@
       "warning": "advertencia",
       "success": "éxito",
       "info": "info"
+    }
+  },
+
+  "insights": {
+    "cards": {
+      "total_leads": {
+        "title": "Total de leads",
+        "subtitle": {
+          "delta": "Comparado con ayer • {todayLabel}",
+          "all_sources": "Todas las fuentes combinadas"
+        }
+      },
+      "converted": {
+        "title": "Convertidos",
+        "subtitle": {
+          "percent_of_total": "{percent}% del total",
+          "dash": "—"
+        }
+      },
+      "deleted": {
+        "title": "Eliminados",
+        "subtitle": {
+          "percent_of_total": "{percent}% del total",
+          "dash": "—"
+        }
+      },
+      "by_type": {
+        "title": "Por tipo",
+        "subtitle": {
+          "no_breakdown": "Sin desglose por tipo"
+        }
+      }
+    },
+    "labels": {
+      "today": "hoy"
+    }
+  },
+
+  "scraper": {
+    "card": {
+      "title": "Iniciar scraping",
+      "subtitle": "Extrae leads de LinkedIn o Instagram y guárdalos en tus leads.",
+      "manage": "Gestionar"
+    },
+    "start": "Iniciar",
+    "linkedin": {
+      "title": "LinkedIn",
+      "desc": "Extrae detalles del perfil + contactos si están disponibles."
+    },
+    "instagram": {
+      "title": "Instagram",
+      "desc": "Extrae detalles públicos del perfil como el usuario y la bio."
+    },
+    "modal": {
+      "linkedin": "Iniciar scraping de LinkedIn",
+      "instagram": "Iniciar scraping de Instagram",
+      "profileUrl": "URL del perfil",
+      "profileUrlRequired": "La URL del perfil es obligatoria",
+      "ok": "Iniciar scraping",
+      "note": "Si LinkedIn usa SignalHire, los leads pueden aparecer después de que termine el callback."
+    },
+    "status": {
+      "running": "EN PROCESO",
+      "ready": "LISTO"
     }
   }
 }

@@ -1,7 +1,7 @@
 import { Header } from "antd/es/layout/layout";
 import { ProfileDropdown, LogoutButton } from "./header-menu";
-import LanguageSwitcher from "@/components/ui/language-swticher";
-import NotificationsBell from "@/components/ui/notification-bell";
+import LanguageSwitcher from "@/components/ui (generic)/language-swticher";
+import NotificationsBell from "@/components/ui (generic)/notification-bell";
 
 const AppHeader = () => {
   return (

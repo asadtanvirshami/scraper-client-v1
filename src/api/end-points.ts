@@ -3,7 +3,7 @@ import { withPagination } from "@/helpers/query-helper";
 export const apiEndpoints = {
   auth: {
     signin: "/auth/login",
-    google: "/auth/google-login",
+    google: "/auth/google-signin",
     logout: "/auth/logout",
     signup: "/auth/register",
     verifyOtp: "/auth/verify-otp",
@@ -14,8 +14,15 @@ export const apiEndpoints = {
     verifyJWT: "/auth/verification",
   },
 
+  scrapper: {
+    instagram: "/scrapper/scrap-instagram",
+    linkedin: "/scrapper/scrap-linkedin",
+    // callback is server-to-server, frontend doesn't call it
+  },
+
   dashboard: {
-    get: "/dashboard",
+    get: (params?: { days?: number; dateFrom?: string; dateTo?: string }) =>
+      withPagination("/dashboard", params ?? {}),
   },
 
   support: {
@@ -30,8 +37,34 @@ export const apiEndpoints = {
     deleteMe: "/user/me",
     uploadAvatar: "/user/avatar",
 
+    // user
+    getAllUser: (params: {
+      offset?: number; // 1-based
+      limit?: number;
+      search?: string;
+      role?: "USER" | "ADMIN";
+      is_blocked?: boolean;
+      is_verified?: boolean;
+      sortBy?: string; // created | updated_at
+      sortOrder?: "asc" | "desc";
+    }) => withPagination("/user/all", params),
+
+    getByIdUser: (userId: string) => `/user/${userId}`,
+    deleteByIdUser: (userId: string) => `/user/${userId}`,
+    blockUser: (userId: string) => `/user/block/${userId}`,
+    bulkDeleteUsers: "/user/bulk-delete",
+
     // admin
-    getAll: "/user/all",
+    getAll: (params: {
+      offset?: number; // 1-based
+      limit?: number;
+      search?: string;
+      role?: "USER" | "ADMIN";
+      is_blocked?: boolean;
+      is_verified?: boolean;
+      sortBy?: string; // created | updated_at
+      sortOrder?: "asc" | "desc";
+    }) => withPagination("/user/all", params),
     getById: (userId: string) => `/user/${userId}`,
     deleteById: (userId: string) => `/user/${userId}`,
     block: (userId: string) => `/user/block/${userId}`,
@@ -66,6 +99,15 @@ export const apiEndpoints = {
       folder_id?: string;
       is_converted?: boolean;
     }) => withPagination("/lead/download", params),
+  },
+
+  folders: {
+    create: "/folder/create",
+    update: `/folder/update`,
+    delete: (id: string) => `/folder/delete/${id}`,
+    bulkDelete: `/folder/bulk-delete`,
+    get: (params: { offset?: number; limit?: number }) =>
+      withPagination("/folder/get", params),
   },
 
   notifications: {

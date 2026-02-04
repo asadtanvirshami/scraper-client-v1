@@ -2,12 +2,13 @@ import { fetchDashboard } from "@/api/api_calls/dashboard";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 
 export type DashboardParams = {
+  user_id: string;
   days?: number;
   dateFrom?: string; // YYYY-MM-DD
   dateTo?: string;   // YYYY-MM-DD
 };
 
-export const useFetchDashboard = (params?: DashboardParams) => {
+export const useFetchDashboard = (params?: DashboardParams,) => {
   const query = useQuery({
     queryKey: ["dashboard", params], // ✅ refetch when params change
     queryFn: () => fetchDashboard(params ?? {}),

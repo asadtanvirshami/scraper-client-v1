@@ -1,10 +1,13 @@
-import React from 'react'
-import SignInCard from './components/signin-card'
+"use client"
+import AuthCard from "../ui/auth-card";
+import SignInForm from "./signin-form";
 
 const SignInLayout = () => {
   return (
-    <SignInCard/>
-  )
-}
+    <div>
+      <AuthCard title="auth.sign_in.sign_in_with_email" children={<SignInForm />} />
+    </div>
+  );
+};
 
-export default SignInLayout
+export default SignInLayout;

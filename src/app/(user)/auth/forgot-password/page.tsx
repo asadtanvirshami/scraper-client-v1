@@ -1,8 +1,8 @@
-import ForgotPassCard from "@/features/auth/forgot-password/components/forgot_pass-card";
-import React from "react";
+import ForgotPasswordLayout from "@/features/auth/forgot-password";
+
 
 const ForgotPasswordPage = () => {
-  return <ForgotPassCard />;
+  return <ForgotPasswordLayout />;
 };
 
 export default ForgotPasswordPage;

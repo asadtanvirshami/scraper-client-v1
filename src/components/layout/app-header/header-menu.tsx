@@ -11,8 +11,6 @@ import { persistor } from "@/redux/store";
 
 const ProfileDropdown: React.FC = () => {
   const { user } = useUserInfo();
-  console.log(user);
-
   const items: MenuProps["items"] = [
     {
       className: "!bg-transparent hover:!bg-transparent",

@@ -1,16 +1,7 @@
-import { GenericResponse } from "@/api/api_calls/type";
-import { UpdateProfile } from "@/api/api_calls/user";
 import { useMutation } from "@tanstack/react-query";
 
-import { CreateBug, CreateFeedback, CreateBugPayload, CreateFeedbackPayload } from "@/api/api_calls/support";
-
-export const useUpdateProfile = () =>
-  useMutation<GenericResponse, Error, UpdateProfilePayload>({
-    mutationKey: ["user", "updateProfile"],
-    mutationFn: async (payload) => {
-      return await UpdateProfile(payload);
-    },
-  });
+import { CreateBug, CreateFeedback,  } from "@/api/api_calls/support";
+import { CreateBugPayload, CreateFeedbackPayload } from "@/types/api/bug";
 
 
 export const useCreateBug = () => {
