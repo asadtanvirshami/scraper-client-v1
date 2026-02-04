@@ -113,9 +113,7 @@ export default function LeadsScraperCard({
     [scrapeId, user_id, folderId],
   );
 
-  const leadsQuery = useFetchLeadsList(leadsParams);
-  console.log(leadsQuery.data);
-
+  const leadsQuery = useFetchLeadsList(leadsParams); 
   const scrapedLeads = useMemo(
     () => normalizeScrapedLeads(leadsQuery.data),
     [leadsQuery.data],

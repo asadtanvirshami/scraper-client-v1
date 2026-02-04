@@ -86,7 +86,8 @@ export default function NotificationsPage() {
     return g;
   }, [items]);
 
-  const handleClearAll = async () => await clearAllNotifications.mutateAsync();
+  const handleClearAll = async () =>
+    await clearAllNotifications.mutateAsync(id as string);
 
   const headerStyle: React.CSSProperties = {
     display: "flex",
@@ -183,7 +184,7 @@ export default function NotificationsPage() {
                   <div
                     style={{ display: "flex", flexDirection: "column", gap: 8 }}
                   >
-                    {arr.map((n) => (
+                    {arr.map((n:any) => (
                       <div
                         key={n.id}
                         style={{ ...cardStyle, opacity: n.is_read ? 0.7 : 1 }}

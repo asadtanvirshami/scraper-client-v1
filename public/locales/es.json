@@ -239,6 +239,8 @@
     "name": "Nombre",
     "email": "Correo",
     "role": "Rol",
+    "redirecting_title": "Redirigiendo",
+    "redirecting_signin": "Redirigiendo al inicio de sesión…",
     "created": "Creado",
     "bulk_delete": "Eliminar seleccionados ({count})",
     "yes": "Sí",
@@ -285,6 +287,21 @@
     "range_placeholder": {
       "start": "Fecha de inicio",
       "end": "Fecha de fin"
+    }
+  },
+  "errors": {
+    "global": {
+      "title": "Algo salió mal",
+      "subtitle": "Ocurrió un error inesperado. Inténtalo de nuevo.",
+      "try_again": "Reintentar",
+      "go_home": "Ir al inicio",
+      "details": "Detalles del error:"
+    },
+    "404": {
+      "title": "Página no encontrada",
+      "subtitle": "La página que buscas no existe o fue movida.",
+      "go_signin": "Ir a iniciar sesión",
+      "go_home": "Inicio"
     }
   },
 
@@ -502,6 +519,12 @@
   },
 
   "settings": {
+    "tabs": {
+      "general": "General",
+      "profile": "Perfil",
+      "password_security": "Contraseña y seguridad",
+      "support": "Soporte y feedback"
+    },
     "general": {
       "title": "General"
     },

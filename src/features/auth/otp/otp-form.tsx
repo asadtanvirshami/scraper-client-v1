@@ -36,7 +36,7 @@ const OTPForm: React.FC<OTPFormProps> = ({
 
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
-    index: number
+    index: number,
   ) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputsRef.current[index - 1]?.focus();
@@ -84,7 +84,9 @@ const OTPForm: React.FC<OTPFormProps> = ({
           <Input
             key={index}
             value={digit}
-            ref={(el) => (inputsRef.current[index] = (el as HTMLInputElement) || null)}
+            ref={(el: any) =>
+              (inputsRef.current[index] = (el as any) || null)
+            }
             onChange={(e) => handleChange(e.target.value, index)}
             onKeyDown={(e) => handleKeyDown(e, index)}
             onPaste={handlePaste}

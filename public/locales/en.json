@@ -261,7 +261,9 @@
       "last30": "Last 30 days",
       "thisMonth": "This month"
     },
-    "delete_all":"Delete All",
+    "redirecting_title": "Redirecting",
+    "redirecting_signin": "Redirecting to sign in…",
+    "delete_all": "Delete All",
     "confirm_delete_one": "Delete this item?",
     "confirm_delete_selected": "Delete {count} selected item(s)?",
     "confirm_delete_all": "Delete all items?",
@@ -474,7 +476,29 @@
     }
   },
 
+  "errors": {
+    "global": {
+      "title": "Something went wrong",
+      "subtitle": "An unexpected error occurred. Try again.",
+      "try_again": "Try again",
+      "go_home": "Go home",
+      "details": "Error details:"
+    },
+    "404": {
+      "title": "Page not found",
+      "subtitle": "The page you’re looking for doesn’t exist or has been moved.",
+      "go_signin": "Go to sign in",
+      "go_home": "Home"
+    }
+  },
+
   "settings": {
+    "tabs": {
+      "general": "General",
+      "profile": "Profile",
+      "password_security": "Password & Security",
+      "support": "Support & Feedback"
+    },
     "general": {
       "title": "General"
     },
