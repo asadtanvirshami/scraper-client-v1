@@ -34,14 +34,13 @@ const pageStyle: React.CSSProperties = {
   minHeight: "100vh",
 };
 
-const UserLayout = () => {
+const UserLayout = ({ id }: { id: string }) => {
   // ✅ filters
   const [preset, setPreset] = useState<PresetKey>("7d");
   const [range, setRange] = useState<[Dayjs | null, Dayjs | null]>([
     null,
     null,
   ]);
-
   const todayStr = dayjs().format("YYYY-MM-DD");
 
   // ✅ params driven by range OR preset
@@ -52,10 +51,11 @@ const UserLayout = () => {
       return {
         dateFrom: from.format("YYYY-MM-DD"),
         dateTo: to.format("YYYY-MM-DD"),
+        user_id: id ?? "",
       };
     }
 
-    return { days: PRESET_TO_DAYS[preset] };
+    return { days: PRESET_TO_DAYS[preset], user_id: id ?? "" };
   }, [range, preset]);
 
   const isTodayOnly = useMemo(() => {
@@ -67,18 +67,18 @@ const UserLayout = () => {
     );
   }, [range, todayStr]);
 
-  // ✅ query (NOW affects everything)
+  // query (NOW affects everything)
   const { data, isLoading, isFetching } = useFetchDashboard(params);
 
-  // ✅ full page spinner only on first load
+  // full page spinner only on first load
   if (isLoading && isTodayOnly) return <Spinner size="large" />;
 
-  // ✅ use filtered data directly
+  // use filtered data directly
   const totals = data?.data?.totals;
   const insights = data?.data?.insights;
   const charts = data?.data?.charts;
 
-  // ✅ loading on refetch
+  // loading on refetch
   const loading = isTodayOnly ? isLoading : isFetching;
 
   const isCustomRange = Boolean(range?.[0] && range?.[1]);
@@ -93,8 +93,6 @@ const UserLayout = () => {
   const handleRange = (r: [Dayjs | null, Dayjs | null]) => {
     setRange(r ?? [null, null]);
   };
-
-  console.log(data);
 
   return (
     <div style={pageStyle}>
@@ -162,7 +160,7 @@ const UserLayout = () => {
             onFetch={() => {}}
             user_id=""
             showFilters={false}
-            total={data?.data?.recent?.leads.length ?? 0}
+            total={data?.data?.recent?.leads?.length ?? 0}
             loading={isFetching}
             value={{
               search: "",

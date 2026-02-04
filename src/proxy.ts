@@ -1,8 +1,6 @@
-// middleware.ts
 import { NextRequest, NextResponse } from "next/server";
-import { verifyJWTServer } from "@/lib/auth_JWT/verify_JWT"; // must be edge-safe
+import { verifyJWTServer } from "@/lib/auth_JWT/verify_JWT";
 
-// Pages anyone can visit (add /plans so we don't loop)
 const PUBLIC_ROUTES = [
   "/login",
   "/signup",
@@ -14,7 +12,6 @@ const PUBLIC_ROUTES = [
   "/",
 ];
 
-// URL patterns we never run auth logic for (assets, files, etc.)
 const ALWAYS_PUBLIC = [
   /^\/_next\//,
   /^\/favicon\.ico$/,
@@ -23,77 +20,89 @@ const ALWAYS_PUBLIC = [
   /^\/public\//,
 ];
 
-// Prefixes that require auth
+// NOTE: including "/" means "everything is protected unless explicitly public"
 const PROTECTED_PREFIXES = [
   "/",
   "/dashboard",
-  "/accounts",
-  "/profile",
-  "/operations",
-  "/journal",
-  "/podium",
-  "/tools",
-  "/strategy",
-  "/billing",
-  "/notifications",
+  "/settings",
+  "/users",
+  "/bugs",
+  "/campaigns",
+  "/billings",
+  "/feedbacks",
 ];
+
+// Admin-only areas
+const ADMIN_ONLY_PREFIXES = ["/dashboard/a", "/bugs", "/users", "/feedbacks"];
+
+// User-only dashboard area
+const USER_ONLY_PREFIXES = ["/dashboard/u"];
 
 export async function proxy(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
 
-  // 1) Skip assets/system routes fast
-  if (ALWAYS_PUBLIC.some((re) => re.test(pathname))) {
-    return NextResponse.next();
-  }
+  if (ALWAYS_PUBLIC.some((re) => re.test(pathname))) return NextResponse.next();
+  if (PUBLIC_ROUTES.includes(pathname)) return NextResponse.next();
 
-  // 2) Let explicit public pages through
-  if (PUBLIC_ROUTES.includes(pathname)) {
-    return NextResponse.next();
-  }
-
-  // 3) Is this path protected?
   const isProtected = PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
-  if (!isProtected) {
-    return NextResponse.next();
-  }
+  if (!isProtected) return NextResponse.next();
 
-  // 4) Read token and verify
   const token = req.cookies.get("access_token")?.value;
-  console.log(token);
-  if (!token) {
-    return redirectTo(req, "/auth/signin", pathname + search);
-  }
+  if (!token) return redirectTo(req, "/auth/signin", pathname + search);
 
-  let session: any = null;
+  let session: any;
   try {
-    session = await verifyJWTServer(token); // must work on the edge (use 'jose' under the hood)
-    console.log(session);
+    session = await verifyJWTServer(token);
   } catch (err) {
     console.warn("JWT validation failed:", err);
     return redirectTo(req, "/auth/signin", pathname + search);
   }
-  if (!session) {
-    return redirectTo(req, "/auth/signin", pathname + search);
+
+  if (!session?.success) return redirectTo(req, "/auth/signin", pathname + search);
+
+  const roleRaw = session?.data?.role ?? session?.role;
+  const role: "ADMIN" | "USER" =
+    String(roleRaw || "USER").toUpperCase() === "ADMIN" ? "ADMIN" : "USER";
+
+  const isBlocked = Boolean(session?.data?.is_blocked ?? session?.is_blocked);
+  if (isBlocked) return redirectTo(req, "/auth/signin", pathname + search);
+
+  // ✅ IMPORTANT: your routes are /dashboard/a/[id] and /dashboard/u/[id]
+  const userId = String(session?.data?.id ?? session?.data?._id ?? "");
+  // fallback if id missing (avoid redirect loops)
+  if (!userId) return redirectTo(req, "/auth/signin", pathname + search);
+
+  const roleHome =
+    role === "ADMIN" ? `/dashboard/a/${userId}` : `/dashboard/u/${userId}`;
+
+  // 1) USER cannot access admin-only prefixes
+  if (role === "USER" && isUnderAnyPrefix(pathname, ADMIN_ONLY_PREFIXES)) {
+    return NextResponse.redirect(new URL(roleHome, req.url));
   }
-  // 5) No valid session -> signin
-  if (!session?.success) {
-    return redirectTo(req, "/auth/signin", pathname + search);
+
+  // 2) ADMIN cannot access user dashboard prefix (you requested separation)
+  if (role === "ADMIN" && isUnderAnyPrefix(pathname, USER_ONLY_PREFIXES)) {
+    return NextResponse.redirect(new URL(roleHome, req.url));
+  }
+
+  // ✅ Optional: if user hits /dashboard (root), send to their dashboard home
+  if (pathname === "/dashboard" || pathname === "/dashboard/") {
+    return NextResponse.redirect(new URL(roleHome, req.url));
   }
 
   return NextResponse.next();
 }
 
-// Helper: keep return-to so user comes back after completing action
+function isUnderAnyPrefix(pathname: string, prefixes: string[]) {
+  return prefixes.some((p) => pathname === p || pathname.startsWith(p + "/"));
+}
+
 function redirectTo(req: NextRequest, to: string, returnTo?: string) {
   const url = new URL(to, req.url);
   if (returnTo) url.searchParams.set("returnTo", returnTo);
   return NextResponse.redirect(url);
 }
 
-// Limit middleware to pages (skip files by default)
 export const config = {
-  matcher: [
-    // run on everything except files with an extension
-    "/((?!.*\\.[\\w]+$).*)",
-  ],
+  matcher: ["/((?!.*\\.[\\w]+$).*)"],
 };

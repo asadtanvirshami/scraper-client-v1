@@ -149,29 +149,19 @@ const UnscrappedLeadsTable: React.FC<Props> = ({
     });
   };
 
-  const openEditDrawer = (lead: Lead) => {
-    openDrawer({
-      title: intl.formatMessage({ id: "leads.drawer.edit_title" }),
-      width: 520,
-      content: (
-        <LeadForm
-          mode="edit"
-          initialValues={lead}
-          onClose={closeDrawer}
-          onSubmit={async (payload) => {
-            try {
-              const id = (lead as any)._id as string;
-              if (onUpdateLead) await onUpdateLead(id, payload);
-              message.success(intl.formatMessage({ id: "commons.saved" }));
-              closeDrawer();
-              fetchNow({});
-            } catch (e) {
-              message.error(intl.formatMessage({ id: "commons.save_failed" }));
-            }
-          }}
-        />
-      ),
-    });
+  const doScrapeOne = async (lead: Lead) => {
+    try {
+      const id = String((lead as any)._id);
+      if (onUpdateLead)
+        await onUpdateLead(id, { _id: id, scrape_status: true });
+
+      message.success(intl.formatMessage({ id: "leads.scrape.success" }));
+      fetchNow({});
+    } catch (e) {
+      console.log(e);
+
+      message.error(intl.formatMessage({ id: "leads.scrape.failed" }));
+    }
   };
 
   const doDeleteOne = async (lead: Lead) => {
@@ -279,36 +269,41 @@ const UnscrappedLeadsTable: React.FC<Props> = ({
         ),
     },
     {
-      title: (
-        <FormattedMessage id="leads.table.createdAt" defaultMessage="Created" />
-      ),
-      dataIndex: "createdAt",
-      key: "createdAt",
-      render: (date?: string | Date) =>
-        date ? new Date(date).toLocaleDateString() : "-",
-    },
-    {
       title: <FormattedMessage id="commons.actions" defaultMessage="Actions" />,
       key: "actions",
       fixed: "right",
-      width: 140,
-      render: (_, record) => (
-        <Space>
-          <Button
-            size="small"
-            icon={<EditOutlined />}
-            onClick={() => openEditDrawer(record)}
-          />
-          <Popconfirm
-            title={intl.formatMessage({ id: "leads.confirm.delete_one" })}
-            okText={intl.formatMessage({ id: "commons.delete" })}
-            okButtonProps={{ danger: true }}
-            onConfirm={() => doDeleteOne(record)}
-          >
-            <Button size="small" danger icon={<DeleteOutlined />} />
-          </Popconfirm>
-        </Space>
-      ),
+      width: 180,
+      render: (_, record) => {
+        const scraped = Boolean((record as any).scrape_status);
+
+        return (
+          <Space>
+            <Button
+              size="small"
+              type="primary"
+              icon={<PlusOutlined />}
+              disabled={scraped || loading}
+              onClick={() => doScrapeOne(record)}
+            >
+              <FormattedMessage
+                id={
+                  scraped ? "leads.actions.added" : "leads.actions.add_to_leads"
+                }
+                defaultMessage={scraped ? "Added" : "Add to leads"}
+              />
+            </Button>
+
+            <Popconfirm
+              title={intl.formatMessage({ id: "leads.confirm.delete_one" })}
+              okText={intl.formatMessage({ id: "commons.delete" })}
+              okButtonProps={{ danger: true }}
+              onConfirm={() => doDeleteOne(record)}
+            >
+              <Button size="small" danger icon={<DeleteOutlined />} />
+            </Popconfirm>
+          </Space>
+        );
+      },
     },
   ];
 

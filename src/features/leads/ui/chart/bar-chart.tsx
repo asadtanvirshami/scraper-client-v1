@@ -1,17 +1,12 @@
-// ✅ FILE: src/features/leads/ui/bar-chart.tsx
 "use client";
 
 import React, { useMemo } from "react";
 import { Bar } from "@ant-design/plots";
-import { Card, Segmented, Space, Typography, DatePicker } from "antd";
+import { Card, Segmented, Space, Typography, DatePicker, theme } from "antd";
 import { FormattedMessage, useIntl } from "react-intl";
 import dayjs from "dayjs";
 
-import type {
-  PresetKey,
-  RangeValue,
-  WeeklyLeadsAreaChartProps,
-} from "@/types/leads";
+import type { PresetKey, RangeValue, WeeklyLeadsAreaChartProps } from "@/types/leads";
 
 const { Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -32,7 +27,6 @@ type Props = WeeklyLeadsAreaChartProps & {
   titleId?: string;
   titleDefault?: string;
 
-  /** stacked = true => INSTAGRAM/LINKEDIN/MANUAL stacked per day */
   stacked?: boolean;
 };
 
@@ -63,15 +57,8 @@ function prettyRangeLabel(
     );
   }
 
-  // Example: "Jan 2 → Jan 31"
   return `${range[0].format("MMM D")} → ${range[1].format("MMM D")}`;
 }
-
-const cardStyle: React.CSSProperties = {
-  borderRadius: 16,
-  border: "1px solid rgba(15, 23, 42, 0.08)",
-  boxShadow: "0 10px 24px rgba(15, 23, 42, 0.06)",
-};
 
 const WeeklyLeadsBarChart: React.FC<Props> = ({
   labels,
@@ -92,13 +79,13 @@ const WeeklyLeadsBarChart: React.FC<Props> = ({
   stacked = true,
 }) => {
   const intl = useIntl();
+  const { token } = theme.useToken();
 
   const hasTypeData =
     (countsByType?.INSTAGRAM?.length ?? 0) > 0 ||
     (countsByType?.LINKEDIN?.length ?? 0) > 0 ||
     (countsByType?.MANUAL?.length ?? 0) > 0;
 
-  // ✅ one row per date per type (stack/group ready)
   const data = useMemo(() => {
     if (!labels?.length) return [];
 
@@ -132,56 +119,51 @@ const WeeklyLeadsBarChart: React.FC<Props> = ({
     autoFit: true,
     height: MAX_CHART_HEIGHT,
 
-    // ✅ stacked/grouped toggle
     isStack: stacked && hasTypeData,
     isGroup: !stacked && hasTypeData,
 
-    // ✅ modern spacing + rounded columns
     columnWidthRatio: 0.56,
     columnStyle: {
       radius: [12, 12, 0, 0],
-      // subtle depth without heavy borders
-      shadowColor: "rgba(15, 23, 42, 0.12)",
-      shadowBlur: 10,
-      shadowOffsetX: 0,
-      shadowOffsetY: 6,
     },
-
-    // ✅ cleaner legend
+    point: { size: 3, shape: "circle" },
     legend: {
       position: "top",
-      itemName: {
-        style: { opacity: 0.75 },
-      },
+      itemName: { style: { fill: token.colorTextSecondary } },
     },
 
-    // ✅ better tooltip (shared, compact)
     tooltip: {
       shared: true,
       showMarkers: true,
       domStyles: {
         "g2-tooltip": {
-          borderRadius: "12px",
-          boxShadow: "0 16px 40px rgba(15, 23, 42, 0.14)",
+          background: token.colorBgElevated,
+          color: token.colorText,
+          borderRadius: "14px",
+          border: `1px solid ${token.colorBorderSecondary}`,
+          boxShadow: token.boxShadowSecondary,
+        },
+        "g2-tooltip-title": {
+          color: token.colorText,
+          fontWeight: 700,
+        },
+        "g2-tooltip-list-item": {
+          color: token.colorTextSecondary,
         },
       },
     },
 
-    // ✅ minimalist axes
     xAxis: {
       tickLine: null,
       line: null,
-      label: { autoHide: true, autoRotate: false, style: { opacity: 0.6 } },
+      label: { autoHide: true, autoRotate: false, style: { fill: token.colorTextTertiary } },
     },
     yAxis: {
-      grid: { line: { style: { lineDash: [4, 4], opacity: 0.22 } } },
-      label: { style: { opacity: 0.6 } },
+      grid: { line: { style: { lineDash: [4, 4], stroke: token.colorSplit } } },
+      label: { style: { fill: token.colorTextTertiary } },
     },
 
-    // ✅ subtle interaction
     interactions: [{ type: "element-active" }],
-
-    // ✅ smooth animation
     animation: {
       appear: { animation: "wave-in", duration: 700 },
     },
@@ -192,14 +174,18 @@ const WeeklyLeadsBarChart: React.FC<Props> = ({
   return (
     <Card
       loading={isLoading}
-      style={cardStyle}
-      bodyStyle={{ padding: 16, paddingTop: 14 }}
+      style={{
+        borderRadius: 16,
+        background: token.colorBgContainer,
+        border: `1px solid ${token.colorBorderSecondary}`,
+        boxShadow: token.boxShadowSecondary,
+      }}
       title={
-        <Space direction="vertical" size={2} style={{ lineHeight: 1.15 }}>
-          <span style={{ fontWeight: 800, fontSize: 14, color: "rgba(15, 23, 42, 0.90)" }}>
+        <Space orientation="vertical" size={2} style={{ lineHeight: 1.15 }}>
+          <span style={{ fontWeight: 800, fontSize: 14, color: token.colorText }}>
             <FormattedMessage id={titleId} defaultMessage={titleDefault} />
           </span>
-          <Text style={{ fontSize: 12, color: "rgba(15, 23, 42, 0.55)" }}>
+          <Text style={{ fontSize: 12, color: token.colorTextSecondary }}>
             {rangeLabel}
           </Text>
         </Space>
@@ -218,9 +204,7 @@ const WeeklyLeadsBarChart: React.FC<Props> = ({
               <RangePicker
                 allowClear
                 value={range as any}
-                onChange={(v) =>
-                  onRangeChange?.(((v as any) ?? [null, null]) as RangeValue)
-                }
+                onChange={(v) => onRangeChange?.(((v as any) ?? [null, null]) as RangeValue)}
                 style={{ width: 280, maxWidth: "100%" }}
                 presets={[
                   {

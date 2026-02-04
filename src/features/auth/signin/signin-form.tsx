@@ -121,12 +121,12 @@ const SignInForm: React.FC = () => {
       </Form.Item>
 
       <div className="-mt-2 mb-4 flex justify-between w-full">
-        <Link href="/auth/signup" className="text-[11px] !text-white/50">
+        <Link href="/auth/signup" className="text-[11px] ">
           <FormattedMessage id="auth.sign_in.dont_have_account" />
         </Link>
         <Link
           href="/auth/forgot-password"
-          className="text-[11px] !text-white/50"
+          className="text-[11px] "
         >
           <FormattedMessage id="auth.sign_in.forgot_password" />
         </Link>
@@ -137,9 +137,10 @@ const SignInForm: React.FC = () => {
           disabled={logInMutation.isPending}
           loading={logInMutation.isPending}
           htmlType="submit"
-          className="!w-full !h-11 !rounded-xl !border-0 !text-white font-medium
+          type="primary"
+          className="!w-full !h-11 !rounded-xl !border-0 font-medium
                      !shadow-[0_10px_26px_rgba(0,0,0,0.25)] !font-semibold
-                     hover:opacity-95 !bg-yellow-500"
+                     hover:opacity-95 "
         >
           <FormattedMessage id="auth.sign_in.buttonCTA" />
         </Button>

@@ -6,4 +6,5 @@ export type UpdateProfilePayload = {
   is_notifications_enabled?: boolean;
   is_blocked?: boolean;
   is_deleted?: boolean;
+  is_verified?: boolean;
 };

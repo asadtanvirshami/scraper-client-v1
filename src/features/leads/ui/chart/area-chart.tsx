@@ -2,8 +2,8 @@
 
 import React, { useMemo } from "react";
 import { Area } from "@ant-design/plots";
-import { Card, Segmented, Space, Typography, DatePicker } from "antd";
-import { FormattedMessage } from "react-intl";
+import { Card, Segmented, Space, Typography, DatePicker, theme } from "antd";
+import { FormattedMessage, useIntl } from "react-intl";
 import dayjs, { Dayjs } from "dayjs";
 import { WeeklyLeadsAreaChartProps } from "@/types/leads";
 
@@ -15,7 +15,6 @@ const MAX_CHART_HEIGHT = 340;
 type PresetKey = "7d" | "14d" | "30d" | "90d";
 type RangeValue = [Dayjs | null, Dayjs | null];
 
-
 const PRESETS: { label: React.ReactNode; value: PresetKey; days: number }[] = [
   { label: "7D", value: "7d", days: 7 },
   { label: "14D", value: "14d", days: 14 },
@@ -23,6 +22,34 @@ const PRESETS: { label: React.ReactNode; value: PresetKey; days: number }[] = [
   { label: "90D", value: "90d", days: 90 },
 ];
 
+function prettyRangeLabel(
+  intl: ReturnType<typeof useIntl>,
+  range?: RangeValue,
+  preset?: PresetKey,
+) {
+  const presetDays = PRESETS.find((p) => p.value === preset)?.days;
+  if (presetDays) {
+    return intl.formatMessage(
+      {
+        id: "dashboard.stats.subtitles.lastDays",
+        defaultMessage: "Last {days} days",
+      },
+      { days: presetDays },
+    );
+  }
+
+  if (!range?.[0] || !range?.[1]) {
+    return intl.formatMessage(
+      {
+        id: "dashboard.stats.subtitles.lastDays",
+        defaultMessage: "Last {days} days",
+      },
+      { days: 7 },
+    );
+  }
+
+  return `${range[0].format("MMM D")} → ${range[1].format("MMM D")}`;
+}
 function formatRangeLabel(range?: RangeValue, preset?: PresetKey) {
   const presetDays = PRESETS.find((p) => p.value === preset)?.days;
   if (presetDays) return `Last ${presetDays} days`;
@@ -43,6 +70,9 @@ const WeeklyLeadsAreaChart: React.FC<WeeklyLeadsAreaChartProps> = ({
   onRangeChange,
   showRangePicker = true,
 }) => {
+  const { token } = theme.useToken();
+  const intl = useIntl();
+
   const hasTypeData =
     (countsByType?.INSTAGRAM?.length ?? 0) > 0 ||
     (countsByType?.LINKEDIN?.length ?? 0) > 0 ||
@@ -76,6 +106,7 @@ const WeeklyLeadsAreaChart: React.FC<WeeklyLeadsAreaChartProps> = ({
         }));
   }, [labels, counts, countsByType, hasTypeData]);
 
+  // ✅ token-based styling for charts
   const config: any = {
     data,
     xField: "date",
@@ -85,56 +116,77 @@ const WeeklyLeadsAreaChart: React.FC<WeeklyLeadsAreaChartProps> = ({
     autoFit: true,
     height: MAX_CHART_HEIGHT,
 
-    // modern, soft
-    areaStyle: { fillOpacity: 0.18 },
+    areaStyle: { fillOpacity: 0.16 },
     line: { size: 2 },
     point: { size: 3, shape: "circle" },
 
-    legend: { position: "top" },
-    tooltip: { shared: true, showMarkers: true },
+    legend: {
+      position: "top",
+      itemName: { style: { fill: token.colorText } },
+    },
+    meta: {
+      date: { type: "timeCat" }, // ✅ important
+    },
+    tooltip: {
+      shared: true,
+      showMarkers: true,
+      domStyles: {
+        "g2-tooltip": {
+          background: token.colorBgElevated,
+          color: token.colorText,
+          borderRadius: "14px",
+          border: `1px solid ${token.colorBorderSecondary}`,
+          boxShadow: token.boxShadowSecondary,
+          padding: "10px 12px",
+        },
+        "g2-tooltip-title": {
+          color: token.colorText,
+          fontWeight: 700,
+        },
+        "g2-tooltip-list-item": {
+          color: token.colorTextSecondary,
+        },
+      },
+    },
 
-    // cleaner axes
     xAxis: {
       tickLine: null,
       line: null,
-      label: { style: { opacity: 0.65 } },
+      label: { style: { fill: token.colorTextBase } },
     },
     yAxis: {
-      grid: { line: { style: { lineDash: [4, 4], opacity: 0.25 } } },
-      label: { style: { opacity: 0.65 } },
+      grid: { line: { style: { lineDash: [4, 4], stroke: token.colorSplit } } },
+      label: { style: { fill: token.colorTextBase } },
+    },
+
+    interactions: [{ type: "element-active" }],
+    animation: {
+      appear: { animation: "wave-in", duration: 700 },
     },
   };
+  const rangeLabel = prettyRangeLabel(intl, range, preset);
 
   return (
     <Card
       loading={isLoading}
       style={{
-        borderRadius: 12,
-        border: "1px solid rgba(15, 23, 42, 0.10)",
-        boxShadow: "0 1px 2px rgba(15, 23, 42, 0.06)",
-      }}
-      bodyStyle={{
-        padding: 16,
-        paddingTop: 12,
-        paddingBottom: 10,
+        borderRadius: 16,
+        background: token.colorBgContainer,
+        border: `1px solid ${token.colorBorderSecondary}`,
+        boxShadow: token.boxShadowSecondary,
       }}
       title={
-        <Space direction="vertical" size={2} style={{ lineHeight: 1.1 }}>
+        <Space orientation="vertical" size={2} style={{ lineHeight: 1.1 }}>
           <span
-            style={{
-              fontWeight: 700,
-              fontSize: 14,
-              color: "rgba(15, 23, 42, 0.85)",
-            }}
+            style={{ fontWeight: 800, fontSize: 14, color: token.colorText }}
           >
             <FormattedMessage
               id="dashboard.charts.weekly_leads"
               defaultMessage="Leads added"
             />
           </span>
-
-          <Text style={{ fontSize: 12, color: "rgba(15, 23, 42, 0.55)" }}>
-            {formatRangeLabel(range, preset)}
+          <Text style={{ fontSize: 12, color: token.colorTextSecondary }}>
+            {rangeLabel}
           </Text>
         </Space>
       }
@@ -153,11 +205,9 @@ const WeeklyLeadsAreaChart: React.FC<WeeklyLeadsAreaChartProps> = ({
                 allowClear
                 value={range as any}
                 onChange={(v) =>
-                  onRangeChange?.(
-                    ((v as any) ?? [null, null]) as RangeValue
-                  )
+                  onRangeChange?.(((v as any) ?? [null, null]) as RangeValue)
                 }
-                style={{ width: 260 }}
+                style={{ width: 260, maxWidth: "100%" }}
                 presets={[
                   {
                     label: "Last 7 days",

@@ -26,6 +26,10 @@ type Props = {
   initialValues?: Partial<Lead>;
   onSubmit?: (values: any) => Promise<void> | void;
   onClose?: () => void;
+  // ✅ NEW
+  enableFolderFetch?: boolean; // default true
+  hideFolderSelect?: boolean; // default false
+  fixedFolderId?: string; // when set, enforce folder_id
 };
 
 type Folder = {
@@ -43,6 +47,9 @@ const LeadForm: React.FC<Props> = ({
   initialValues,
   onSubmit,
   onClose,
+  enableFolderFetch = true,
+  hideFolderSelect = false,
+  fixedFolderId,
 }) => {
   const [form] = Form.useForm();
   const intl = useIntl();
@@ -65,6 +72,7 @@ const LeadForm: React.FC<Props> = ({
     page: folderPage,
     limit: folderLimit,
     search: folderSearch,
+    enabled: enableFolderFetch !== false,
   } as any);
 
   // Normalize response
@@ -101,7 +109,7 @@ const LeadForm: React.FC<Props> = ({
         value: f._id,
         label: f.name,
       })),
-    [folderOptions]
+    [folderOptions],
   );
 
   const typeOptions = useMemo(
@@ -128,7 +136,7 @@ const LeadForm: React.FC<Props> = ({
         }),
       },
     ],
-    [intl]
+    [intl],
   );
 
   // -----------------------------
@@ -186,7 +194,7 @@ const LeadForm: React.FC<Props> = ({
 
     const payload = {
       ...values,
-      folder_id: folderSelect?.value || null,
+      folder_id: folderSelect?.value || null || fixedFolderId,
       emails: (values.emails || []).filter(Boolean),
       phone_numbers: (values.phone_numbers || []).filter(Boolean),
       scrape_status: true,
@@ -241,50 +249,57 @@ const LeadForm: React.FC<Props> = ({
           </Form.Item>
         </Col>
       </Row>
-
+      {fixedFolderId ? (
+        <Form.Item name="folder_id" initialValue={fixedFolderId} hidden>
+          <Input />
+        </Form.Item>
+      ) : null}
       {/* FOLDER */}
-      <Form.Item
-        name="folder_id"
-        label={
-          <FormattedMessage id="leads.form.folder" defaultMessage="Folder" />
-        }
-      >
-        <Select
-          showSearch
-          allowClear
-          labelInValue
-          disabled={isView}
-          placeholder={intl.formatMessage({
-            id: "leads.form.folder_placeholder",
-            defaultMessage: "Select a folder",
-          })}
-          options={selectOptions}
-          loading={foldersLoading}
-          onPopupScroll={onFolderPopupScroll}
-          notFoundContent={foldersLoading ? <Spin size="small" /> : null}
-          onChange={(obj) => form.setFieldValue("folder_id", obj || null)}
-          // ✅ dropdownRender -> popupRender
-          popupRender={(menu) => (
-            <div>
-              {menu}
-              {(foldersFetching || foldersLoading) && (
-                <div style={{ padding: 8, textAlign: "center" }}>
-                  <Spin size="small" />
-                </div>
-              )}
-              {!hasMoreFolders && folderOptions.length > 0 && (
-                <div style={{ padding: 8, textAlign: "center", opacity: 0.6 }}>
-                  <FormattedMessage
-                    id="commons.end_of_list"
-                    defaultMessage="End of list"
-                  />
-                </div>
-              )}
-            </div>
-          )}
-        />
-      </Form.Item>
-
+      {!hideFolderSelect && !fixedFolderId ? (
+        <Form.Item
+          name="folder_id"
+          label={
+            <FormattedMessage id="leads.form.folder" defaultMessage="Folder" />
+          }
+        >
+          <Select
+            showSearch
+            allowClear
+            labelInValue
+            disabled={isView}
+            placeholder={intl.formatMessage({
+              id: "leads.form.folder_placeholder",
+              defaultMessage: "Select a folder",
+            })}
+            options={selectOptions}
+            loading={foldersLoading}
+            onPopupScroll={onFolderPopupScroll}
+            notFoundContent={foldersLoading ? <Spin size="small" /> : null}
+            onChange={(obj) => form.setFieldValue("folder_id", obj || null)}
+            // ✅ dropdownRender -> popupRender
+            popupRender={(menu) => (
+              <div>
+                {menu}
+                {(foldersFetching || foldersLoading) && (
+                  <div style={{ padding: 8, textAlign: "center" }}>
+                    <Spin size="small" />
+                  </div>
+                )}
+                {!hasMoreFolders && folderOptions.length > 0 && (
+                  <div
+                    style={{ padding: 8, textAlign: "center", opacity: 0.6 }}
+                  >
+                    <FormattedMessage
+                      id="commons.end_of_list"
+                      defaultMessage="End of list"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+          />
+        </Form.Item>
+      ) : null}
       {/* EMAILS[] */}
       <Form.Item label={<FormattedMessage id="leads.form.emails" />} required>
         <Form.List name="emails">

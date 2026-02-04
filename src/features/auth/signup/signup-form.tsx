@@ -130,7 +130,7 @@ const SignUpForm: React.FC = () => {
 
       {/* Already have account */}
       <div className="-mt-2 mb-4 flex justify-end">
-        <Link href="/auth/signin" className="text-[11px] !text-white/50">
+        <Link href="/auth/signin" className="text-[11px] ">
           <FormattedMessage id="auth.sign_up.have_account" />
         </Link>
       </div>
@@ -141,33 +141,14 @@ const SignUpForm: React.FC = () => {
           htmlType="submit"
           loading={signupMutation.isPending}
           disabled={signupMutation.isPending}
-          className="!w-full !h-11 !rounded-xl !border-0 !text-white font-medium
+          type="primary"
+          className="!w-full !h-11 !rounded-xl !border-0 font-medium
                      !shadow-[0_10px_26px_rgba(0,0,0,0.25)]
-                     hover:opacity-95 !bg-yellow-500"
+                     hover:opacity-95 "
         >
           <FormattedMessage id="auth.sign_up.buttonCTA" />
         </Button>
       </Form.Item>
-
-      {/* Divider */}
-      <Divider className="!my-3">
-        <Text className="text-[12px]">
-          <FormattedMessage id="auth.sign_up.strip_line" />
-        </Text>
-      </Divider>
-
-      {/* Social Sign Up */}
-      <div className="flex items-center justify-center gap-4">
-        <Button
-          type="default"
-          shape="circle"
-          className="!h-10 !w-10 !rounded-full !bg-white/70 !border-white/60 hover:!bg-white"
-          icon={<GoogleOutlined className="text-[18px] text-black/70" />}
-          onClick={() => {
-            // TODO: Google sign-up flow
-          }}
-        />
-      </div>
     </Form>
   );
 };

@@ -28,7 +28,7 @@ export async function DownloadAllLeads(
 // ✅ LIST
 export async function FetchAllLeadsList(
   input: LeadsListParams,
-): Promise<GenericResponse<Lead[]>> {
+): Promise<GenericResponse> {
   const { data } = await api.get(apiEndpoints.leads.list(input as any));
   return data;
 }
@@ -36,7 +36,7 @@ export async function FetchAllLeadsList(
 // ✅ SUMMARY
 export async function FetchAllLeadsSummary(
   input: LeadsSummaryParams,
-): Promise<GenericResponse<any>> {
+): Promise<GenericResponse> {
   const { data } = await api.get(apiEndpoints.leads.summary(input as any));
   return data;
 }

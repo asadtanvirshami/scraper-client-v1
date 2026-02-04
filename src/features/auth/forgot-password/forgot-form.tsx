@@ -47,7 +47,7 @@ const ForgotPassForm: React.FC = () => {
       </Form.Item>
 
       <div className="-mt-2 mb-4 flex justify-between w-full">
-        <Link href="/auth/signup" className="text-[11px] !text-white/50">
+        <Link href="/auth/signup" className="text-[11px]">
           <FormattedMessage id="auth.sign_in.dont_have_account" />
         </Link>
       </div>
@@ -56,9 +56,10 @@ const ForgotPassForm: React.FC = () => {
         <Button
           loading={forgotPassMutation.isPending}
           htmlType="submit"
-          className="!w-full !h-11 !rounded-xl !border-0 !text-white font-medium
+          type="primary"
+          className="!w-full !h-11 !rounded-xl !border-0 font-medium
                      !shadow-[0_10px_26px_rgba(0,0,0,0.25)] !font-semibold
-                     hover:opacity-95 !bg-yellow-500"
+                     hover:opacity-95"
         >
           <FormattedMessage id="auth.forgot_password.buttonCTA" />
         </Button>

@@ -37,8 +37,34 @@ export const apiEndpoints = {
     deleteMe: "/user/me",
     uploadAvatar: "/user/avatar",
 
+    // user
+    getAllUser: (params: {
+      offset?: number; // 1-based
+      limit?: number;
+      search?: string;
+      role?: "USER" | "ADMIN";
+      is_blocked?: boolean;
+      is_verified?: boolean;
+      sortBy?: string; // created | updated_at
+      sortOrder?: "asc" | "desc";
+    }) => withPagination("/user/all", params),
+
+    getByIdUser: (userId: string) => `/user/${userId}`,
+    deleteByIdUser: (userId: string) => `/user/${userId}`,
+    blockUser: (userId: string) => `/user/block/${userId}`,
+    bulkDeleteUsers: "/user/bulk-delete",
+
     // admin
-    getAll: "/user/all",
+    getAll: (params: {
+      offset?: number; // 1-based
+      limit?: number;
+      search?: string;
+      role?: "USER" | "ADMIN";
+      is_blocked?: boolean;
+      is_verified?: boolean;
+      sortBy?: string; // created | updated_at
+      sortOrder?: "asc" | "desc";
+    }) => withPagination("/user/all", params),
     getById: (userId: string) => `/user/${userId}`,
     deleteById: (userId: string) => `/user/${userId}`,
     block: (userId: string) => `/user/block/${userId}`,

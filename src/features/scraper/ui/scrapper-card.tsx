@@ -157,9 +157,9 @@ export default function LeadsScraperCard({
       const newScrapeId =
         res?.data?.scrape_id || res?.scrape_id || res?.data?.data?.scrape_id;
 
-    //   if (!newScrapeId) return;
+      //   if (!newScrapeId) return;
 
-    //   setScrapeId(newScrapeId);
+      //   setScrapeId(newScrapeId);
 
       // lock UI for 20s (disable everything + show loading on buttons)
       startLock20s();
@@ -179,7 +179,8 @@ export default function LeadsScraperCard({
    * - once scrapeId exists, poll every 5s for 20s
    * - invalidate the general leads list queryKey
    */
-  useEffect(() => {    if (!locked) return;
+  useEffect(() => {
+    if (!locked) return;
 
     // Immediately refetch once (optional)
     leadsQuery.refetch?.();
@@ -221,7 +222,7 @@ export default function LeadsScraperCard({
         {
           profileUrl: url,
           user_id,
-          folder_id: '69590e25c32ecd1e9886e58e',
+          folder_id: "",
         },
         {
           onSuccess: onScrapeSuccess,
@@ -232,7 +233,7 @@ export default function LeadsScraperCard({
         {
           profile_url: url,
           user_id,
-          folder_id: '69590e25c32ecd1e9886e58e',
+          folder_id: "",
         },
         {
           onSuccess: onScrapeSuccess,
@@ -402,10 +403,10 @@ export default function LeadsScraperCard({
         {scrapeId ? (
           <div className="mt-3">
             <Text type="secondary">
-              scrape_id: <Tag>{scrapeId}</Tag>
+              : <Tag>{scrapeId}</Tag>
             </Text>
             <Text type="secondary" className="ml-2">
-              scraped found: <Tag color="blue">{scrapedLeads.length}</Tag>
+              <Tag color="blue">{scrapedLeads.length}</Tag>
             </Text>
           </div>
         ) : null}

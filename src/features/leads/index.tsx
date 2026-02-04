@@ -39,7 +39,7 @@ const LeadsLayout = () => {
   // ====== TABLE FILTERS (server list) ======
   const [query, setQuery] = useState({
     page: 1,
-    limit: 5,
+    limit: 10,
     search: "",
     type: "",
     is_converted: undefined as boolean | undefined,
@@ -82,10 +82,7 @@ const LeadsLayout = () => {
     isFetching: summaryFetching,
   } = useFetchLeadsSummary(summaryParams);
 
-  const {
-    data: leads,
-    isFetching: leadsFetching,
-  } = useFetchLeadsList({
+  const { data: leads, isFetching: leadsFetching } = useFetchLeadsList({
     user_id: id ?? "",
     limit: query.limit,
     page: query.page,
@@ -102,7 +99,7 @@ const LeadsLayout = () => {
   const bulkDelete = useBulkDeleteLeads();
 
   // Full-page spinner ONLY on first load
-  if ((summaryLoading ) && isDefaultView) {
+  if (summaryLoading && isDefaultView) {
     return <Spinner size="large" />;
   }
 
@@ -133,7 +130,10 @@ const LeadsLayout = () => {
           <Card>
             <div className="flex flex-col gap-1">
               <Title level={5} className="!mb-0">
-                <FormattedMessage id="leads.insights.title" defaultMessage="Insights" />
+                <FormattedMessage
+                  id="leads.insights.title"
+                  defaultMessage="Insights"
+                />
               </Title>
               <Text type="secondary">
                 <FormattedMessage
@@ -156,8 +156,10 @@ const LeadsLayout = () => {
             isLoading={chartsLoading}
             labels={summary?.data?.charts?.dailyByType?.labels}
             countsByType={{
-              INSTAGRAM: summary?.data?.charts?.dailyByType?.countsByType?.INSTAGRAM,
-              LINKEDIN: summary?.data?.charts?.dailyByType?.countsByType?.LINKEDIN,
+              INSTAGRAM:
+                summary?.data?.charts?.dailyByType?.countsByType?.INSTAGRAM,
+              LINKEDIN:
+                summary?.data?.charts?.dailyByType?.countsByType?.LINKEDIN,
               MANUAL: summary?.data?.charts?.dailyByType?.countsByType?.MANUAL,
             }}
             // ✅ wire filters
@@ -198,12 +200,18 @@ const LeadsLayout = () => {
             loading={leadsFetching}
             value={query}
             onFetch={(next) => setQuery(next as any)}
-            onCreateLead={(payload) => createLead.mutateAsync(payload as any)}
-            onUpdateLead={(leadId, payload) =>
-              updateLead.mutateAsync({ lead_id: leadId, ...payload })
-            }
-            onDeleteOne={(lead) => deleteLead.mutateAsync((lead as any)._id)}
-            onDeleteMany={(ids) => bulkDelete.mutateAsync(ids)}
+            onCreateLead={async (payload: any) => {
+              await createLead.mutateAsync(payload as any);
+            }}
+            onUpdateLead={async (leadId: string, payload: any) => {
+              await updateLead.mutateAsync({ lead_id: leadId, ...payload });
+            }}
+            onDeleteOne={async (lead: any) => {
+              await deleteLead.mutateAsync((lead as any)._id);
+            }}
+            onDeleteMany={async (ids: string[]) => {
+              await bulkDelete.mutateAsync(ids);
+            }}
           />
         </Col>
       </Row>

@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from "react";
 import type { ColumnsType, TablePaginationConfig } from "antd/es/table";
 import type { FilterValue } from "antd/es/table/interface";
+import { usePathname } from "next/navigation";
 import {
   Card,
   Table,
@@ -50,8 +51,8 @@ type Props = {
   onDeleteOne?: (lead: Lead) => Promise<void> | void;
   onDeleteMany?: (ids: string[]) => Promise<void> | void;
 
-  onCreateLead?: (payload: Partial<Lead>) => Promise<void> | void;
-  onUpdateLead?: (id: string, payload: Partial<Lead>) => Promise<void> | void;
+  onCreateLead?: (payload: Partial<any>) => Promise<void> | void;
+  onUpdateLead?: (id: string, payload: Partial<any>) => Promise<void> | void;
 
   /** ✅ NEW: if false => hide toolbar + table filters + pagination + selection */
   showFilters?: boolean;
@@ -73,6 +74,8 @@ const LeadsTableServer: React.FC<Props> = ({
 }) => {
   const { Text } = Typography;
   const intl = useIntl();
+  const pathname = usePathname();
+  const isFolderRoute = pathname?.startsWith("/folders");
 
   const { openDrawer, closeDrawer } = useAppDrawer();
   const download = useDownloadAllLeads();
@@ -141,10 +144,22 @@ const LeadsTableServer: React.FC<Props> = ({
         <LeadForm
           mode="create"
           onClose={closeDrawer}
-          initialValues={{folder_id}}
+          // ✅ force the folder in folder route (and still allow prefill otherwise if provided)
+          initialValues={{
+            folder_id: folder_id || undefined,
+          }}
+          // ✅ NEW props (you’ll add these in LeadForm)
+          enableFolderFetch={!isFolderRoute}
+          hideFolderSelect={isFolderRoute}
+          fixedFolderId={isFolderRoute ? folder_id : undefined}
           onSubmit={async (payload) => {
             try {
-              if (onCreateLead) await onCreateLead(payload);
+              const finalPayload =
+                isFolderRoute && folder_id
+                  ? { ...payload, folder_id } // ✅ guarantee it
+                  : payload;
+
+              if (onCreateLead) await onCreateLead(finalPayload);
               message.success(intl.formatMessage({ id: "commons.saved" }));
               closeDrawer();
               fetchNow({});
@@ -164,12 +179,27 @@ const LeadsTableServer: React.FC<Props> = ({
       content: (
         <LeadForm
           mode="edit"
-          initialValues={lead}
+          // ✅ default folder_id in edit too
+          initialValues={{
+            ...lead,
+            folder_id: isFolderRoute ? folder_id : (lead as any).folder_id,
+          }}
           onClose={closeDrawer}
+          // ✅ NEW props
+          enableFolderFetch={!isFolderRoute}
+          hideFolderSelect={isFolderRoute}
+          fixedFolderId={isFolderRoute ? folder_id : undefined}
           onSubmit={async (payload) => {
             try {
-              const id = (lead as any)._id as string;
-              if (onUpdateLead) await onUpdateLead(id, payload);
+              const id = String((lead as any)._id);
+
+              const finalPayload =
+                isFolderRoute && folder_id
+                  ? { ...payload, folder_id } // ✅ guarantee it
+                  : payload;
+
+              if (onUpdateLead)
+                await onUpdateLead(id, { _id: id, ...finalPayload });
               message.success(intl.formatMessage({ id: "commons.saved" }));
               closeDrawer();
               fetchNow({});

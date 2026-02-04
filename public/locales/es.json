@@ -7,9 +7,103 @@
     "folders": "Carpetas",
     "billing": "Facturación",
     "settings": "Configuración",
+    "admin": {
+      "dashboard": "Dashboard",
+      "users": "Usuarios",
+      "bugs": "Errores",
+      "notifications": "Notificaciones",
+      "reports": "Informes"
+    },
+
     "role": {
       "admin": "Admin",
       "user": "Espacio de trabajo"
+    }
+  },
+
+  "admin": {
+    "panel_title": "Panel de Administración",
+    "panel_subtitle": "Supervisa usuarios, accesos y actividad del sistema.",
+    "kpis": {
+      "total_users": "Total de usuarios",
+      "blocked_users": "Usuarios bloqueados",
+      "feedbacks": "Sugerencias",
+      "bugs": "Errores",
+      "new_in_range": "Nuevos en el rango: {count}",
+      "avg_per_day": "Prom./día: {count}"
+    },
+    "charts": {
+      "users_created": {
+        "title": "Usuarios creados",
+        "subtitle": "Nuevos usuarios durante el periodo seleccionado.",
+        "empty_title": "Sin actividad en este rango",
+        "empty_subtitle": "Prueba ampliando el rango de fechas.",
+        "tooltip": "{count} usuarios"
+      }
+    },
+    "feedbacks": {
+      "title": "Feedbacks",
+      "total": "Total {total}",
+      "empty": "No hay feedbacks",
+      "search": {
+        "placeholder": "Buscar en el texto del feedback..."
+      },
+      "table": {
+        "feedback": "Feedback",
+        "user": "Usuario",
+        "created": "Creado",
+        "updated": "Actualizado"
+      },
+      "confirm": {
+        "delete_one": "¿Eliminar este feedback?",
+        "delete_selected": "¿Eliminar {count} elemento(s) seleccionado(s)?"
+      }
+    },
+    "bugs": {
+      "title": "Bugs",
+      "total": "Total {total}",
+      "empty": "No hay bugs",
+      "search": {
+        "placeholder": "Buscar en el texto del bug..."
+      },
+      "table": {
+        "bug": "Bug",
+        "user": "Usuario",
+        "created": "Creado",
+        "updated": "Actualizado"
+      },
+      "confirm": {
+        "delete_one": "¿Eliminar este bug?",
+        "delete_selected": "¿Eliminar {count} elemento(s) seleccionado(s)?"
+      }
+    },
+    "users": {
+      "details": {
+        "title": "Detalles del usuario"
+      },
+      "title": "Usuarios",
+      "total": "Total {total}",
+      "empty": "No hay usuarios",
+      "search": {
+        "placeholder": "Buscar por nombre o correo..."
+      },
+      "table": {
+        "name": "Nombre",
+        "email": "Correo",
+        "role": "Rol",
+        "provider": "Proveedor de acceso",
+        "verified": "Verificado",
+        "blocked": "Bloqueado",
+        "created": "Creado"
+      },
+      "confirm": {
+        "bulk_delete": "¿Eliminar los usuarios seleccionados?",
+        "bulk_delete_desc": "Esto eliminará {count} usuario(s). Esta acción no se puede deshacer.",
+        "delete_all": "¿Eliminar todos los usuarios?",
+        "delete_all_desc": "Esto eliminará todos los usuarios que coincidan con los filtros actuales. Esta acción no se puede deshacer.",
+        "delete_one": "¿Eliminar este usuario?",
+        "delete_selected": "¿Eliminar {count} usuario(s) seleccionado(s)?"
+      }
     }
   },
 
@@ -142,6 +236,22 @@
   },
 
   "commons": {
+    "name": "Nombre",
+    "email": "Correo",
+    "role": "Rol",
+    "created": "Creado",
+    "bulk_delete": "Eliminar seleccionados ({count})",
+    "yes": "Sí",
+    "no": "No",
+    "delete_all": "Eliminar todos",
+    "confirm_delete_one": "¿Eliminar este elemento?",
+    "confirm_delete_selected": "¿Eliminar {count} elemento(s) seleccionado(s)?",
+    "confirm_delete_all": "¿Eliminar todos los elementos?",
+    "confirm_delete_all_desc": "Esta acción no se puede deshacer.",
+    "confirm_verify": "¿Verificar este usuario?",
+    "confirm_unverify": "¿Quitar verificación a este usuario?",
+    "confirm_block": "¿Bloquear este usuario?",
+    "confirm_unblock": "¿Desbloquear este usuario?",
     "select_all": "Seleccionar todo",
     "clear_selection": "Limpiar selección",
     "add": "Añadir",
@@ -161,6 +271,12 @@
     "clear": "Limpiar",
     "view": "Ver",
     "end_of_list": "Fin de la lista",
+    "blocked": "Usuario bloqueado",
+    "unblocked": "Usuario desbloqueado",
+    "verified": "Usuario verificado",
+    "unverified": "Usuario no verificado",
+    "block_failed": "Error al bloquear al usuario",
+    "verify_failed": "Error al verificar al usuario",
     "range_presets": {
       "last7": "Últimos 7 días",
       "last30": "Últimos 30 días",
@@ -169,6 +285,25 @@
     "range_placeholder": {
       "start": "Fecha de inicio",
       "end": "Fecha de fin"
+    }
+  },
+
+  "users": {
+    "title": "Usuarios",
+    "create": "Crear Usuario",
+    "table": {
+      "name": "Nombre",
+      "email": "Correo",
+      "role": "Rol",
+      "actions": "Acciones"
+    },
+    "role": {
+      "admin": "Admin",
+      "user": "Espacio de trabajo"
+    },
+    "actions": {
+      "edit": "Editar",
+      "delete": "Eliminar"
     }
   },
 
@@ -212,7 +347,8 @@
     "empty": "Aún no hay leads",
     "actions": {
       "view_all": "Ver todos",
-      "download": "Descargar"
+      "download": "Descargar",
+      "add_to_leads": "Añadir a leads"
     },
     "search": {
       "placeholder": "Buscar por nombre, email, empresa..."
@@ -227,6 +363,7 @@
       "createdAt": "Creado",
       "phones": "Teléfonos"
     },
+
     "status": {
       "new": "Nuevo",
       "converted": "Convertido"
@@ -280,6 +417,10 @@
       "type_manual": "Manual",
       "message": "Mensaje",
       "is_converted": "Convertido"
+    },
+    "scrape": {
+      "success": "Lead añadido correctamente.",
+      "failed": "No se pudo añadir el lead."
     }
   },
 
@@ -342,7 +483,7 @@
       "subtitle": "Selecciona un rango de fechas para actualizar los gráficos."
     },
     "charts": {
-       "leads_by_type_bar": "Leads añadidos (por tipo)",
+      "leads_by_type_bar": "Leads añadidos (por tipo)",
       "weekly_leads": "Leads añadidos (últimos 7 días)"
     },
     "stats": {

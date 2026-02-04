@@ -375,7 +375,7 @@ const FolderTable: React.FC<FolderTableProps> = ({
           onClick: () => {
             const id = getFolderId(record);
             if (!id) return; // avoid navigating for client-mode rows without id
-            router.push(`/folders/${id}`);
+            router.push(`/folders/f/${id}`);
           },
           style: { cursor: "pointer" },
         })}

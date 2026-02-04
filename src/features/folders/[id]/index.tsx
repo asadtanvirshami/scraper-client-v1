@@ -26,7 +26,6 @@ type Props = {
 };
 
 export default function FolderParamsLayout({ folderId }: Props) {
-
   const { id } = useUserInfo();
 
   // ====== TABLE FILTERS (server list) ======
@@ -85,14 +84,24 @@ export default function FolderParamsLayout({ folderId }: Props) {
             loading={isFetching}
             value={query}
             onFetch={(next) => setQuery(next as any)}
-            onCreateLead={(payload) =>
-              createLead.mutateAsync({ ...payload, folder_id: folderId } as any)
-            }
-            onUpdateLead={(leadId, payload) =>
-              updateLead.mutateAsync({ lead_id: leadId, ...payload } as any)
-            }
-            onDeleteOne={(lead) => deleteLead.mutateAsync((lead as any)._id)}
-            onDeleteMany={(ids) => bulkDelete.mutateAsync(ids)}
+            onCreateLead={async (payload: any) => {
+              await createLead.mutateAsync({
+                ...payload,
+                folder_id: folderId,
+              } as any);
+            }}
+            onUpdateLead={async (leadId, payload) => {
+              await updateLead.mutateAsync({
+                lead_id: leadId,
+                ...payload,
+              } as any);
+            }}
+            onDeleteOne={async (lead) => {
+              await deleteLead.mutateAsync((lead as any)._id);
+            }}
+            onDeleteMany={async (ids) => {
+              await bulkDelete.mutateAsync(ids);
+            }}
           />
         </Col>
       </Row>
