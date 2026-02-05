@@ -1,21 +1,15 @@
 version: 1
 frontend:
   phases:
-    preBuild:
-      commands:
-        - nvm install 20
-        - nvm use 20
-        - npm ci --include=dev
-        - npm ls @tailwindcss/postcss
     build:
       commands:
+        - npm install
         - npm run build
   artifacts:
     baseDirectory: .next
     files:
-      - "**/*"
+      - '*/'
   cache:
     paths:
-      - node_modules/**/*
-      - .next/cache/**/*
-      - .npm/**/*
+      - .next/cache/*/
+      - .npm/*/
