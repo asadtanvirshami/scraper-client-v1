@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState, useCallback, useEffect } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 import {
   Button,
