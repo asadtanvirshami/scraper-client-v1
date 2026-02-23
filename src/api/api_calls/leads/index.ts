@@ -93,3 +93,10 @@ export async function BulkDeleteLeads(
   const { data } = await api.post(apiEndpoints.leads.bulk_delete, { lead_ids });
   return data;
 }
+
+export async function BulkUploadLeads(payload: any): Promise<GenericResponse> {
+  console.log(payload);
+  
+  const { data } = await api.post(apiEndpoints.leads.bulk_upload, payload);
+  return data;
+}

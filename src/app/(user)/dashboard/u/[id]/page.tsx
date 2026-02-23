@@ -1,4 +1,4 @@
-import UserLayout from "@/features/dashboard/u";
+import UserLayout from "@/features/dashboard/ui/user";
 
 type PageProps = {
   params: Promise<{ id: string }>; // ✅ params is a Promise in your runtime

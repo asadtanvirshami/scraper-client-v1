@@ -29,6 +29,7 @@ type MenuKey =
   | "folders"
   | "billing"
   | "settings"
+  | "notifications"
   // admin
   | "admin_dashboard"
   | "admin_users"
@@ -53,6 +54,7 @@ const AppSider: React.FC = () => {
     campaigns: "/campaigns",
     leads: "/leads",
     folders: "/folders",
+    notifications: "/notifications",
     billing: "/billings",
     settings: "/settings",
 
@@ -92,6 +94,11 @@ const AppSider: React.FC = () => {
       key: "billing",
       icon: <CreditCardIcon className="h-5 w-5" />,
       label: intl.formatMessage({ id: "sidebar.billing" }),
+    },
+    {
+      key: "notifications",
+      icon: <BellIcon className="h-5 w-5" />,
+      label: intl.formatMessage({ id: "sidebar.notifications" }),
     },
     {
       key: "settings",

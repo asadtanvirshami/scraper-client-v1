@@ -1,11 +1,9 @@
-"use client"
-import { Card } from 'antd'
+"use client";
+import CampaignsDashboard from "@/features/campaigns/ui";
 
 
 const CampaignsPage = () => {
-  return (
-    <Card>Campaigns Feature under development</Card>
-  )
-}
+  return <CampaignsDashboard />;
+};
 
-export default CampaignsPage
+export default CampaignsPage;
