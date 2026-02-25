@@ -7,7 +7,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { useIntl } from "react-intl";
 
 import { useFetchDashboard } from "@/features/dashboard/hooks/queries";
-import FilterHeader from "@/features/dashboard/widgets/filter-header";
+import FilterHeader from "@/features/dashboard/ui/widgets/filter-header";
 import UsersCreatedBarChart from "@/features/user/ui/bar-chart";
 import UsersTableServer from "@/features/user/ui/table";
 import AdminKpis from "../widgets/a-kpi-row";

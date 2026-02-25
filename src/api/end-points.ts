@@ -75,6 +75,7 @@ export const apiEndpoints = {
     update: `/lead/update`,
     delete: `/lead/delete`,
     bulk_delete: `/lead/bulk-delete`,
+    bulk_upload: `/lead/bulk-upload`,
     list: (params: {
       offset?: number;
       limit?: number;
@@ -128,5 +129,31 @@ export const apiEndpoints = {
 
     create: "/notification",
     bulkCreate: "/notification/bulk",
+  },
+
+  /* ================= CAMPAIGNS ================= */
+
+  campaigns: {
+    base: "/campaign",
+
+    get: (params?: {
+      page?: number;
+      limit?: number;
+      status?: string;
+      search?: string;
+    }) => withPagination("/campaign/get", params),
+
+    getOne: (campaign_id: string, user_id?: string) =>
+      withPagination(`/campaign/get-by-id`, { campaign_id, user_id }),
+
+    create: "/campaign/create",
+    update: "/campaign/update",
+    delete: "/campaign/delete",
+
+    schedule: (id: string) => `/campaign/schedule/${id}`,
+    send: "/campaign/send",
+
+    stats: "/campaign/stats",
+    analytics: (id: string) => `/campaign/analytics/${id}`,
   },
 };

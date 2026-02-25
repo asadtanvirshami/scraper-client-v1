@@ -25,46 +25,49 @@ interface NestedMessages {
 
 const flattenMessages = (
   nestedMessages: NestedMessages,
-  prefix = ""
+  prefix = "",
 ): Record<string, string> => {
-  return Object.keys(nestedMessages).reduce((messages, key) => {
-    const value = nestedMessages[key];
-    const prefixedKey = prefix ? `${prefix}.${key}` : key;
+  return Object.keys(nestedMessages).reduce(
+    (messages, key) => {
+      const value = nestedMessages[key];
+      const prefixedKey = prefix ? `${prefix}.${key}` : key;
 
-    if (
-      typeof value === "string" ||
-      typeof value === "number" ||
-      typeof value === "boolean"
-    ) {
-      // ✅ Cast non-string primitives to string
-      messages[prefixedKey] = String(value);
-    } else if (Array.isArray(value)) {
-      // ✅ Flatten arrays: key.0, key.1, ...
-      value.forEach((item, index) => {
-        const arrayKey = `${prefixedKey}.${index}`;
-        if (
-          typeof item === "string" ||
-          typeof item === "number" ||
-          typeof item === "boolean"
-        ) {
-          messages[arrayKey] = String(item);
-        } else if (item && typeof item === "object") {
-          Object.assign(
-            messages,
-            flattenMessages(item as NestedMessages, arrayKey)
-          );
-        }
-      });
-    } else if (value && typeof value === "object") {
-      // ✅ Nested object – recurse
-      Object.assign(
-        messages,
-        flattenMessages(value as NestedMessages, prefixedKey)
-      );
-    }
+      if (
+        typeof value === "string" ||
+        typeof value === "number" ||
+        typeof value === "boolean"
+      ) {
+        // ✅ Cast non-string primitives to string
+        messages[prefixedKey] = String(value);
+      } else if (Array.isArray(value)) {
+        // ✅ Flatten arrays: key.0, key.1, ...
+        value.forEach((item, index) => {
+          const arrayKey = `${prefixedKey}.${index}`;
+          if (
+            typeof item === "string" ||
+            typeof item === "number" ||
+            typeof item === "boolean"
+          ) {
+            messages[arrayKey] = String(item);
+          } else if (item && typeof item === "object") {
+            Object.assign(
+              messages,
+              flattenMessages(item as NestedMessages, arrayKey),
+            );
+          }
+        });
+      } else if (value && typeof value === "object") {
+        // ✅ Nested object – recurse
+        Object.assign(
+          messages,
+          flattenMessages(value as NestedMessages, prefixedKey),
+        );
+      }
 
-    return messages;
-  }, {} as Record<string, string>);
+      return messages;
+    },
+    {} as Record<string, string>,
+  );
 };
 
 // ✅ Apply flattening to both languages
@@ -80,7 +83,7 @@ interface LanguageContextType {
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({

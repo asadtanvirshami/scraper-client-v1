@@ -120,7 +120,7 @@ export default function NotificationsBellAntd() {
     padding: "10px 12px",
     position: "sticky",
     top: 0,
-    background: "#fff",
+    // background: "#fff",
     zIndex: 2,
   };
 
@@ -134,7 +134,7 @@ export default function NotificationsBellAntd() {
     border: "1px solid rgba(0,0,0,0.08)",
     borderRadius: 12,
     padding: 12,
-    background: "#fff",
+    // background: "#fff",
     cursor: "default",
   };
 
@@ -176,12 +176,6 @@ export default function NotificationsBellAntd() {
                   defaultMessage="Clear all"
                 />
               </Button>
-              <Link href={"/notifications"}>
-                <FormattedMessage
-                  id="notifications.title"
-                  defaultMessage="Notifications"
-                />
-              </Link>
             </Space>
           </div>
 

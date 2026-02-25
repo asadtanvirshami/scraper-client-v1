@@ -1,5 +1,9 @@
 "use client";
-import { DownloadAllLeads, type DownloadLeadsParams } from "@/api/api_calls/leads";
+import {
+  BulkUploadLeads,
+  DownloadAllLeads,
+  type DownloadLeadsParams,
+} from "@/api/api_calls/leads";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   CreateLead,
@@ -76,6 +80,18 @@ export const useDownloadAllLeads = () => {
     onSuccess: (blob, params) => {
       const date = new Date().toISOString().slice(0, 10);
       triggerBrowserDownload(blob, `leads_${date}.csv`);
+    },
+  });
+};
+
+export const useBulkUploadLeads = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ["leads", "bulk-upload"],
+    mutationFn: (payload: any) => BulkUploadLeads(payload),
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["leads", "list"] });
+      await qc.invalidateQueries({ queryKey: ["leads", "summary"] });
     },
   });
 };

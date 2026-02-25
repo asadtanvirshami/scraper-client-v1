@@ -4,7 +4,7 @@ import React, { useMemo, useState } from "react";
 import { Col, Row } from "antd";
 import Spinner from "@/components/ui (generic)/spinner";
 import dayjs, { Dayjs } from "dayjs";
-import { useFetchDashboard } from "../hooks/queries";
+import { useFetchDashboard } from "../../hooks/queries";
 
 import WeeklyLeadsAreaChart from "@/features/leads/ui/chart/area-chart";
 import DashboardKpiRow from "../widgets/kpi-row";

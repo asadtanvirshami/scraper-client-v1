@@ -5,7 +5,7 @@ import "./globals.css";
 import { LanguageProvider } from "@/hooks/language/use-language";
 import Providers from "@/providers/react-query";
 import StoreProvider from "@/redux/store-provider";
-
+import "react-quill-new/dist/quill.snow.css";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -18,7 +18,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "DataHarvX",
-  description: "Welcome to DataHarvX. Get qualified leads and grow your business.",
+  description:
+    "Welcome to DataHarvX. Get qualified leads and grow your business.",
 };
 
 export default function RootLayout({
