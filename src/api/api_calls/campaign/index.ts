@@ -13,8 +13,8 @@ export const campaignsApi = {
     return response.data;
   },
 
-  fetchCampaignById: async (id: string) => {
-    const response = await api.get(apiEndpoints.campaigns.getOne(id));
+  fetchCampaignById: async (id: string, user_id?: string) => {
+    const response = await api.get(apiEndpoints.campaigns.getOne(id, user_id));
     return response.data;
   },
 
@@ -28,10 +28,7 @@ export const campaignsApi = {
   ===================================================== */
 
   createCampaign: async (payload: any) => {
-    const response = await api.post(
-      apiEndpoints.campaigns.create,
-      payload
-    );
+    const response = await api.post(apiEndpoints.campaigns.create, payload);
     return response.data;
   },
 
@@ -39,11 +36,8 @@ export const campaignsApi = {
      UPDATE
   ===================================================== */
 
-  updateCampaign: async ({ id, ...payload }: any) => {
-    const response = await api.put(
-      apiEndpoints.campaigns.update(id),
-      payload
-    );
+  updateCampaign: async (payload: any) => {
+    const response = await api.post(apiEndpoints.campaigns.update, payload);
     return response.data;
   },
 
@@ -51,10 +45,16 @@ export const campaignsApi = {
      DELETE
   ===================================================== */
 
-  deleteCampaign: async (id: string) => {
-    const response = await api.delete(
-      apiEndpoints.campaigns.delete(id)
-    );
+  deleteCampaign: async ({
+    campaign_id,
+    user_id,
+  }: {
+    campaign_id: string;
+    user_id: string;
+  }) => {
+    const response = await api.delete(apiEndpoints.campaigns.delete, {
+      data: { campaign_id, user_id },
+    });
     return response.data;
   },
 
@@ -63,10 +63,9 @@ export const campaignsApi = {
   ===================================================== */
 
   scheduleCampaign: async ({ id, scheduled_at }: any) => {
-    const response = await api.post(
-      apiEndpoints.campaigns.schedule(id),
-      { scheduled_at }
-    );
+    const response = await api.post(apiEndpoints.campaigns.schedule(id), {
+      scheduled_at,
+    });
     return response.data;
   },
 
@@ -74,10 +73,17 @@ export const campaignsApi = {
      SEND
   ===================================================== */
 
-  sendCampaign: async (id: string) => {
-    const response = await api.post(
-      apiEndpoints.campaigns.send(id)
-    );
+  sendCampaign: async ({
+    campaign_id,
+    user_id,
+  }: {
+    campaign_id: string;
+    user_id: string;
+  }) => {
+    const response = await api.post(apiEndpoints.campaigns.send, {
+      campaign_id,
+      user_id,
+    });
     return response.data;
   },
 };

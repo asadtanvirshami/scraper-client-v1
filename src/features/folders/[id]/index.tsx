@@ -18,7 +18,6 @@ import { useFetchFolders } from "@/features/folders/hooks/queries";
 
 // reuse your existing table component if it's generic enough
 import LeadsTableServer from "@/features/leads/ui/lead-table";
-
 // reuse your queries/mutations (adjust path if needed)
 import { useFetchLeadsList } from "@/features/leads/hooks/queries";
 import {
@@ -88,53 +87,46 @@ export default function FolderParamsLayout({ folderId, folderName }: Props) {
     | any
     | undefined;
 
-const extract = (rows: any[]) => {
-  const mapped = rows.map((r: any) => {
-    const name =
-      r.name ||
-      r.Name ||
-      r.full_name ||
-      r.FullName ||
-      `${r.first_name || ""} ${r.last_name || ""}`.trim();
+  const extract = (rows: any[]) => {
+    const mapped = rows.map((r: any) => {
+      const name =
+        r.name ||
+        r.Name ||
+        r.full_name ||
+        r.FullName ||
+        `${r.first_name || ""} ${r.last_name || ""}`.trim();
 
-    const email =
-      r.email ||
-      r.Email ||
-      (Array.isArray(r.emails) ? r.emails[0] : "");
+      const email =
+        r.email || r.Email || (Array.isArray(r.emails) ? r.emails[0] : "");
 
-    const phone =
-      r.phone ||
-      r.Phone ||
-      (Array.isArray(r.phone_numbers) ? r.phone_numbers[0] : "");
+      const phone =
+        r.phone ||
+        r.Phone ||
+        (Array.isArray(r.phone_numbers) ? r.phone_numbers[0] : "");
 
-    const company =
-      r.company || r.Company || r.organization || r.Organization || "";
+      const company =
+        r.company || r.Company || r.organization || r.Organization || "";
 
-    const title =
-      r.title ||
-      r.position ||
-      r.Title ||
-      r.Position ||
-      r.job_title ||
-      "";
+      const title =
+        r.title || r.position || r.Title || r.Position || r.job_title || "";
 
-    return {
-      name: String(name || "").trim(),
-      email: String(email || "").trim(),
-      phone: String(phone || "").trim(),
-      company: String(company || "").trim(),
-      title: String(title || "").trim(),
-    };
-  });
+      return {
+        name: String(name || "").trim(),
+        email: String(email || "").trim(),
+        phone: String(phone || "").trim(),
+        company: String(company || "").trim(),
+        title: String(title || "").trim(),
+      };
+    });
 
-  if (!mapped.length) {
-    message.warning("No valid rows found in file");
-    return;
-  }
+    if (!mapped.length) {
+      message.warning("No valid rows found in file");
+      return;
+    }
 
-  setPreviewRows(mapped);
-  setPreviewVisible(true);
-};
+    setPreviewRows(mapped);
+    setPreviewVisible(true);
+  };
 
   const handleFileSelect = (file?: File) => {
     if (!file) return;
@@ -346,7 +338,6 @@ const extract = (rows: any[]) => {
           dataSource={previewRows.map((r, i) => ({ key: i, ...r }))}
           pagination={{ pageSize: 5 }}
           rowKey={(r) => r.key}
-          
           columns={[
             { title: "Name", dataIndex: "name", key: "name" },
             { title: "Email", dataIndex: "email", key: "email" },

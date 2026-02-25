@@ -18,10 +18,16 @@ export const useCampaigns = (params: any) => {
   });
 };
 
-export const useCampaign = (id: string) => {
+export const useCampaign = ({
+  id,
+  user_id,
+}: {
+  id: string;
+  user_id: string;
+}) => {
   return useQuery({
     queryKey: ["campaign", id],
-    queryFn: () => campaignsApi.fetchCampaignById(id),
+    queryFn: () => campaignsApi.fetchCampaignById(id, user_id),
     enabled: !!id,
   });
 };
@@ -42,32 +48,27 @@ export const useCampaignActions = () => {
 
   const createMutation = useMutation({
     mutationFn: campaignsApi.createCampaign,
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["campaigns"] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["campaigns"] }),
   });
 
   const updateMutation = useMutation({
     mutationFn: campaignsApi.updateCampaign,
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["campaigns"] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["campaigns"] }),
   });
 
   const deleteMutation = useMutation({
     mutationFn: campaignsApi.deleteCampaign,
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["campaigns"] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["campaigns"] }),
   });
 
   const scheduleMutation = useMutation({
     mutationFn: campaignsApi.scheduleCampaign,
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["campaigns"] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["campaigns"] }),
   });
 
   const sendMutation = useMutation({
     mutationFn: campaignsApi.sendCampaign,
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["campaigns"] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["campaigns"] }),
   });
 
   return {

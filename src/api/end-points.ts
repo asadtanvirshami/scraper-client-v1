@@ -143,14 +143,15 @@ export const apiEndpoints = {
       search?: string;
     }) => withPagination("/campaign/get", params),
 
-    getOne: (id: string) => `/campaign/get/${id}`,
+    getOne: (campaign_id: string, user_id?: string) =>
+      withPagination(`/campaign/get-by-id`, { campaign_id, user_id }),
 
     create: "/campaign/create",
-    update: (id: string) => `/campaign/update/${id}`,
-    delete: (id: string) => `/campaign/delete/${id}`,
+    update: "/campaign/update",
+    delete: "/campaign/delete",
 
     schedule: (id: string) => `/campaign/schedule/${id}`,
-    send: (id: string) => `/campaign/send/${id}`,
+    send: "/campaign/send",
 
     stats: "/campaign/stats",
     analytics: (id: string) => `/campaign/analytics/${id}`,

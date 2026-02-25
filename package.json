@@ -33,14 +33,15 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-intl": "^8.0.8",
+    "react-quill-new": "^3.8.3",
     "react-redux": "^9.2.0",
     "react-virtuoso": "^4.17.0",
     "recharts": "^3.6.0",
     "redux-persist": "^6.0.0",
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3",
-    "tailwind-merge": "^3.4.0"
-    ,"xlsx": "^0.18.5"
+    "tailwind-merge": "^3.4.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/next": "^8.0.7",
