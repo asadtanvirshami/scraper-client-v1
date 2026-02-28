@@ -463,13 +463,23 @@ const UsersTableServer: React.FC<Props> = ({
     <>
       <Card
         title={
-          <FormattedMessage id="admin.users.title" defaultMessage="Users" />
+          <Space>
+            <UserOutlined style={{ fontSize: 18, color: "#1890ff" }} />
+            <span>
+              <FormattedMessage id="admin.users.title" defaultMessage="Users" />
+            </span>
+          </Space>
         }
         extra={
           <Space>
             {/* ✅ also hide bulk actions when showFilters is false */}
             {showFilters && onDeleteAll && data.length > 0 && (
-              <Button danger onClick={onDeleteAll} loading={loading}>
+              <Button
+                danger
+                onClick={onDeleteAll}
+                loading={loading}
+                size="middle"
+              >
                 <FormattedMessage
                   id="commons.delete_all"
                   defaultMessage="Delete All"
@@ -478,7 +488,12 @@ const UsersTableServer: React.FC<Props> = ({
             )}
 
             {showFilters && selectedRowKeys && selectedRowKeys.length > 0 && (
-              <Button danger onClick={onBulkDelete} loading={loading}>
+              <Button
+                danger
+                onClick={onBulkDelete}
+                loading={loading}
+                size="middle"
+              >
                 <FormattedMessage
                   id="commons.bulk_delete"
                   defaultMessage="Delete Selected ({count})"
@@ -487,18 +502,31 @@ const UsersTableServer: React.FC<Props> = ({
               </Button>
             )}
 
-            <Text className="!text-lg !font-semibold">
+            <Tag color="blue" style={{ fontSize: 14, padding: "4px 12px" }}>
               <FormattedMessage
                 id="admin.users.total"
                 defaultMessage="Total {total}"
                 values={{ total }}
               />
-            </Text>
+            </Tag>
           </Space>
         }
+        style={{
+          borderRadius: 8,
+          boxShadow:
+            "0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02)",
+        }}
       >
         {showFilters && (
-          <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div
+            className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+            style={{
+              padding: "16px",
+              background: "#fafafa",
+              borderRadius: 8,
+              marginBottom: 16,
+            }}
+          >
             <Input
               allowClear
               prefix={<SearchOutlined />}
@@ -510,6 +538,7 @@ const UsersTableServer: React.FC<Props> = ({
               onChange={(e) => setSearchDraft(e.target.value)}
               className="sm:max-w-md"
               onPressEnter={applySearch}
+              size="large"
             />
 
             <Space>
@@ -518,6 +547,7 @@ const UsersTableServer: React.FC<Props> = ({
                 icon={<SearchOutlined />}
                 onClick={applySearch}
                 disabled={loading || !isDirtySearch}
+                size="large"
               >
                 <FormattedMessage id="commons.search" defaultMessage="Search" />
               </Button>
@@ -526,6 +556,7 @@ const UsersTableServer: React.FC<Props> = ({
                 onClick={resetAll}
                 icon={<ReloadOutlined />}
                 disabled={loading}
+                size="large"
               >
                 <FormattedMessage id="commons.reset" defaultMessage="Reset" />
               </Button>
@@ -545,8 +576,10 @@ const UsersTableServer: React.FC<Props> = ({
             pageSize: filters.limit,
             total,
             showSizeChanger: true,
+            showTotal: (total, range) =>
+              `${range[0]}-${range[1]} of ${total} items`,
           }}
-          size="large"
+          size="middle"
           scroll={{ x: 900 }}
           locale={{
             emptyText: (

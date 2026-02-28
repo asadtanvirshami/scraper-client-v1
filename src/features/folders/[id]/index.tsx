@@ -261,14 +261,14 @@ export default function FolderParamsLayout({ folderId, folderName }: Props) {
             defaultMessage="View and manage leads inside this folder."
           />
         </Text>
+        <Title level={5} className="!mb-1">
+          {folderName ?? folder?.name ?? `Folder ${folderId}`}
+        </Title>
       </div>
 
       <Row gutter={[16, 16]}>
-        <Col xs={24}>
+        {/* <Col xs={24}>
           <Card size="small" className="mb-4">
-            <Title level={5} className="!mb-1">
-              {folderName ?? folder?.name ?? `Folder ${folderId}`}
-            </Title>
             <Text type="secondary">
               Upload a CSV or XLSX to import leads (console logs extracted
               fields).
@@ -281,13 +281,14 @@ export default function FolderParamsLayout({ folderId, folderName }: Props) {
               />
             </div>
           </Card>
-        </Col>
+        </Col> */}
         <Col xs={24}>
           <LeadsTableServer
             leads={leads?.data ?? []}
             total={leads?.pagination?.total ?? 0}
             loading={isFetching}
             value={query}
+            showFileUpload
             onFetch={(next) => setQuery(next as any)}
             onCreateLead={async (payload: any) => {
               await createLead.mutateAsync({

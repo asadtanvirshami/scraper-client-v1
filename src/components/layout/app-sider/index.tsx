@@ -34,6 +34,7 @@ type MenuKey =
   | "admin_dashboard"
   | "admin_users"
   | "admin_bugs"
+  | "admin_feedbacks"
   | "admin_notifications"
   | "admin_reports";
 
@@ -61,9 +62,10 @@ const AppSider: React.FC = () => {
     // admin (you can adjust paths if yours differ)
     admin_dashboard: uid ? `/dashboard/a/${uid}` : "/dashboard/a",
     admin_users: "/users",
-    admin_bugs: "/admin/bugs",
-    admin_notifications: "/admin/notifications",
-    admin_reports: "/admin/reports",
+    admin_bugs: "/bugs",
+    admin_feedbacks: "/feedback",
+    admin_notifications: "/notifications",
+    admin_reports: "/reports",
   };
 
   const workspaceItems: MenuProps["items"] = [
@@ -107,7 +109,7 @@ const AppSider: React.FC = () => {
     },
   ];
 
-  // ✅ Admin menu: Users, Bugs, Notifications, Dashboard, Reports
+  // ✅ Admin menu: Users, Bugs, Feedbacks, Notifications, Dashboard, Reports
   const adminItems: MenuProps["items"] = [
     {
       key: "admin_dashboard",
@@ -125,30 +127,38 @@ const AppSider: React.FC = () => {
         defaultMessage: "Users",
       }),
     },
-    // {
-    //   key: "admin_bugs",
-    //   icon: <BugAntIcon className="h-5 w-5" />,
-    //   label: intl.formatMessage({
-    //     id: "sidebar.admin.bugs",
-    //     defaultMessage: "Bugs",
-    //   }),
-    // },
-    // {
-    //   key: "admin_notifications",
-    //   icon: <BellIcon className="h-5 w-5" />,
-    //   label: intl.formatMessage({
-    //     id: "sidebar.admin.notifications",
-    //     defaultMessage: "Notifications",
-    //   }),
-    // },
-    // {
-    //   key: "admin_reports",
-    //   icon: <DocumentTextIcon className="h-5 w-5" />,
-    //   label: intl.formatMessage({
-    //     id: "sidebar.admin.reports",
-    //     defaultMessage: "Reports",
-    //   }),
-    // },
+    {
+      key: "admin_bugs",
+      icon: <BugAntIcon className="h-5 w-5" />,
+      label: intl.formatMessage({
+        id: "sidebar.admin.bugs",
+        defaultMessage: "Bugs",
+      }),
+    },
+    {
+      key: "admin_feedbacks",
+      icon: <DocumentTextIcon className="h-5 w-5" />,
+      label: intl.formatMessage({
+        id: "sidebar.admin.feedbacks",
+        defaultMessage: "Feedbacks",
+      }),
+    },
+    {
+      key: "admin_notifications",
+      icon: <BellIcon className="h-5 w-5" />,
+      label: intl.formatMessage({
+        id: "sidebar.admin.notifications",
+        defaultMessage: "Notifications",
+      }),
+    },
+    {
+      key: "admin_reports",
+      icon: <DocumentTextIcon className="h-5 w-5" />,
+      label: intl.formatMessage({
+        id: "sidebar.admin.reports",
+        defaultMessage: "Reports",
+      }),
+    },
   ];
 
   const items = isAdmin ? adminItems : workspaceItems;
@@ -262,11 +272,9 @@ const AppSider: React.FC = () => {
         }
 
         .dhx-sider-menu .ant-menu-item:hover {
-
         }
 
         .dhx-sider-menu .ant-menu-item-selected {
- 
         }
 
         .dhx-sider-menu .ant-menu-item-selected::after {
@@ -274,7 +282,6 @@ const AppSider: React.FC = () => {
         }
 
         .dhx-sider-menu .ant-menu-item-icon {
-    
         }
 
         .dhx-sider-menu .ant-menu-item-selected .ant-menu-item-icon {

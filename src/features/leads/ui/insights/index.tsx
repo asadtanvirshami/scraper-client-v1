@@ -20,6 +20,7 @@ import {
   useUpdateLead,
   useDeleteLead,
   useBulkDeleteLeads,
+  useBulkUpdateScrappedLeads,
 } from "../../hooks/mutations";
 import { useFetchLeadsList } from "../../hooks/queries";
 
@@ -303,6 +304,7 @@ const InsightsCard: React.FC<Props> = ({ stats, dailyTotal, loading }) => {
   const updateLead = useUpdateLead();
   const deleteLead = useDeleteLead();
   const bulkDelete = useBulkDeleteLeads();
+  const bulkUpdateScraped = useBulkUpdateScrappedLeads();
 
   if (loading) {
     return (
@@ -477,6 +479,15 @@ const InsightsCard: React.FC<Props> = ({ stats, dailyTotal, loading }) => {
             }}
             onDeleteMany={async (ids: string[]) => {
               await bulkDelete.mutateAsync(ids);
+            }}
+            onApproveAll={async () => {
+              const allLeads = (leads?.data ?? []).map((lead: any) => ({
+                _id: lead._id,
+                scrape_status: true,
+              }));
+              if (allLeads.length > 0) {
+                await bulkUpdateScraped.mutateAsync({ leads: allLeads });
+              }
             }}
           />
         </Col>

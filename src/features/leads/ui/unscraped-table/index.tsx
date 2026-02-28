@@ -52,6 +52,7 @@ type Props = {
 
   onCreateLead?: (payload: Partial<Lead>) => Promise<void> | void;
   onUpdateLead?: (id: string, payload: Partial<Lead>) => Promise<void> | void;
+  onApproveAll?: () => Promise<void> | void;
 };
 
 const UnscrappedLeadsTable: React.FC<Props> = ({
@@ -65,6 +66,7 @@ const UnscrappedLeadsTable: React.FC<Props> = ({
   onDeleteMany,
   onCreateLead,
   onUpdateLead,
+  onApproveAll,
 }) => {
   const { Text } = Typography;
   const intl = useIntl();
@@ -187,6 +189,23 @@ const UnscrappedLeadsTable: React.FC<Props> = ({
       fetchNow({ page: 1 });
     } catch {
       message.error(intl.formatMessage({ id: "commons.bulk_delete_failed" }));
+    }
+  };
+
+  const doApproveAll = async () => {
+    if (!leads.length) return;
+
+    try {
+      if (onApproveAll) await onApproveAll();
+      message.success(
+        intl.formatMessage(
+          { id: "leads.approve.success" },
+          { count: leads.length },
+        ),
+      );
+      fetchNow({ page: 1 });
+    } catch {
+      message.error(intl.formatMessage({ id: "leads.approve.failed" }));
     }
   };
 
@@ -333,8 +352,8 @@ const UnscrappedLeadsTable: React.FC<Props> = ({
     <Card
       title={
         <FormattedMessage
-          id="leads.widget.recent_title"
-          defaultMessage="Leads"
+          id="leads.widget.scraped_title"
+          defaultMessage="Scraped Leads"
         />
       }
       extra={
@@ -400,6 +419,27 @@ const UnscrappedLeadsTable: React.FC<Props> = ({
           >
             <FormattedMessage id="commons.reset" defaultMessage="Reset" />
           </Button>
+
+          <Popconfirm
+            title={intl.formatMessage(
+              { id: "leads.confirm.approve_all" },
+              { count: leads.length },
+            )}
+            okText={intl.formatMessage({ id: "commons.approve" })}
+            okButtonProps={{ type: "primary" }}
+            onConfirm={doApproveAll}
+            disabled={leads.length === 0 || !onApproveAll}
+          >
+            <Button
+              type="primary"
+              disabled={leads.length === 0 || !onApproveAll}
+            >
+              <FormattedMessage
+                id="leads.actions.approve_all"
+                defaultMessage="Approve All"
+              />
+            </Button>
+          </Popconfirm>
 
           <Popconfirm
             title={intl.formatMessage(

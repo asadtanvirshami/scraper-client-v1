@@ -96,7 +96,22 @@ export async function BulkDeleteLeads(
 
 export async function BulkUploadLeads(payload: any): Promise<GenericResponse> {
   console.log(payload);
-  
+
   const { data } = await api.post(apiEndpoints.leads.bulk_upload, payload);
+  return data;
+}
+
+// ✅ BULK UPDATE SCRAPED LEADS
+export type BulkUpdateScrappedLeadsPayload = {
+  leads: Array<Partial<Lead> & { _id: string }>;
+};
+
+export async function BulkUpdateScrappedLeads(
+  payload: BulkUpdateScrappedLeadsPayload,
+): Promise<GenericResponse<any>> {
+  const { data } = await api.post(
+    apiEndpoints.leads.bulk_update_scraped,
+    payload,
+  );
   return data;
 }

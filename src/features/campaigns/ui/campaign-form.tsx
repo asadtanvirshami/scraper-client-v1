@@ -13,13 +13,20 @@ import {
   Col,
   Space,
   message,
-  Divider,
   Modal,
+  Alert,
+  Typography,
 } from "antd";
 import {
   SaveOutlined,
   ClockCircleOutlined,
   ArrowLeftOutlined,
+  InfoCircleOutlined,
+  EditOutlined,
+  MailOutlined,
+  SettingOutlined,
+  AimOutlined,
+  LineChartOutlined,
 } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import { useIntl } from "react-intl";
@@ -33,6 +40,7 @@ import { useFetchLeadsList } from "@/features/leads/hooks/queries";
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 
 const { Option } = Select;
+const { Title, Text } = Typography;
 
 interface CampaignFormProps {
   mode: "create" | "edit" | "view";
@@ -205,45 +213,76 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
   };
 
   return (
-    <div style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
-      <Space style={{ marginBottom: 24 }}>
+    <div
+      style={{ padding: "24px 24px 48px", maxWidth: 1200, margin: "0 auto" }}
+    >
+      {/* Back Button */}
+      <Space style={{ marginBottom: 20 }}>
         <Button
           icon={<ArrowLeftOutlined />}
           onClick={() => router.push("/campaigns")}
+          size="large"
         >
           {t("commons.cancel")}
         </Button>
       </Space>
 
-      <Card
-        title={
-          isViewMode
-            ? t("campaigns.view")
-            : isEditMode
-              ? t("campaigns.edit")
-              : t("campaigns.create")
-        }
-        style={{ borderRadius: 14 }}
+      {/* Info Alert */}
+      {!isViewMode && (
+        <Alert
+          message={t("campaigns.form.info_alert_title")}
+          description={t("campaigns.form.info_alert_description")}
+          type="info"
+          icon={<InfoCircleOutlined />}
+          showIcon
+          style={{ marginBottom: 24, borderRadius: 8 }}
+        />
+      )}
+
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={handleSubmit}
+        initialValues={{
+          status: "DRAFT",
+          campaign_type: "FOLDER",
+          track_opens: true,
+        }}
       >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmit}
-          initialValues={{
-            status: "DRAFT",
-            campaign_type: "FOLDER",
-            track_opens: true,
+        {/* Basic Information Card */}
+        <Card
+          title={
+            <Space>
+              <EditOutlined style={{ color: "#1890ff" }} />
+              <span>{t("campaigns.form.basic_info")}</span>
+            </Space>
+          }
+          style={{
+            marginBottom: 24,
+            borderRadius: 12,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
           }}
         >
-          {/* Basic Info */}
+          <Text type="secondary" style={{ display: "block", marginBottom: 20 }}>
+            {t("campaigns.form.basic_info_description")}
+          </Text>
           <Row gutter={16}>
             <Col xs={24} md={12}>
               <Form.Item
                 label={t("campaigns.form.name")}
                 name="name"
-                rules={[{ required: true }]}
+                rules={[
+                  {
+                    required: true,
+                    message: t("campaigns.form.name_required"),
+                  },
+                ]}
               >
-                <Input size="large" disabled={isViewMode} />
+                <Input
+                  size="large"
+                  disabled={isViewMode}
+                  placeholder={t("campaigns.form.name_placeholder")}
+                />
               </Form.Item>
             </Col>
 
@@ -251,46 +290,24 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
               <Form.Item
                 label={t("campaigns.form.subject")}
                 name="subject"
-                rules={[{ required: true }]}
+                rules={[
+                  {
+                    required: true,
+                    message: t("campaigns.form.subject_required"),
+                  },
+                ]}
               >
-                <Input size="large" disabled={isViewMode} />
+                <Input
+                  size="large"
+                  disabled={isViewMode}
+                  placeholder={t("campaigns.form.subject_placeholder")}
+                />
               </Form.Item>
             </Col>
           </Row>
 
-          {/* Content Editor */}
-          <Form.Item
-            label={t("campaigns.form.content")}
-            name="content"
-            rules={[{ required: true }]}
-          >
-            {isViewMode ? (
-              <div
-                style={{
-                  border: "1px solid #f0f0f0",
-                  borderRadius: 8,
-                  padding: 16,
-                }}
-                dangerouslySetInnerHTML={{
-                  __html: content || form.getFieldValue("content") || "",
-                }}
-              />
-            ) : (
-              <ReactQuill
-                theme="snow"
-                modules={quillModules}
-                style={{ minHeight: 300 }}
-                onChange={(value) => {
-                  setContent(value);
-                  form.setFieldsValue({ content: value });
-                }}
-                value={content}
-              />
-            )}
-          </Form.Item>
-
-          {/* Tracking ID - Only show in create and view mode */}
-          {!isEditMode && (
+          {/* Tracking ID - Only show in create mode */}
+          {isCreateMode && (
             <Row gutter={16}>
               <Col xs={24} md={12}>
                 <Form.Item
@@ -305,9 +322,76 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
               </Col>
             </Row>
           )}
+        </Card>
 
-          {/* Email Configuration */}
-          <Divider>{t("campaigns.form.email_config")}</Divider>
+        {/* Content Card */}
+        <Card
+          title={
+            <Space>
+              <MailOutlined style={{ color: "#52c41a" }} />
+              <span>{t("campaigns.form.content")}</span>
+            </Space>
+          }
+          style={{
+            marginBottom: 24,
+            borderRadius: 12,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+          }}
+        >
+          <Text type="secondary" style={{ display: "block", marginBottom: 20 }}>
+            {t("campaigns.form.content_description")}
+          </Text>
+          <Form.Item
+            name="content"
+            rules={[
+              { required: true, message: t("campaigns.form.content_required") },
+            ]}
+          >
+            {isViewMode ? (
+              <div
+                style={{
+                  border: "1px solid #f0f0f0",
+                  borderRadius: 8,
+                  padding: 16,
+                  minHeight: 200,
+                  backgroundColor: "#fafafa",
+                }}
+                dangerouslySetInnerHTML={{
+                  __html: content || form.getFieldValue("content") || "",
+                }}
+              />
+            ) : (
+              <ReactQuill
+                theme="snow"
+                modules={quillModules}
+                style={{ minHeight: 300, backgroundColor: "white" }}
+                onChange={(value) => {
+                  setContent(value);
+                  form.setFieldsValue({ content: value });
+                }}
+                value={content}
+              />
+            )}
+          </Form.Item>
+        </Card>
+
+        {/* Email Configuration Card */}
+        <Card
+          title={
+            <Space>
+              <MailOutlined style={{ color: "#722ed1" }} />
+              <span>{t("campaigns.form.email_config")}</span>
+            </Space>
+          }
+          style={{
+            marginBottom: 24,
+            borderRadius: 12,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+          }}
+        >
+          <Text type="secondary" style={{ display: "block", marginBottom: 20 }}>
+            {t("campaigns.form.email_config_description")}
+          </Text>
           <Row gutter={16}>
             <Col xs={24} md={8}>
               <Form.Item
@@ -325,6 +409,7 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
                   placeholder={t("campaigns.form.from_email_placeholder")}
                   type="email"
                   disabled={isViewMode}
+                  size="large"
                 />
               </Form.Item>
             </Col>
@@ -333,6 +418,7 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
                 <Input
                   placeholder={t("campaigns.form.from_name_placeholder")}
                   disabled={isViewMode}
+                  size="large"
                 />
               </Form.Item>
             </Col>
@@ -342,13 +428,30 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
                   placeholder={t("campaigns.form.reply_to_placeholder")}
                   type="email"
                   disabled={isViewMode}
+                  size="large"
                 />
               </Form.Item>
             </Col>
           </Row>
+        </Card>
 
-          {/* Campaign Settings */}
-          <Divider>{t("campaigns.form.campaign_settings")}</Divider>
+        {/* Campaign Settings Card */}
+        <Card
+          title={
+            <Space>
+              <SettingOutlined style={{ color: "#fa8c16" }} />
+              <span>{t("campaigns.form.campaign_settings")}</span>
+            </Space>
+          }
+          style={{
+            marginBottom: 24,
+            borderRadius: 12,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+          }}
+        >
+          <Text type="secondary" style={{ display: "block", marginBottom: 20 }}>
+            {t("campaigns.form.campaign_settings_description")}
+          </Text>
           <Row gutter={16}>
             <Col xs={24} md={8}>
               <Form.Item name="status" label={t("campaigns.form.status")}>
@@ -388,13 +491,30 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
                   style={{ width: "100%" }}
                   disabled={isViewMode}
                   size="large"
+                  placeholder={t("campaigns.form.scheduled_at_placeholder")}
                 />
               </Form.Item>
             </Col>
           </Row>
+        </Card>
 
-          {/* Targeting */}
-          <Divider>{t("campaigns.form.targeting")}</Divider>
+        {/* Targeting Card */}
+        <Card
+          title={
+            <Space>
+              <AimOutlined style={{ color: "#eb2f96" }} />
+              <span>{t("campaigns.form.targeting")}</span>
+            </Space>
+          }
+          style={{
+            marginBottom: 24,
+            borderRadius: 12,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+          }}
+        >
+          <Text type="secondary" style={{ display: "block", marginBottom: 20 }}>
+            {t("campaigns.form.targeting_description")}
+          </Text>
           <Row gutter={16}>
             {campaignType === "SPECIFIC" && (
               <Col xs={24}>
@@ -461,8 +581,25 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
               </Col>
             )}
           </Row>
+        </Card>
 
-          {/* Tracking */}
+        {/* Tracking Options Card */}
+        <Card
+          title={
+            <Space>
+              <LineChartOutlined style={{ color: "#13c2c2" }} />
+              <span>{t("campaigns.form.tracking_options")}</span>
+            </Space>
+          }
+          style={{
+            marginBottom: 24,
+            borderRadius: 12,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+          }}
+        >
+          <Text type="secondary" style={{ display: "block", marginBottom: 20 }}>
+            {t("campaigns.form.tracking_description")}
+          </Text>
           <Form.Item
             name="track_opens"
             label={t("campaigns.form.track_opens")}
@@ -470,44 +607,61 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
           >
             <Switch disabled={isViewMode} />
           </Form.Item>
+        </Card>
 
-          {/* Actions */}
-          {!isViewMode && (
+        {/* Action Buttons */}
+        {!isViewMode && (
+          <Card
+            style={{
+              borderRadius: 12,
+              boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+              background: "linear-gradient(to bottom, #fafafa, #ffffff)",
+            }}
+          >
             <div
               style={{
-                marginTop: 32,
                 display: "flex",
                 justifyContent: "flex-end",
                 gap: 12,
+                flexWrap: "wrap",
               }}
             >
               <Button
+                size="large"
                 icon={<SaveOutlined />}
                 onClick={() => {
                   form.setFieldsValue({ status: "DRAFT" });
                   form.submit();
                 }}
                 loading={isPending}
+                style={{ minWidth: 140 }}
               >
-                Save Draft
+                {t("campaigns.form.save_draft")}
               </Button>
 
               <Button
                 type="primary"
+                size="large"
                 icon={<ClockCircleOutlined />}
                 onClick={() => setIsScheduleModalOpen(true)}
                 loading={isPending}
+                style={{ minWidth: 160 }}
               >
-                Schedule Campaign
+                {t("campaigns.form.schedule")}
               </Button>
             </div>
-          )}
-        </Form>
-      </Card>
+          </Card>
+        )}
+      </Form>
 
       {/* Schedule Modal */}
       <Modal
-        title={t("campaigns.form.schedule_campaign")}
+        title={
+          <Space>
+            <ClockCircleOutlined style={{ color: "#1890ff" }} />
+            <span>{t("campaigns.form.schedule_campaign")}</span>
+          </Space>
+        }
         open={isScheduleModalOpen}
         onCancel={() => {
           setIsScheduleModalOpen(false);
@@ -528,8 +682,15 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
         }}
         okText={t("campaigns.form.confirm_schedule")}
         cancelText={t("commons.cancel")}
+        width={500}
       >
-        <div style={{ padding: "20px 0" }}>
+        <div style={{ padding: "24px 0" }}>
+          <Alert
+            message={t("campaigns.form.campaign_settings_description")}
+            type="info"
+            showIcon
+            style={{ marginBottom: 20 }}
+          />
           <DatePicker
             showTime
             format="YYYY-MM-DD HH:mm"

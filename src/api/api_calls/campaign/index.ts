@@ -7,9 +7,7 @@ export const campaignsApi = {
   ===================================================== */
 
   fetchCampaigns: async (params?: any) => {
-    const response = await api.get(apiEndpoints.campaigns.get(params), {
-      params,
-    });
+    const response = await api.get(apiEndpoints.campaigns.get(params));
     return response.data;
   },
 

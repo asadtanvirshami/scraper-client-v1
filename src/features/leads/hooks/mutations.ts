@@ -1,8 +1,10 @@
 "use client";
 import {
   BulkUploadLeads,
+  BulkUpdateScrappedLeads,
   DownloadAllLeads,
   type DownloadLeadsParams,
+  type BulkUpdateScrappedLeadsPayload,
 } from "@/api/api_calls/leads";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -89,6 +91,19 @@ export const useBulkUploadLeads = () => {
   return useMutation({
     mutationKey: ["leads", "bulk-upload"],
     mutationFn: (payload: any) => BulkUploadLeads(payload),
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["leads", "list"] });
+      await qc.invalidateQueries({ queryKey: ["leads", "summary"] });
+    },
+  });
+};
+
+export const useBulkUpdateScrappedLeads = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationKey: ["leads", "bulk-update-scraped"],
+    mutationFn: (payload: BulkUpdateScrappedLeadsPayload) =>
+      BulkUpdateScrappedLeads(payload),
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: ["leads", "list"] });
       await qc.invalidateQueries({ queryKey: ["leads", "summary"] });

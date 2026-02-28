@@ -232,7 +232,10 @@
       "title": "Tus Campañas",
       "create": "Crear Campaña",
       "empty": "Aún no hay campañas",
-      "error": "Error al cargar campañas"
+      "error": "Error al cargar campañas",
+      "search_placeholder": "Buscar campañas...",
+      "filter_status": "Filtrar por estado",
+      "clear_filters": "Limpiar Filtros"
     },
     "card": {
       "recipients": "Destinatarios",
@@ -365,7 +368,15 @@
       "validation_error": "Por favor complete todos los campos requeridos",
       "validation": {
         "select_leads_or_folders": "Por favor seleccione al menos un lead o carpeta"
-      }
+      },
+      "info_alert_title": "Crear Tu Campaña de Email",
+      "info_alert_description": "Diseña y programa campañas de email profesionales. Dirige a leads específicos o carpetas, rastrea aperturas y monitorea el rendimiento.",
+      "basic_info_description": "Configure los detalles fundamentales de su campaña, incluyendo nombre y asunto del email.",
+      "content_description": "Redacte su mensaje de email usando el editor de texto enriquecido. Agregue formato, enlaces y estilos.",
+      "email_config_description": "Configure los detalles del remitente. Use una dirección de email verificada para mejor entregabilidad.",
+      "campaign_settings_description": "Elija el tipo de campaña, estado y programe la hora de entrega.",
+      "targeting_description": "Seleccione los destinatarios para su campaña. Elija leads específicos o carpetas completas.",
+      "tracking_description": "Habilite el rastreo de email para monitorear el rendimiento y participación de la campaña."
     }
   },
 
@@ -398,6 +409,7 @@
     "actions": "Acciones",
     "cancel": "Cancelar",
     "save": "Guardar",
+    "approve": "Aprobar",
     "create": "Crear",
     "saved": "Guardado",
     "save_failed": "Error al guardar",
@@ -406,6 +418,7 @@
     "bulk_delete_failed": "Error al eliminar en lote",
     "clear": "Limpiar",
     "view": "Ver",
+    "view_all": "Ver Todos",
     "end_of_list": "Fin de la lista",
     "blocked": "Usuario bloqueado",
     "unblocked": "Usuario desbloqueado",
@@ -467,7 +480,11 @@
       "required": "Por favor describe el error.",
       "submit": "Enviar error",
       "success": "Reporte enviado.",
-      "fail": "No se pudo enviar el reporte."
+      "fail": "No se pudo enviar el reporte.",
+      "report_button": "Reportar un Error",
+      "your_reports": "Tus Reportes",
+      "no_reports": "No hay reportes de errores aún",
+      "modal_title": "Reportar un Error"
     },
     "feedback": {
       "title": "Enviar sugerencias",
@@ -482,6 +499,15 @@
     "max_length": "Máximo {max} caracteres."
   },
 
+  "feedback": {
+    "auto_modal": {
+      "title": "¡Nos Encantaría Conocer Tu Opinión!",
+      "description": "¡Ayúdanos a mejorar tu experiencia! Comparte tus ideas y sugerencias.",
+      "later": "Quizás Más Tarde",
+      "submit": "Enviar Comentarios"
+    }
+  },
+
   "leads": {
     "page": {
       "title": "Leads",
@@ -493,13 +519,29 @@
     },
     "widget": {
       "recent_title": "Leads",
+      "scraped_title": "Leads Scrapeados",
       "total": "Total {total}"
     },
     "empty": "Aún no hay leads",
     "actions": {
       "view_all": "Ver todos",
       "download": "Descargar",
-      "add_to_leads": "Añadir a leads"
+      "add_to_leads": "Añadir a leads",
+      "approve_all": "Aprobar Todos",
+      "upload": "Subir Archivo",
+      "upload_csv_xlsx": "Subir CSV/XLSX"
+    },
+    "upload": {
+      "title": "Importación Masiva de Leads",
+      "description": "Sube un archivo CSV o XLSX para importar múltiples leads a la vez.",
+      "button": "Elegir Archivo",
+      "supported_formats": "Formatos soportados: CSV, XLSX, XLS",
+      "drag_drop": "o arrastra y suelta",
+      "processing": "Procesando archivo...",
+      "success": "{count} lead(s) importado(s) correctamente",
+      "no_valid_rows": "No se encontraron filas válidas en el archivo",
+      "unsupported_format": "Tipo de archivo no soportado. Por favor sube un archivo .csv o .xlsx",
+      "failed": "Error al importar en lote"
     },
     "search": {
       "placeholder": "Buscar por nombre, email, empresa..."
@@ -521,7 +563,8 @@
     },
     "confirm": {
       "delete_one": "¿Eliminar este lead?",
-      "delete_selected": "¿Eliminar {count} lead(s) seleccionado(s)?"
+      "delete_selected": "¿Eliminar {count} lead(s) seleccionado(s)?",
+      "approve_all": "¿Aprobar todos los {count} lead(s)?"
     },
     "drawer": {
       "add_title": "Añadir Lead",
@@ -572,6 +615,10 @@
     "scrape": {
       "success": "Lead añadido correctamente.",
       "failed": "No se pudo añadir el lead."
+    },
+    "approve": {
+      "success": "{count} lead(s) aprobado(s) correctamente.",
+      "failed": "No se pudieron aprobar los leads."
     }
   },
 
@@ -635,7 +682,11 @@
     },
     "charts": {
       "leads_by_type_bar": "Leads añadidos (por tipo)",
-      "weekly_leads": "Leads añadidos (últimos 7 días)"
+      "weekly_leads": "Leads añadidos (últimos 7 días)",
+      "campaign_metrics": "Rendimiento de Campañas"
+    },
+    "tables": {
+      "recent_campaigns": "Campañas Recientes"
     },
     "stats": {
       "totalLeads": "Total de leads",
@@ -657,7 +708,7 @@
       "general": "General",
       "profile": "Perfil",
       "password_security": "Contraseña y seguridad",
-      "support": "Soporte y feedback"
+      "support": "Reportar Error"
     },
     "general": {
       "title": "General"

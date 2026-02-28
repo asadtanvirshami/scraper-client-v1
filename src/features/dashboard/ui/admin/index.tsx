@@ -13,7 +13,9 @@ import UsersTableServer from "@/features/user/ui/table";
 import AdminKpis from "../widgets/a-kpi-row";
 
 import BugsTableServer, { BugItem } from "@/features/bugs/ui/table";
-import FeedbacksTableServer, { FeedbackItem } from "@/features/feedbacks/ui/table";
+import FeedbacksTableServer, {
+  FeedbackItem,
+} from "@/features/feedbacks/ui/table";
 
 type PresetKey = "7d" | "14d" | "30d" | "90d";
 
@@ -98,7 +100,10 @@ const AdminLayout = ({ id }: { id: string }) => {
 
   // ✅ normalize recent arrays
   const recentUsers = useMemo(() => recent?.users ?? [], [recent?.users]);
-  const recentBugs: BugItem[] = useMemo(() => recent?.bugs ?? [], [recent?.bugs]);
+  const recentBugs: BugItem[] = useMemo(
+    () => recent?.bugs ?? [],
+    [recent?.bugs],
+  );
   const recentFeedbacks: FeedbackItem[] = useMemo(
     () => recent?.feedbacks ?? [],
     [recent?.feedbacks],
@@ -167,6 +172,8 @@ const AdminLayout = ({ id }: { id: string }) => {
             total={recentBugs.length}
             loading={isFetching}
             showFilters={false}
+            disableStatusChange={true}
+            showSelect={false}
             onFetch={() => {}}
             value={{
               page: 1,
@@ -183,6 +190,8 @@ const AdminLayout = ({ id }: { id: string }) => {
             total={recentFeedbacks.length}
             loading={isFetching}
             showFilters={false}
+            disableStatusChange={true}
+            showSelect={false}
             onFetch={() => {}}
             value={{
               page: 1,
