@@ -37,12 +37,17 @@ type AppUserLite = {
 
 export type FeedbackItem = {
   _id: string;
-  feedback?: string;
-  status?: "open" | "in_progress" | "resolved";
-  user_id?: AppUserLite | string | null;
-  is_deleted?: boolean;
-  createdAt?: string | Date;
-  updatedAt?: string | Date;
+  feedback: string;
+  user_id: string | {
+    _id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
+  is_deleted: boolean;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
 };
 
 export type ServerFilters = {
@@ -69,12 +74,6 @@ type Props = {
   ) => Promise<void> | void;
 
   showFilters?: boolean;
-
-  /** ✅ if true => disable status dropdown */
-  disableStatusChange?: boolean;
-
-  /** ✅ if false => show status as Tag instead of Select */
-  showSelect?: boolean;
 
   onOpenEdit?: (row: FeedbackItem) => void;
   onOpenView?: (row: FeedbackItem) => void;
@@ -131,8 +130,6 @@ const FeedbacksTableServer: React.FC<Props> = ({
   onDeleteMany,
   onUpdateFeedback,
   showFilters = true,
-  disableStatusChange = false,
-  showSelect = true,
   onOpenEdit,
   onOpenView,
 }) => {
@@ -145,9 +142,6 @@ const FeedbacksTableServer: React.FC<Props> = ({
 
   // ✅ selection
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-
-  // ✅ status update state
-  const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null);
 
   const fetchNow = (next: Partial<ServerFilters>) =>
     onFetch({ ...filters, ...next });
@@ -210,30 +204,6 @@ const FeedbacksTableServer: React.FC<Props> = ({
     }
   };
 
-  const handleStatusChange = async (id: string, newStatus: string) => {
-    if (!onUpdateFeedback) return;
-
-    setUpdatingStatusId(id);
-    try {
-      await onUpdateFeedback(id, { status: newStatus as any });
-      message.success(
-        intl.formatMessage({
-          id: "commons.updated",
-          defaultMessage: "Updated",
-        }),
-      );
-    } catch (error) {
-      message.error(
-        intl.formatMessage({
-          id: "commons.update_failed",
-          defaultMessage: "Update failed",
-        }),
-      );
-    } finally {
-      setUpdatingStatusId(null);
-    }
-  };
-
   const columns: ColumnsType<FeedbackItem> = [
     {
       title: (
@@ -246,38 +216,6 @@ const FeedbacksTableServer: React.FC<Props> = ({
       key: "feedback",
       ellipsis: true,
       render: (v?: string) => v || "-",
-    },
-    {
-      title: (
-        <FormattedMessage
-          id="admin.feedbacks.table.status"
-          defaultMessage="Status"
-        />
-      ),
-      dataIndex: "status",
-      key: "status",
-      width: 140,
-      render: (status: string, record) => {
-        if (!showSelect) {
-          return <Tag color={getStatusColor(status)}>{getStatusLabel(status)}</Tag>;
-        }
-        return (
-          <Spin spinning={updatingStatusId === record._id} size="small">
-            <Select
-              value={status || "open"}
-              onChange={(val) => handleStatusChange(record._id, val)}
-              options={[
-                { label: "Open", value: "open" },
-                { label: "In Progress", value: "in_progress" },
-                { label: "Resolved", value: "resolved" },
-              ]}
-              disabled={disableStatusChange || updatingStatusId === record._id}
-              size="small"
-              style={{ width: "100%" }}
-            />
-          </Spin>
-        );
-      },
     },
     {
       title: (

@@ -18,6 +18,7 @@ import { useUpdateProfile } from "@/features/user/hooks";
 import { useUserInfo } from "@/helpers/use-user";
 import { useDispatch } from "react-redux";
 import { updateProfile } from "@/redux/slices/user/user-slice";
+import { getAccessToken } from "@/lib/cookies";
 
 const { Title, Text } = Typography;
 
@@ -33,40 +34,57 @@ const ProfileForm: React.FC = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const [form] = Form.useForm<ProfileFormValues>();
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const updateProfileMutation = useUpdateProfile();
   const { user } = useUserInfo();
 
   const onSave = async () => {
     try {
+      console.log("frontend onSave");
       const values = await form.validateFields();
-      await updateProfileMutation.mutateAsync(
-        {
-          _id: user?._id ?? "",
-          first_name: values.first_name,
-          last_name: values.last_name,
+      
+      // Create FormData object
+      const formData = new FormData();
+      
+      // Add text fields
+      formData.append('_id', user?._id ?? "");
+      formData.append('first_name', values.first_name);
+      formData.append('last_name', values.last_name);
+      console.log("frontend values", avatarUrl);
+      
+      // Add avatar file if exists (avatarUrl is actually the File object)
+      // if (avatarUrl && typeof avatarUrl === 'object' && avatarUrl instanceof File) {
+      //   console.log("frontend file", avatarUrl);
+      //   formData.append('image', avatarUrl);
+      // }
+      formData.append('image', avatarUrl);
+      console.log("frontend formData", avatarUrl);
+      // Direct fetch call
+      const token = getAccessToken();
+      const response = await fetch('http://localhost:4000/api/user/me', {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-        {
-          onSuccess: (data) => {
-            const userData = data?.data;
-            dispatch(updateProfile(userData));
-          },
-          onError: (error) => {
-            console.error("Profile update error:", error);
-          },
-        },
-      );
+        body: formData,
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const userData = data?.data;
+        dispatch(updateProfile(userData));
+        console.log("Profile updated successfully");
+      } else {
+        console.error("Profile update failed");
+      }
     } catch (error) {
       console.error("Profile update error:", error);
     }
   };
 
   const handleAvatarChange = (info: any) => {
-    if (info.file.status === "done" || info.file.originFileObj) {
-      const file = info.file.originFileObj as File;
-      const url = URL.createObjectURL(file);
-      setAvatarUrl(url);
-    }
+    setAvatarUrl(info.file);
   };
 
   return (
@@ -81,7 +99,7 @@ const ProfileForm: React.FC = () => {
           <Text strong>{intl.formatMessage({ id: "profile.avatar" })}</Text>
 
           <Space>
-            <Avatar size={64} src={avatarUrl} icon={<UserOutlined />} />
+            <Avatar size={64} src={avatarPreview} icon={<UserOutlined />} />
 
             <Upload
               showUploadList={false}

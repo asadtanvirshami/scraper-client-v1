@@ -117,12 +117,18 @@ export async function BulkDeleteUsers(
 
 /* ================= UPDATE USER ================= */
 export async function UpdateProfile(
-  input: UpdateProfilePayload,
+  input: UpdateProfilePayload | FormData,
 ): Promise<GenericResponse> {
-  const { data } = await api.put(apiEndpoints.user.updateMe, input, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  // Don't set Content-Type header for FormData - browser will set it automatically with boundary
+  const config = input instanceof FormData 
+    ? { headers }
+    : { headers: { ...headers, 'Content-Type': 'application/json' } };
+
+    console.log("frontend input",input);
+  const { data } = await api.put(apiEndpoints.user.updateMe, input, config);
   return data;
 }

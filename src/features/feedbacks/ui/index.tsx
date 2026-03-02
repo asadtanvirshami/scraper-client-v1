@@ -119,26 +119,6 @@ const FeedBackLayout: React.FC = () => {
               </Descriptions.Item>
 
               <Descriptions.Item
-                label={<><CheckCircleOutlined className="mr-1" /> Status</>}
-              >
-                <Tag
-                  color={
-                    viewingFeedback.status === "open"
-                      ? "error"
-                      : viewingFeedback.status === "in_progress"
-                      ? "processing"
-                      : "success"
-                  }
-                >
-                  {viewingFeedback.status === "in_progress"
-                    ? "In Progress"
-                    : viewingFeedback.status === "resolved"
-                    ? "Resolved"
-                    : "Open"}
-                </Tag>
-              </Descriptions.Item>
-
-              <Descriptions.Item
                 label={<><UserOutlined className="mr-1" /> User</>}
               >
                 {typeof viewingFeedback.user_id === "string"

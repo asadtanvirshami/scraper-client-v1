@@ -16,7 +16,7 @@ import {
 } from "@/api/api_calls/user";
 
 export const useUpdateProfile = () =>
-  useMutation<GenericResponse, Error, UpdateProfilePayload>({
+  useMutation<GenericResponse, Error, UpdateProfilePayload | FormData>({
     mutationKey: ["user", "updateProfile"],
     mutationFn: async (payload) => {
       return await UpdateProfile(payload);

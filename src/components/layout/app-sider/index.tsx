@@ -30,6 +30,7 @@ type MenuKey =
   | "billing"
   | "settings"
   | "notifications"
+  | "emails"
   // admin
   | "admin_dashboard"
   | "admin_users"
@@ -58,6 +59,7 @@ const AppSider: React.FC = () => {
     notifications: "/notifications",
     billing: "/billings",
     settings: "/settings",
+    emails: "/emails",
 
     // admin (you can adjust paths if yours differ)
     admin_dashboard: uid ? `/dashboard/a/${uid}` : "/dashboard/a",
@@ -103,10 +105,15 @@ const AppSider: React.FC = () => {
       label: intl.formatMessage({ id: "sidebar.notifications" }),
     },
     {
+      key: "emails",
+      icon: <MegaphoneIcon className="h-5 w-5" />,
+      label: intl.formatMessage({ id: "sidebar.emails" }),
+    },
+    {
       key: "settings",
       icon: <Cog6ToothIcon className="h-5 w-5" />,
       label: intl.formatMessage({ id: "sidebar.settings" }),
-    },
+    }
   ];
 
   // ✅ Admin menu: Users, Bugs, Feedbacks, Notifications, Dashboard, Reports
