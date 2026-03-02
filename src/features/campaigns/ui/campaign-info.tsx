@@ -1,7 +1,12 @@
 "use client";
 
 import React from "react";
-import { Card, Typography, Tag, Row, Col, Divider } from "antd";
+import { Card, Typography, Tag, Row, Col, Divider, Space } from "antd";
+import {
+  InfoCircleOutlined,
+  CalendarOutlined,
+  SendOutlined,
+} from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useIntl } from "react-intl";
 
@@ -44,19 +49,25 @@ const CampaignInfo: React.FC<CampaignInfoProps> = ({ campaign }) => {
 
   return (
     <Card
+      title={
+        <Space>
+          <InfoCircleOutlined style={{ color: "#1890ff" }} />
+          <span>{t("campaigns.info.title")}</span>
+        </Space>
+      }
       style={{
-        borderRadius: 16,
-        boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
+        borderRadius: 12,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
       }}
-      bodyStyle={{ padding: 28 }}
+      bodyStyle={{ padding: 24 }}
     >
       {/* Header */}
-      <Row justify="space-between" align="middle">
+      <Row justify="space-between" align="middle" style={{ marginBottom: 24 }}>
         <Col>
-          <Title level={3} style={{ marginBottom: 4 }}>
+          <Title level={3} style={{ marginBottom: 4, marginTop: 0 }}>
             {campaign.name}
           </Title>
-          <Text type="secondary">
+          <Text type="secondary" style={{ fontSize: 14 }}>
             {t("campaigns.info.campaign_id")}: {campaign.id}
           </Text>
         </Col>
@@ -66,10 +77,10 @@ const CampaignInfo: React.FC<CampaignInfoProps> = ({ campaign }) => {
             <Tag
               color={getStatusColor()}
               style={{
-                padding: "6px 14px",
+                padding: "8px 16px",
                 borderRadius: 20,
-                fontSize: 13,
-                fontWeight: 500,
+                fontSize: 14,
+                fontWeight: 600,
               }}
             >
               {t(`campaigns.status.${campaign.status}`)}
@@ -78,22 +89,34 @@ const CampaignInfo: React.FC<CampaignInfoProps> = ({ campaign }) => {
         </Col>
       </Row>
 
-      <Divider />
-
       {/* Metadata Grid */}
       <Row gutter={[24, 16]}>
         <Col xs={24} sm={12}>
-          <Text type="secondary">{t("campaigns.info.created")}</Text>
-          <div style={{ fontSize: 16, fontWeight: 500 }}>
-            {formatDate(campaign.createdAt)}
-          </div>
+          <Space>
+            <CalendarOutlined style={{ color: "#52c41a", fontSize: 18 }} />
+            <div>
+              <Text type="secondary" style={{ display: "block", fontSize: 12 }}>
+                {t("campaigns.info.created")}
+              </Text>
+              <div style={{ fontSize: 16, fontWeight: 500, marginTop: 4 }}>
+                {formatDate(campaign.createdAt)}
+              </div>
+            </div>
+          </Space>
         </Col>
 
         <Col xs={24} sm={12}>
-          <Text type="secondary">{t("campaigns.info.sent")}</Text>
-          <div style={{ fontSize: 16, fontWeight: 500 }}>
-            {formatDate(campaign.sent_at)}
-          </div>
+          <Space>
+            <SendOutlined style={{ color: "#722ed1", fontSize: 18 }} />
+            <div>
+              <Text type="secondary" style={{ display: "block", fontSize: 12 }}>
+                {t("campaigns.info.sent")}
+              </Text>
+              <div style={{ fontSize: 16, fontWeight: 500, marginTop: 4 }}>
+                {formatDate(campaign.sent_at)}
+              </div>
+            </div>
+          </Space>
         </Col>
       </Row>
     </Card>

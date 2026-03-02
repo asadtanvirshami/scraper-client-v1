@@ -364,7 +364,7 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
               <ReactQuill
                 theme="snow"
                 modules={quillModules}
-                style={{ minHeight: 300, backgroundColor: "white" }}
+                style={{ height: 300, backgroundColor: "white" }}
                 onChange={(value) => {
                   setContent(value);
                   form.setFieldsValue({ content: value });

@@ -34,11 +34,7 @@ const ProfileDropdown: React.FC = () => {
     <Dropdown menu={{ items }} trigger={["click"]}>
       <a onClick={(e) => e.preventDefault()}>
         <Space className="!w-full">
-          <Avatar
-            className="!mb-1"
-            size="large"
-            src="https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250"
-          />
+          <Avatar className="!mb-1" size="large" src={user?.avatar_url} />
         </Space>
       </a>
     </Dropdown>
@@ -79,6 +75,5 @@ const LogoutButton: React.FC = () => {
     </Button>
   );
 };
-
 
 export { LogoutButton, ProfileDropdown };

@@ -245,6 +245,7 @@
     },
     "insights": {
       "title": "Campaign Insights",
+      "description": "Monitor key performance metrics and track campaign success.",
       "total_campaigns": "Total campaigns",
       "total_recipients": "Total Recipients",
       "emails_sent": "Emails Sent",
@@ -257,8 +258,11 @@
     },
     "details": {
       "performance_title": "Campaign Performance",
+      "performance_description": "Review detailed metrics about your campaign's effectiveness.",
       "target_folders": "Target Folders",
+      "target_folders_description": "View all folders targeted by this campaign.",
       "target_leads": "Target Leads",
+      "target_leads_description": "View all specific leads targeted by this campaign.",
       "folder_name": "Folder Name",
       "total_leads": "Total Leads",
       "created_at": "Created At",
@@ -275,6 +279,7 @@
       "bounce_rate": "Bounce Rate"
     },
     "info": {
+      "title": "Campaign Information",
       "campaign_id": "Campaign ID",
       "created": "Created",
       "sent": "Sent",
@@ -677,7 +682,45 @@
       "go_home": "Home"
     }
   },
-
+  "emails": {
+    "widget": {
+      "title": "Emails",
+      "total": "Total {total}"
+    },
+    "empty": "No emails yet",
+    "search": {
+      "placeholder": "Search email..."
+    },
+    "table": {
+      "email": "Email",
+      "status": "Status",
+      "created": "Created"
+    },
+    "status": {
+      "verified": "VERIFIED",
+      "pending": "PENDING"
+    },
+    "confirm": {
+      "delete_selected": "Delete {count} selected email(s)?"
+    },
+    "modal": {
+      "add_title": "Add Email",
+      "verify_title": "Verify Email: {email}",
+      "add_button": "Add",
+      "verify_button": "Verify"
+    },
+    "form": {
+      "email_label": "Email Address",
+      "email_required": "Please enter email address",
+      "email_invalid": "Please enter a valid email",
+      "email_placeholder": "Enter email address",
+      "otp_label": "Enter OTP",
+      "otp_required": "Please enter OTP",
+      "otp_length": "OTP must be 6 digits",
+      "otp_numeric": "OTP must contain only numbers",
+      "otp_placeholder": "Enter 6-digit OTP"
+    }
+  },
   "settings": {
     "tabs": {
       "general": "General",

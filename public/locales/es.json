@@ -6,6 +6,7 @@
     "leads": "Leads",
     "folders": "Carpetas",
     "billing": "Facturación",
+    "emails": "Emails",
     "notifications": "Notificaciones",
     "settings": "Configuración",
     "admin": {
@@ -259,6 +260,7 @@
     },
     "insights": {
       "title": "Insights de campaña",
+      "description": "Monitorea métricas clave de rendimiento y rastrea el éxito de la campaña.",
       "total_campaigns": "Total de campañas",
       "total_recipients": "Total de destinatarios",
       "emails_sent": "Emails enviados",
@@ -271,8 +273,11 @@
     },
     "details": {
       "performance_title": "Rendimiento de campaña",
+      "performance_description": "Revisa métricas detalladas sobre la efectividad de tu campaña.",
       "target_folders": "Carpetas objetivo",
+      "target_folders_description": "Ver todas las carpetas objetivo de esta campaña.",
       "target_leads": "Leads objetivo",
+      "target_leads_description": "Ver todos los leads específicos objetivo de esta campaña.",
       "folder_name": "Nombre de carpeta",
       "total_leads": "Total de leads",
       "created_at": "Creado el",
@@ -289,6 +294,7 @@
       "bounce_rate": "Tasa de rebote"
     },
     "info": {
+      "title": "Información de la Campaña",
       "campaign_id": "ID de campaña",
       "created": "Creado",
       "sent": "Enviado",
@@ -449,6 +455,46 @@
       "subtitle": "La página que buscas no existe o fue movida.",
       "go_signin": "Ir a iniciar sesión",
       "go_home": "Inicio"
+    }
+  },
+
+  "emails": {
+    "widget": {
+      "title": "Emails",
+      "total": "Total {total}"
+    },
+    "empty": "Aún no hay emails",
+    "search": {
+      "placeholder": "Buscar email..."
+    },
+    "table": {
+      "email": "Email",
+      "status": "Estado",
+      "created": "Creado"
+    },
+    "status": {
+      "verified": "VERIFICADO",
+      "pending": "PENDIENTE"
+    },
+    "confirm": {
+      "delete_selected": "¿Eliminar {count} email(s) seleccionado(s)?"
+    },
+    "modal": {
+      "add_title": "Añadir Email",
+      "verify_title": "Verificar Email: {email}",
+      "add_button": "Añadir",
+      "verify_button": "Verificar"
+    },
+    "form": {
+      "email_label": "Dirección de Email",
+      "email_required": "Por favor ingresa la dirección de email",
+      "email_invalid": "Por favor ingresa un email válido",
+      "email_placeholder": "Ingresa la dirección de email",
+      "otp_label": "Ingresa el código OTP",
+      "otp_required": "Por favor ingresa el código OTP",
+      "otp_length": "El código OTP debe tener 6 dígitos",
+      "otp_numeric": "El código OTP debe contener solo números",
+      "otp_placeholder": "Ingresa el código OTP de 6 dígitos"
     }
   },
 

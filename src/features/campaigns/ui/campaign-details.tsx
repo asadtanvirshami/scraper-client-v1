@@ -1,8 +1,18 @@
 "use client";
 
 import React from "react";
-import { Card, Row, Col, Typography, Tag, Table, Badge, Button } from "antd";
-import { EyeOutlined } from "@ant-design/icons";
+import {
+  Card,
+  Row,
+  Col,
+  Typography,
+  Tag,
+  Table,
+  Badge,
+  Button,
+  Space,
+} from "antd";
+import { EyeOutlined, AimOutlined, LineChartOutlined } from "@ant-design/icons";
 import { useIntl } from "react-intl";
 
 import { useRouter } from "next/navigation";
@@ -121,33 +131,53 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({ campaign }) => {
     ),
   };
   return (
-    <div style={{ marginTop: 24 }}>
+    <div>
       {/* ===============================
            PERFORMANCE KPIs
       =============================== */}
       <Card
+        title={
+          <Space>
+            <LineChartOutlined style={{ color: "#fa8c16" }} />
+            <span>{t("campaigns.details.performance_title")}</span>
+          </Space>
+        }
         style={{
-          borderRadius: 16,
-          boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
+          borderRadius: 12,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
           marginBottom: 24,
         }}
       >
-        <Title level={4}>{t("campaigns.details.performance_title")}</Title>
+        <Text type="secondary" style={{ display: "block", marginBottom: 20 }}>
+          {t("campaigns.details.performance_description")}
+        </Text>
 
         <Row gutter={[24, 24]}>
           {kpis.map((kpi, index) => (
             <Col xs={12} md={6} key={index}>
-              <div>
-                <Text type="secondary">{kpi.label}</Text>
+              <div
+                style={{
+                  padding: 16,
+                  background: "#fafafa",
+                  borderRadius: 8,
+                  border: "1px solid #f0f0f0",
+                }}
+              >
+                <Text type="secondary" style={{ fontSize: 12 }}>
+                  {kpi.label}
+                </Text>
                 <div
                   style={{
-                    fontSize: 18,
+                    fontSize: 20,
                     fontWeight: 600,
-                    marginTop: 4,
+                    marginTop: 8,
                   }}
                 >
                   {kpi.isSwitch ? (
-                    <Tag color={campaign.track_opens ? "green" : "red"}>
+                    <Tag
+                      color={campaign.track_opens ? "green" : "red"}
+                      style={{ fontSize: 14 }}
+                    >
                       {kpi.value}
                     </Tag>
                   ) : (
@@ -165,24 +195,35 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({ campaign }) => {
       =============================== */}
 
       <Card
+        title={
+          <Space>
+            <AimOutlined style={{ color: "#eb2f96" }} />
+            <span>
+              {isFolderCampaign
+                ? t("campaigns.details.target_folders")
+                : t("campaigns.details.target_leads")}
+            </span>
+          </Space>
+        }
         style={{
-          borderRadius: 16,
-          boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
+          borderRadius: 12,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
         }}
       >
-        <Title level={4}>
+        <Text type="secondary" style={{ display: "block", marginBottom: 20 }}>
           {isFolderCampaign
-            ? t("campaigns.details.target_folders")
-            : t("campaigns.details.target_leads")}
-        </Title>
+            ? t("campaigns.details.target_folders_description")
+            : t("campaigns.details.target_leads_description")}
+        </Text>
 
         {/* Option 1: Normal Ant Table */}
         <Table
           dataSource={dataSource}
           columns={[...baseColumns, actionColumn]}
-          pagination={false}
+          pagination={{ pageSize: 10, showSizeChanger: true }}
           rowKey={(record: any) => record.id}
-          style={{ marginTop: 16 }}
+          size="large"
+          scroll={{ x: 800 }}
         />
 
         {/* 
