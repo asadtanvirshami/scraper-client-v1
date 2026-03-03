@@ -4,6 +4,7 @@ export type CreateBugPayload = {
 };
 
 export type UpdateBugPayload = {
+  bug_id: string;
   bug?: string;
   status?: "open" | "in_progress" | "resolved";
 };

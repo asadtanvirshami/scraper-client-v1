@@ -30,3 +30,53 @@ body {
 .ant-dropdown-menu-submenu-title:hover {
   background-color: transparent !important;
 }
+
+/* Green glow neon calendar styling */
+.green-glow-calendar .ant-picker-calendar-date-today {
+  border-color: #52c41a !important;
+  box-shadow: 0 0 8px rgba(82, 196, 26, 0.4) !important;
+}
+
+.green-glow-calendar .ant-picker-calendar-date-selected {
+  background: linear-gradient(135deg, rgba(82, 196, 26, 0.2) 0%, rgba(82, 196, 26, 0.1) 100%) !important;
+  border-color: #52c41a !important;
+  box-shadow: 0 0 12px rgba(82, 196, 26, 0.6), inset 0 0 8px rgba(82, 196, 26, 0.2) !important;
+}
+
+.green-glow-calendar .ant-picker-calendar-date-selected:hover {
+  background: linear-gradient(135deg, rgba(82, 196, 26, 0.3) 0%, rgba(82, 196, 26, 0.15) 100%) !important;
+  box-shadow: 0 0 16px rgba(82, 196, 26, 0.8), inset 0 0 10px rgba(82, 196, 26, 0.3) !important;
+}
+
+.green-glow-calendar .ant-picker-calendar-date:hover {
+  background: rgba(82, 196, 26, 0.1) !important;
+  border-color: #52c41a !important;
+  box-shadow: 0 0 6px rgba(82, 196, 26, 0.3) !important;
+}
+
+.green-glow-calendar .ant-picker-calendar-date-range-start,
+.green-glow-calendar .ant-picker-calendar-date-range-end {
+  background: linear-gradient(135deg, rgba(82, 196, 26, 0.25) 0%, rgba(82, 196, 26, 0.12) 100%) !important;
+  border-color: #52c41a !important;
+  box-shadow: 0 0 10px rgba(82, 196, 26, 0.5) !important;
+}
+
+.green-glow-calendar .ant-picker-calendar-date-in-range {
+  background: rgba(82, 196, 26, 0.08) !important;
+  border-color: rgba(82, 196, 26, 0.3) !important;
+}
+
+/* Dark theme compatibility */
+@media (prefers-color-scheme: dark) {
+  .green-glow-calendar .ant-picker-calendar-date {
+    color: #ededed !important;
+  }
+  
+  .green-glow-calendar .ant-picker-calendar-date-today {
+    color: #52c41a !important;
+  }
+  
+  .green-glow-calendar .ant-picker-calendar-date-selected {
+    color: #ffffff !important;
+  }
+}

@@ -80,6 +80,16 @@ const WeeklyLeadsBarChart: React.FC<Props> = ({
 }) => {
   const intl = useIntl();
   const { token } = theme.useToken();
+  const isDarkMode = token.colorBgBase === "#000" || token.colorBgContainer === "#141414";
+  const axisLabelColor = isDarkMode ? "rgba(255, 255, 255, 0.72)" : "rgba(15, 23, 42, 0.72)";
+  const legendLabelColor = isDarkMode ? "rgba(255, 255, 255, 0.85)" : "rgba(15, 23, 42, 0.85)";
+
+  const GREEN_BY_TYPE: Record<string, string> = {
+    INSTAGRAM: "#39ff14",
+    LINKEDIN: "#22c55e",
+    MANUAL: "#86efac",
+    TOTAL: "#39ff14",
+  };
 
   const hasTypeData =
     (countsByType?.INSTAGRAM?.length ?? 0) > 0 ||
@@ -116,6 +126,7 @@ const WeeklyLeadsBarChart: React.FC<Props> = ({
     xField: "date",
     yField: "leads",
     seriesField: "type",
+    color: ({ type }: { type: string }) => GREEN_BY_TYPE[type] ?? "#39ff14",
     autoFit: true,
     height: MAX_CHART_HEIGHT,
 
@@ -125,11 +136,14 @@ const WeeklyLeadsBarChart: React.FC<Props> = ({
     columnWidthRatio: 0.56,
     columnStyle: {
       radius: [12, 12, 0, 0],
+      shadowColor: "#39ff14",
+      shadowBlur: isDarkMode ? 12 : 8,
+      shadowOffsetY: 2,
     },
     point: { size: 3, shape: "circle" },
     legend: {
       position: "top",
-      itemName: { style: { fill: token.colorTextSecondary } },
+      itemName: { style: { fill: legendLabelColor, fontWeight: 700, fontSize: 12 } },
     },
 
     tooltip: {
@@ -156,11 +170,16 @@ const WeeklyLeadsBarChart: React.FC<Props> = ({
     xAxis: {
       tickLine: null,
       line: null,
-      label: { autoHide: true, autoRotate: false, style: { fill: token.colorTextTertiary } },
+      label: {
+        autoHide: true,
+        autoRotate: true,
+        formatter: (value: string) => dayjs(value).isValid() ? dayjs(value).format("MMM D") : value,
+        style: { fill: axisLabelColor, fontSize: 12, fontWeight: 500 },
+      },
     },
     yAxis: {
       grid: { line: { style: { lineDash: [4, 4], stroke: token.colorSplit } } },
-      label: { style: { fill: token.colorTextTertiary } },
+      label: { style: { fill: axisLabelColor, fontSize: 12, fontWeight: 500 } },
     },
 
     interactions: [{ type: "element-active" }],

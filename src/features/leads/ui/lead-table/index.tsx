@@ -24,11 +24,13 @@ import {
   EditOutlined,
   DownloadOutlined,
   UploadOutlined,
+  UsergroupAddOutlined,
 } from "@ant-design/icons";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import type { Lead } from "@/types/leads";
 import { useAppDrawer } from "@/components/layout/app-drawer/user-app-drawer";
+import TableHeaderTitle from "@/components/ui (generic)/table-header-title";
 import LeadForm from "../../form";
 import { useDownloadAllLeads, useBulkUploadLeads } from "../../hooks/mutations";
 
@@ -266,6 +268,17 @@ const LeadsTableServer: React.FC<Props> = ({
       key: "emails",
       ellipsis: true,
       render: (_, record) => record.emails?.[0] || "-",
+    },
+    {
+      title: (
+        <FormattedMessage id="leads.table.phones" defaultMessage="Phones" />
+      ),
+      key: "phone_numbers",
+      ellipsis: true,
+      render: (_, record) =>
+        Array.isArray(record.phone_numbers)
+          ? record.phone_numbers[0] || "-"
+          : record.phone_numbers || "-",
     },
     {
       title: (
@@ -546,9 +559,14 @@ const LeadsTableServer: React.FC<Props> = ({
     <Card
       style={cardStyle}
       title={
-        <FormattedMessage
-          id="leads.widget.recent_title"
-          defaultMessage="Leads"
+        <TableHeaderTitle
+          icon={<UsergroupAddOutlined />}
+          title={
+            <FormattedMessage
+              id="leads.widget.recent_title"
+              defaultMessage="Leads"
+            />
+          }
         />
       }
       extra={

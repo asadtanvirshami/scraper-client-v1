@@ -22,11 +22,11 @@ import {
   ReloadOutlined,
   SearchOutlined,
   DeleteOutlined,
-  EditOutlined,
   EyeOutlined,
   MessageOutlined,
 } from "@ant-design/icons";
 import { FormattedMessage, useIntl } from "react-intl";
+import TableHeaderTitle from "@/components/ui (generic)/table-header-title";
 
 type AppUserLite = {
   _id: string;
@@ -68,14 +68,8 @@ type Props = {
   onDeleteOne?: (row: FeedbackItem) => Promise<void> | void;
   onDeleteMany?: (ids: string[]) => Promise<void> | void;
 
-  onUpdateFeedback?: (
-    id: string,
-    payload: Partial<FeedbackItem>,
-  ) => Promise<void> | void;
-
   showFilters?: boolean;
 
-  onOpenEdit?: (row: FeedbackItem) => void;
   onOpenView?: (row: FeedbackItem) => void;
 };
 
@@ -128,9 +122,7 @@ const FeedbacksTableServer: React.FC<Props> = ({
   onFetch,
   onDeleteOne,
   onDeleteMany,
-  onUpdateFeedback,
   showFilters = true,
-  onOpenEdit,
   onOpenView,
 }) => {
   const { Text } = Typography;
@@ -276,25 +268,6 @@ const FeedbacksTableServer: React.FC<Props> = ({
             />
           </Tooltip>
 
-          <Tooltip
-            title={intl.formatMessage({
-              id: "commons.edit",
-              defaultMessage: "Edit",
-            })}
-          >
-            <Button
-              size="small"
-              icon={<EditOutlined />}
-              onClick={() => {
-                if (onOpenEdit) return onOpenEdit(record);
-                if (onUpdateFeedback)
-                  return onUpdateFeedback(String(record._id), {
-                    feedback: record.feedback,
-                  });
-              }}
-            />
-          </Tooltip>
-
           <Popconfirm
             title={intl.formatMessage({
               id: "admin.feedbacks.confirm.delete_one",
@@ -336,15 +309,15 @@ const FeedbacksTableServer: React.FC<Props> = ({
   return (
     <Card
       title={
-        <Space>
-          <MessageOutlined style={{ fontSize: 18, color: "#52c41a" }} />
-          <span>
+        <TableHeaderTitle
+          icon={<MessageOutlined />}
+          title={
             <FormattedMessage
               id="admin.feedbacks.title"
               defaultMessage="Feedbacks"
             />
-          </span>
-        </Space>
+          }
+        />
       }
       extra={
         <Tag color="green" style={{ fontSize: 14, padding: "4px 12px" }}>

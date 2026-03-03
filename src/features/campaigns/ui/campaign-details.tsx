@@ -11,6 +11,7 @@ import {
   Badge,
   Button,
   Space,
+  theme,
 } from "antd";
 import { EyeOutlined, AimOutlined, LineChartOutlined } from "@ant-design/icons";
 import { useIntl } from "react-intl";
@@ -27,6 +28,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({ campaign }) => {
   if (!campaign) return null;
   const router = useRouter();
   const { formatMessage } = useIntl();
+  const { token } = theme.useToken();
   const t = (key: string) => formatMessage({ id: key });
   const isFolderCampaign = campaign.campaign_type === "FOLDER";
 
@@ -158,9 +160,9 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({ campaign }) => {
               <div
                 style={{
                   padding: 16,
-                  background: "#fafafa",
+                  background: token.colorFillAlter,
                   borderRadius: 8,
-                  border: "1px solid #f0f0f0",
+                  border: `1px solid ${token.colorBorderSecondary}`,
                 }}
               >
                 <Text type="secondary" style={{ fontSize: 12 }}>
@@ -233,7 +235,12 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({ campaign }) => {
           style={{ height: 400 }}
           data={dataSource}
           itemContent={(index, item: any) => (
-            <div style={{ padding: 16, borderBottom: "1px solid #f0f0f0" }}>
+            <div
+              style={{
+                padding: 16,
+                borderBottom: `1px solid ${token.colorBorderSecondary}`,
+              }}
+            >
               {isFolderCampaign ? (
                 <>
                   <strong>{item.name}</strong>

@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Avatar,
   Button,
   Card,
   Form,
   Input,
+  Spin,
   Space,
   Upload,
   Typography,
@@ -14,11 +15,11 @@ import {
 import { UploadOutlined, UserOutlined } from "@ant-design/icons";
 import { useIntl } from "react-intl";
 import { useRouter } from "next/navigation";
-import { useUpdateProfile } from "@/features/user/hooks";
 import { useUserInfo } from "@/helpers/use-user";
 import { useDispatch } from "react-redux";
 import { updateProfile } from "@/redux/slices/user/user-slice";
-import { getAccessToken } from "@/lib/cookies";
+import { UpdateProfile } from "@/api/api_calls/user";
+import { message } from "antd";
 
 const { Title, Text } = Typography;
 
@@ -36,55 +37,61 @@ const ProfileForm: React.FC = () => {
   const [form] = Form.useForm<ProfileFormValues>();
   const [avatarUrl, setAvatarUrl] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-  const updateProfileMutation = useUpdateProfile();
+  const [avatarLoading, setAvatarLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const { user } = useUserInfo();
+
+  useEffect(() => {
+    setAvatarPreview(user?.avatar_url ?? null);
+  }, [user?.avatar_url]);
+
+  useEffect(() => {
+    setAvatarLoading(Boolean(avatarPreview));
+  }, [avatarPreview]);
 
   const onSave = async () => {
     try {
-      console.log("frontend onSave");
+      setIsSaving(true);
       const values = await form.validateFields();
       
       // Create FormData object
       const formData = new FormData();
       
       // Add text fields
-      formData.append('_id', user?._id ?? "");
       formData.append('first_name', values.first_name);
       formData.append('last_name', values.last_name);
-      console.log("frontend values", avatarUrl);
       
-      // Add avatar file if exists (avatarUrl is actually the File object)
-      // if (avatarUrl && typeof avatarUrl === 'object' && avatarUrl instanceof File) {
-      //   console.log("frontend file", avatarUrl);
-      //   formData.append('image', avatarUrl);
-      // }
-      formData.append('image', avatarUrl);
-      console.log("frontend formData", avatarUrl);
-      // Direct fetch call
-      const token = getAccessToken();
-      const response = await fetch('http://localhost:4000/api/user/me', {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
+      // Add avatar file if exists
+      if (avatarUrl && avatarUrl instanceof File) {
+        formData.append('image', avatarUrl);
+      }
       
-      if (response.ok) {
-        const data = await response.json();
-        const userData = data?.data;
-        dispatch(updateProfile(userData));
-        console.log("Profile updated successfully");
+      // Call the API
+      const response = await UpdateProfile(formData);
+      
+      if (response.success && response.data) {
+        dispatch(updateProfile(response.data));
+        message.success(intl.formatMessage({ id: "profile.update_success" }));
       } else {
-        console.error("Profile update failed");
+        message.error(response.message || intl.formatMessage({ id: "profile.update_error" }));
       }
     } catch (error) {
       console.error("Profile update error:", error);
+      message.error(intl.formatMessage({ id: "profile.update_error" }));
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const handleAvatarChange = (info: any) => {
-    setAvatarUrl(info.file);
+    const selectedFile = info?.file?.originFileObj ?? info?.file;
+    setAvatarUrl(selectedFile);
+
+    if (selectedFile instanceof File) {
+      const previewUrl = URL.createObjectURL(selectedFile);
+      setAvatarPreview(previewUrl);
+      setAvatarLoading(true);
+    }
   };
 
   return (
@@ -99,8 +106,14 @@ const ProfileForm: React.FC = () => {
           <Text strong>{intl.formatMessage({ id: "profile.avatar" })}</Text>
 
           <Space>
-            <Avatar size={64} src={avatarPreview} icon={<UserOutlined />} />
-
+            <Spin size="small" spinning={avatarLoading}>
+              <Avatar
+                size={64}
+                src={avatarPreview || user?.avatar_url || "/assets/avatar-placeholder.svg"}
+                icon={<UserOutlined />}
+              />
+            </Spin>
+            
             <Upload
               showUploadList={false}
               beforeUpload={() => false}
@@ -173,8 +186,8 @@ const ProfileForm: React.FC = () => {
           <Space style={{ marginTop: 8 }}>
             <Button
               type="primary"
-              loading={updateProfileMutation.isPending}
-              disabled={updateProfileMutation.isPending}
+              loading={isSaving}
+              disabled={isSaving}
               onClick={onSave}
             >
               {intl.formatMessage({ id: "profile.save" })}

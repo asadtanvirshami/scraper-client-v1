@@ -18,7 +18,10 @@ export async function UpdateBug(
   id: string,
   input: UpdateBugPayload,
 ): Promise<GenericResponse> {
-  const { data } = await api.put(apiEndpoints.support.bug_update(id), input);
+  const { data } = await api.post(apiEndpoints.support.bug_update, {
+    bug_id: id,
+    ...input,
+  });
   return data;
 }
 

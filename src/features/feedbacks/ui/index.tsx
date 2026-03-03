@@ -2,19 +2,18 @@
 
 import React, { useState } from "react";
 import { Modal, Button, Descriptions, Tag, Space } from "antd";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 import { MessageOutlined, UserOutlined, ClockCircleOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import FeedbacksTableServer, { FeedbackItem, ServerFilters } from "./table";
 import {
   useFeedbacksList,
-  useUpdateFeedback,
   useDeleteFeedback,
 } from "../hooks";
 
 const FeedBackLayout: React.FC = () => {
+  const intl = useIntl();
   const { feedbacks, total, isLoading, query, setQuery, refetch } =
     useFeedbacksList();
-  const updateFeedbackMutation = useUpdateFeedback();
   const deleteFeedbackMutation = useDeleteFeedback();
 
   const [viewingFeedback, setViewingFeedback] = useState<FeedbackItem | null>(
@@ -29,13 +28,6 @@ const FeedBackLayout: React.FC = () => {
       search: filters.search,
       user_id: filters.user_id,
     });
-  };
-
-  const handleUpdateFeedback = async (
-    id: string,
-    payload: Partial<FeedbackItem>,
-  ) => {
-    await updateFeedbackMutation.mutateAsync({ id, payload: payload as any });
   };
 
   const handleDeleteFeedback = async (row: FeedbackItem) => {
@@ -60,12 +52,10 @@ const FeedBackLayout: React.FC = () => {
         total={total}
         loading={
           isLoading ||
-          updateFeedbackMutation.isPending ||
           deleteFeedbackMutation.isPending
         }
         value={query}
         onFetch={handleFetch}
-        onUpdateFeedback={handleUpdateFeedback}
         onDeleteOne={handleDeleteFeedback}
         onDeleteMany={handleDeleteSelected}
         onOpenView={handleOpenView}

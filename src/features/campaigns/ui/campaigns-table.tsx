@@ -6,6 +6,7 @@ import { EyeOutlined, EditOutlined, MailOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import { useIntl, FormattedMessage } from "react-intl";
 import dayjs from "dayjs";
+import TableHeaderTitle from "@/components/ui (generic)/table-header-title";
 
 const { Text } = Typography;
 
@@ -153,15 +154,17 @@ const CampaignsTable: React.FC<CampaignsTableProps> = ({
         boxShadow: token.boxShadowSecondary,
       }}
       title={
-        <Space style={{ alignItems: "center" }}>
-          <MailOutlined style={{ color: token.colorPrimary, fontSize: 16 }} />
-          <span style={{ fontWeight: 800, fontSize: 14 }}>
-            <FormattedMessage
-              id="dashboard.tables.recent_campaigns"
-              defaultMessage="Recent Campaigns"
-            />
-          </span>
-        </Space>
+        <TableHeaderTitle
+          icon={<MailOutlined />}
+          title={
+            <span style={{ fontWeight: 800, fontSize: 14 }}>
+              <FormattedMessage
+                id="dashboard.tables.recent_campaigns"
+                defaultMessage="Recent Campaigns"
+              />
+            </span>
+          }
+        />
       }
       extra={
         !showFilters && (

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { DatePicker, Typography, Button, Space, Segmented } from "antd";
+import { DatePicker, Typography, Button, Space, Segmented, theme } from "antd";
 import type { SegmentedOptions } from "antd/es/segmented";
 import dayjs, { Dayjs } from "dayjs";
 import { useRouter } from "next/navigation";
@@ -53,6 +53,7 @@ const FilterHeader: React.FC<FilterHeaderProps> = ({
 }) => {
   const router = useRouter();
   const intl = useIntl();
+  const { token } = theme.useToken();
 
   const resolvedTitle = title ?? intl.formatMessage({ id: "dashboard.title" });
 
@@ -87,7 +88,7 @@ const FilterHeader: React.FC<FilterHeaderProps> = ({
           <Title level={3} style={{ margin: 0, fontWeight: 700 }}>
             {resolvedTitle}
           </Title>
-          <Text style={{ color: "rgba(15, 23, 42, 0.60)" }}>
+          <Text style={{ color: token.colorTextSecondary }}>
             {resolvedSubtitle}
           </Text>
         </div>
@@ -107,7 +108,13 @@ const FilterHeader: React.FC<FilterHeaderProps> = ({
           />
 
           <RangePicker
-            style={{ width: 320, maxWidth: "100%" }}
+            style={{ 
+              width: 320, 
+              maxWidth: "100%",
+              "--ant-primary-color": "#52c41a",
+              "--ant-primary-color-hover": "#73d13d",
+            } as React.CSSProperties}
+            className="green-glow-calendar"
             allowClear
             value={range as any}
             presets={rangePickerPresets as any}

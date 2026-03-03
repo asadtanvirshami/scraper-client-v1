@@ -78,12 +78,12 @@ const DashboardKpiRow: React.FC<DashboardKpiRowProps> = ({
         { days: presetDays },
       );
 
-  // Accent base colors (theme-safe)
+  // Accent base colors (fixed hex values)
   const ACCENT: Record<Accent, { base: string }> = {
-    blue: { base: token.colorPrimary },
-    green: { base: token.colorSuccess },
-    purple: { base: token.colorInfo }, // works well as "purple-ish" in most themes
-    orange: { base: token.colorWarning },
+    blue: { base: "#1677ff" },
+    green: { base: "#52c41a" },
+    purple: { base: "#722ed1" },
+    orange: { base: "#fa8c16" },
   };
 
   const getAccentStyle = (accent: Accent) => {

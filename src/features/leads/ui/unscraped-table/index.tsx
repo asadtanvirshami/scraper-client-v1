@@ -21,6 +21,7 @@ import {
   DeleteOutlined,
   EditOutlined,
   DownloadOutlined,
+  InboxOutlined,
 } from "@ant-design/icons";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -224,6 +225,17 @@ const UnscrappedLeadsTable: React.FC<Props> = ({
     },
     {
       title: (
+        <FormattedMessage id="leads.table.phones" defaultMessage="Phones" />
+      ),
+      key: "phone_numbers",
+      ellipsis: true,
+      render: (_, record) =>
+        Array.isArray(record.phone_numbers)
+          ? record.phone_numbers[0] || "-"
+          : record.phone_numbers || "-",
+    },
+    {
+      title: (
         <FormattedMessage id="leads.table.company" defaultMessage="Company" />
       ),
       dataIndex: "company",
@@ -351,10 +363,15 @@ const UnscrappedLeadsTable: React.FC<Props> = ({
   return (
     <Card
       title={
-        <FormattedMessage
-          id="leads.widget.scraped_title"
-          defaultMessage="Scraped Leads"
-        />
+        <Space style={{ alignItems: "center" }}>
+          <InboxOutlined style={{ fontSize: 16 }} />
+          <span>
+            <FormattedMessage
+              id="leads.widget.scraped_title"
+              defaultMessage="Scraped Leads"
+            />
+          </span>
+        </Space>
       }
       extra={
         <Space>

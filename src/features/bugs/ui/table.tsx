@@ -27,6 +27,7 @@ import {
   BugOutlined,
 } from "@ant-design/icons";
 import { FormattedMessage, useIntl } from "react-intl";
+import TableHeaderTitle from "@/components/ui (generic)/table-header-title";
 
 type AppUserLite = {
   _id: string;
@@ -341,9 +342,11 @@ const BugsTableServer: React.FC<Props> = ({
               size="small"
               icon={<EditOutlined />}
               onClick={() => {
-                if (onOpenEdit) return onOpenEdit(record);
-                if (onUpdateBug)
-                  return onUpdateBug(String(record._id), { bug: record.bug });
+                if (onOpenEdit) {
+                  onOpenEdit(record);
+                } else if (onUpdateBug) {
+                  onUpdateBug(String(record._id), { bug: record.bug });
+                }
               }}
             />
           </Tooltip>
@@ -389,12 +392,10 @@ const BugsTableServer: React.FC<Props> = ({
   return (
     <Card
       title={
-        <Space>
-          <BugOutlined style={{ fontSize: 18, color: "#f5222d" }} />
-          <span>
-            <FormattedMessage id="admin.bugs.title" defaultMessage="Bugs" />
-          </span>
-        </Space>
+        <TableHeaderTitle
+          icon={<BugOutlined />}
+          title={<FormattedMessage id="admin.bugs.title" defaultMessage="Bugs" />}
+        />
       }
       extra={
         <Tag color="red" style={{ fontSize: 14, padding: "4px 12px" }}>

@@ -1,7 +1,16 @@
 "use client";
 
 import React from "react";
-import { Card, Row, Col, Statistic, Progress, Typography, Space } from "antd";
+import {
+  Card,
+  Row,
+  Col,
+  Statistic,
+  Progress,
+  Typography,
+  Space,
+  theme,
+} from "antd";
 import { LineChartOutlined } from "@ant-design/icons";
 import { useIntl } from "react-intl";
 
@@ -30,6 +39,7 @@ interface Props {
 
 const CampaignInsights: React.FC<Props> = ({ campaign, stats }) => {
   const { formatMessage } = useIntl();
+  const { token } = theme.useToken();
 
   const t = (key: string) => formatMessage({ id: key });
 
@@ -75,8 +85,8 @@ const CampaignInsights: React.FC<Props> = ({ campaign, stats }) => {
         <Col xs={24} sm={12} md={6}>
           <Card
             style={{
-              background: "#fafafa",
-              border: "1px solid #f0f0f0",
+              background: token.colorFillAlter,
+              border: `1px solid ${token.colorBorderSecondary}`,
               borderRadius: 8,
             }}
             bodyStyle={{ padding: 20 }}
@@ -92,8 +102,8 @@ const CampaignInsights: React.FC<Props> = ({ campaign, stats }) => {
         <Col xs={24} sm={12} md={6}>
           <Card
             style={{
-              background: "#fafafa",
-              border: "1px solid #f0f0f0",
+              background: token.colorFillAlter,
+              border: `1px solid ${token.colorBorderSecondary}`,
               borderRadius: 8,
             }}
             bodyStyle={{ padding: 20 }}
@@ -109,8 +119,8 @@ const CampaignInsights: React.FC<Props> = ({ campaign, stats }) => {
         <Col xs={24} sm={12} md={6}>
           <Card
             style={{
-              background: "#fafafa",
-              border: "1px solid #f0f0f0",
+              background: token.colorFillAlter,
+              border: `1px solid ${token.colorBorderSecondary}`,
               borderRadius: 8,
             }}
             bodyStyle={{ padding: 20 }}
@@ -126,8 +136,8 @@ const CampaignInsights: React.FC<Props> = ({ campaign, stats }) => {
         <Col xs={24} sm={12} md={6}>
           <Card
             style={{
-              background: "#fafafa",
-              border: "1px solid #f0f0f0",
+              background: token.colorFillAlter,
+              border: `1px solid ${token.colorBorderSecondary}`,
               borderRadius: 8,
             }}
             bodyStyle={{ padding: 20 }}

@@ -8,6 +8,7 @@ import {
   Popconfirm,
   Space,
   message,
+  theme,
 } from "antd";
 import {
   ArrowRightOutlined,
@@ -84,6 +85,7 @@ const CampaignCard: React.FC<CampaignCardProps> = ({ data }) => {
   const { id: userId } = useUserInfo();
   const { deleteCampaign, isPending } = useCampaignActions();
   const { formatMessage } = useIntl();
+  const { token } = theme.useToken();
 
   const t = (id: string) => formatMessage({ id });
 
@@ -110,7 +112,7 @@ const CampaignCard: React.FC<CampaignCardProps> = ({ data }) => {
         marginTop: 12,
         borderRadius: 12,
         boxShadow: "0 1px 6px rgba(0,0,0,0.05)",
-        border: "1px solid #f0f0f0",
+        border: `1px solid ${token.colorBorderSecondary}`,
       }}
       bodyStyle={{ padding: 14 }}
     >

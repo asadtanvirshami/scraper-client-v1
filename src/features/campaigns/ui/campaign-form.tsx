@@ -16,6 +16,7 @@ import {
   Modal,
   Alert,
   Typography,
+  theme,
 } from "antd";
 import {
   SaveOutlined,
@@ -36,6 +37,7 @@ import dayjs, { Dayjs } from "dayjs";
 import dynamic from "next/dynamic";
 import { useFetchFolders } from "@/features/folders/hooks/queries";
 import { useFetchLeadsList } from "@/features/leads/hooks/queries";
+import { useFetchEmails } from "@/features/emails/hooks/queries";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 
@@ -72,6 +74,7 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
   const [form] = Form.useForm<FormValues>();
   const router = useRouter();
   const { formatMessage } = useIntl();
+  const { token } = theme.useToken();
   const { id: userId } = useUserInfo();
   const { createCampaign, updateCampaign, isPending } = useCampaignActions();
 
@@ -102,8 +105,15 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
     limit: 100,
   });
 
+  const { data: emailsData } = useFetchEmails({
+    user_id: userId ?? "",
+    page: 1,
+    limit: 100,
+  });
+
   const folders = foldersData?.data || [];
   const leads = leadsData?.data || [];
+  const emails = emailsData?.data?.filter((email) => email.verified) || [];
 
   // Watch campaign type to conditionally show targeting fields
   const campaignType = Form.useWatch("campaign_type", form);
@@ -350,11 +360,11 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
             {isViewMode ? (
               <div
                 style={{
-                  border: "1px solid #f0f0f0",
+                  border: `1px solid ${token.colorBorderSecondary}`,
                   borderRadius: 8,
                   padding: 16,
                   minHeight: 200,
-                  backgroundColor: "#fafafa",
+                  backgroundColor: token.colorFillAlter,
                 }}
                 dangerouslySetInnerHTML={{
                   __html: content || form.getFieldValue("content") || "",
@@ -364,7 +374,7 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
               <ReactQuill
                 theme="snow"
                 modules={quillModules}
-                style={{ height: 300, backgroundColor: "white" }}
+                style={{ height: 300, backgroundColor: token.colorBgContainer }}
                 onChange={(value) => {
                   setContent(value);
                   form.setFieldsValue({ content: value });
@@ -402,14 +412,32 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
                     required: true,
                     message: t("campaigns.form.from_email_required"),
                   },
-                  { type: "email", message: t("leads.form.email_invalid") },
                 ]}
               >
-                <Input
+                <Select
                   placeholder={t("campaigns.form.from_email_placeholder")}
-                  type="email"
                   disabled={isViewMode}
                   size="large"
+                  showSearch
+                  optionFilterProp="children"
+                  filterOption={(input, option) =>
+                    (option?.label?.toString() ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  notFoundContent={
+                    emails.length === 0 ? (
+                      <div style={{ padding: "8px", textAlign: "center" }}>
+                        <Text type="secondary">
+                          {t("campaigns.form.no_verified_emails")}
+                        </Text>
+                      </div>
+                    ) : null
+                  }
+                  options={emails.map((email) => ({
+                    value: email.email,
+                    label: email.email,
+                  }))}
                 />
               </Form.Item>
             </Col>
@@ -615,7 +643,7 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
             style={{
               borderRadius: 12,
               boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-              background: "linear-gradient(to bottom, #fafafa, #ffffff)",
+              background: token.colorBgContainer,
             }}
           >
             <div

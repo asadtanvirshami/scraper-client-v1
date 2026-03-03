@@ -227,9 +227,11 @@ const AppSider: React.FC = () => {
               style={{
                 fontSize: 16,
                 fontWeight: 800,
-                // color: "rgba(15,23,42,0.9)",
+                background: "linear-gradient(90deg, #fb7185 0%, #e11d48 55%, #be123c 100%)",
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                color: "transparent",
               }}
-              className="!text-blue-600 dark:text-white"
             >
               {intl.formatMessage({ id: "sidebar.brand" })}
             </div>

@@ -27,7 +27,7 @@ export const apiEndpoints = {
 
   support: {
     bug_create: "/bug/create",
-    bug_update: (id: string) => `/bug/update/${id}`,
+    bug_update: "/bug/update",
     bug_delete: (id: string) => `/bug/delete/${id}`,
     bugs_list: (params: {
       offset?: number;
@@ -56,7 +56,7 @@ export const apiEndpoints = {
 
     // user
     getAllUser: (params: {
-      offset?: number; // 1-based
+      offset?: number; // 1-based 
       limit?: number;
       search?: string;
       role?: "USER" | "ADMIN";

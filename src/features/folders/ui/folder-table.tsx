@@ -25,6 +25,7 @@ import {
 import { useIntl } from "react-intl";
 import type { Folder, FolderTableProps } from "@/types/folders";
 import { useRouter } from "next/navigation"; // ✅ add
+import TableHeaderTitle from "@/components/ui (generic)/table-header-title";
 
 const { Text } = Typography;
 
@@ -291,7 +292,12 @@ const FolderTable: React.FC<FolderTableProps> = ({
 
   return (
     <Card
-      title={intl.formatMessage({ id: "folders.title" })}
+      title={
+        <TableHeaderTitle
+          icon={<FolderOutlined />}
+          title={<span>{intl.formatMessage({ id: "folders.title" })}</span>}
+        />
+      }
       style={{ borderRadius: 12 }}
       bodyStyle={{ paddingTop: 8 }}
       extra={

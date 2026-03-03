@@ -15,6 +15,7 @@ import {
   message,
   Modal,
   Form,
+  theme,
 } from "antd";
 import {
   ReloadOutlined,
@@ -26,6 +27,7 @@ import {
 } from "@ant-design/icons";
 import { FormattedMessage, useIntl } from "react-intl";
 import { Email } from "../hooks/queries";
+import TableHeaderTitle from "@/components/ui (generic)/table-header-title";
 
 type Props = {
   data?: Email[];
@@ -63,6 +65,7 @@ const EmailTable: React.FC<Props> = ({
 }) => {
   const { Text } = Typography;
   const intl = useIntl();
+  const { token } = theme.useToken();
 
   const [searchDraft, setSearchDraft] = useState(value.search ?? "");
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -190,7 +193,12 @@ const EmailTable: React.FC<Props> = ({
   return (
     <>
       <Card
-        title={<FormattedMessage id="emails.widget.title" defaultMessage="Emails" />}
+        title={
+          <TableHeaderTitle
+            icon={<MailOutlined />}
+            title={<FormattedMessage id="emails.widget.title" defaultMessage="Emails" />}
+          />
+        }
         extra={
           <Space>
             <Text className="!text-lg !font-semibold">

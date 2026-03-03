@@ -15,6 +15,10 @@ const BugLayout: React.FC = () => {
 
   const [viewingBug, setViewingBug] = useState<BugItem | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [editingBug, setEditingBug] = useState<BugItem | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editForm] = Form.useForm();
+  const [editLoading, setEditLoading] = useState(false);
 
   const handleFetch = (filters: ServerFilters) => {
     setQuery({
@@ -45,6 +49,31 @@ const BugLayout: React.FC = () => {
     setIsViewModalOpen(true);
   };
 
+  const handleOpenEdit = (bug: BugItem) => {
+    setEditingBug(bug);
+    editForm.setFieldsValue({
+      bug: bug.bug,
+      status: bug.status || 'open',
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSubmit = async (values: any) => {
+    if (!editingBug) return;
+    try {
+      setEditLoading(true);
+      await updateBugMutation.mutateAsync({ id: editingBug._id, payload: values });
+      message.success(intl.formatMessage({ id: "commons.updated", defaultMessage: "Updated" }));
+      setIsEditModalOpen(false);
+      setEditingBug(null);
+      editForm.resetFields();
+    } catch (error) {
+      message.error(intl.formatMessage({ id: "commons.update_failed", defaultMessage: "Update failed" }));
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
   return (
     <>
       <BugsTableServer
@@ -61,6 +90,7 @@ const BugLayout: React.FC = () => {
         onDeleteOne={handleDeleteBug}
         onDeleteMany={handleDeleteSelected}
         onOpenView={handleOpenView}
+        onOpenEdit={handleOpenEdit}
         showFilters
       />
 
@@ -171,6 +201,68 @@ const BugLayout: React.FC = () => {
               </Descriptions.Item>
             </Descriptions>
           </>
+        )}
+      </Modal>
+
+      {/* ✅ Edit Bug Modal */}
+      <Modal
+        title={
+          <Space>
+            <BugOutlined style={{ color: "#f5222d" }} />
+            <FormattedMessage
+              id="admin.bugs.modal.edit"
+              defaultMessage="Edit Bug"
+            />
+          </Space>
+        }
+        open={isEditModalOpen}
+        onCancel={() => {
+          setIsEditModalOpen(false);
+          setEditingBug(null);
+          editForm.resetFields();
+        }}
+        onOk={() => editForm.submit()}
+        confirmLoading={editLoading}
+        width={700}
+      >
+        {editingBug && (
+          <Form
+            form={editForm}
+            layout="vertical"
+            onFinish={handleEditSubmit}
+          >
+            <Form.Item
+              label="Bug Description"
+              name="bug"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter bug description",
+                },
+              ]}
+            >
+              <Input.TextArea rows={4} />
+            </Form.Item>
+
+            <Form.Item
+              label="Status"
+              name="status"
+              rules={[
+                {
+                  required: true,
+                  message: "Please select status",
+                },
+              ]}
+            >
+              <Select
+                options={[
+                  { label: "Open", value: "open" },
+                  { label: "In Progress", value: "in_progress" },
+                  { label: "Resolved", value: "resolved" },
+                ]}
+              />
+            </Form.Item>
+          </Form>
         )}
       </Modal>
     </>

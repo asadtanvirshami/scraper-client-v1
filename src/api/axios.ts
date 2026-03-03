@@ -9,9 +9,6 @@ const api = axios.create({
   baseURL: `${BASE_URL}/api`,
   paramsSerializer: (params) => qs.stringify(params, { encode: false }),
   withCredentials: true,
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
 attachAuthInterceptor(api);

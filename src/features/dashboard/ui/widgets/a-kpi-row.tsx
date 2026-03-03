@@ -33,38 +33,21 @@ type KpiCardProps = {
   value: React.ReactNode;
   sub?: React.ReactNode;
   icon: React.ReactNode;
-  accent: "blue" | "red" | "green" | "purple";
+  accent: "sky" | "amber" | "teal" | "indigo";
   loading?: boolean;
   clickable?: boolean;
   onClick?: () => void;
 };
 
-const ACCENT = {
-  blue: {
-    ring: "rgba(59,130,246,0.15)",
-    bg: "rgba(59,130,246,0.10)",
-    fg: "rgba(59,130,246,0.95)",
-    glow: "rgba(59,130,246,0.10)",
-  },
-  red: {
-    ring: "rgba(239,68,68,0.15)",
-    bg: "rgba(239,68,68,0.10)",
-    fg: "rgba(239,68,68,0.90)",
-    glow: "rgba(239,68,68,0.10)",
-  },
-  green: {
-    ring: "rgba(16,185,129,0.15)",
-    bg: "rgba(16,185,129,0.10)",
-    fg: "rgba(16,185,129,0.95)",
-    glow: "rgba(16,185,129,0.10)",
-  },
-  purple: {
-    ring: "rgba(168,85,247,0.15)",
-    bg: "rgba(168,85,247,0.10)",
-    fg: "rgba(168,85,247,0.95)",
-    glow: "rgba(168,85,247,0.10)",
-  },
-} as const;
+function hexToRgba(hex: string, alpha: number) {
+  const h = hex.replace("#", "");
+  const full = h.length === 3 ? h.split("").map((c) => c + c).join("") : h;
+  const num = parseInt(full, 16);
+  const r = (num >> 16) & 255;
+  const g = (num >> 8) & 255;
+  const b = num & 255;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
 
 const KpiCard: React.FC<KpiCardProps> = ({
   label,
@@ -76,8 +59,39 @@ const KpiCard: React.FC<KpiCardProps> = ({
   clickable,
   onClick,
 }) => {
-  const a = ACCENT[accent];
   const { token } = theme.useToken();
+
+  const accentPalette: Record<
+    KpiCardProps["accent"],
+    { start: string; end: string; fg: string }
+  > = {
+    sky: {
+      start: token.colorInfo,
+      end: token.colorInfoActive,
+      fg: token.colorInfo,
+    },
+    amber: {
+      start: token.colorWarning,
+      end: token.colorWarningActive,
+      fg: token.colorWarning,
+    },
+    teal: {
+      start: token.colorSuccess,
+      end: token.colorSuccessActive,
+      fg: token.colorSuccess,
+    },
+    indigo: {
+      start: token.colorPrimary,
+      end: token.colorPrimaryActive,
+      fg: token.colorPrimary,
+    },
+  };
+
+  const a = accentPalette[accent];
+  const iconGradient = `linear-gradient(135deg, ${hexToRgba(a.start, 0.24)} 0%, ${hexToRgba(a.end, 0.14)} 100%)`;
+  const iconRing = hexToRgba(a.start, 0.16);
+  const iconGlow = hexToRgba(a.end, 0.12);
+
   return (
     <Card className="!max-h-[180px]">
       <button
@@ -97,7 +111,21 @@ const KpiCard: React.FC<KpiCardProps> = ({
       >
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <div className="text-xs font-medium text-slate-500">{label}</div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                fontSize: 12,
+                fontWeight: 600,
+                color: token.colorTextSecondary,
+              }}
+            >
+              <span style={{ fontSize: 13, lineHeight: 1, color: a.fg }}>
+                {icon}
+              </span>
+              <span>{label}</span>
+            </div>
 
             <div
               style={{
@@ -111,7 +139,15 @@ const KpiCard: React.FC<KpiCardProps> = ({
             </div>
 
             {sub ? (
-              <div className="mt-2 text-xs text-slate-500">{sub}</div>
+              <div
+                style={{
+                  marginTop: 8,
+                  fontSize: 12,
+                  color: token.colorTextSecondary,
+                }}
+              >
+                {sub}
+              </div>
             ) : (
               <div className="mt-2 text-xs text-transparent">.</div> // keeps height consistent
             )}
@@ -120,9 +156,9 @@ const KpiCard: React.FC<KpiCardProps> = ({
           <div
             className="flex h-11 w-11 items-center justify-center rounded-2xl"
             style={{
-              background: a.bg,
+              background: iconGradient,
               color: a.fg,
-              boxShadow: `0 0 0 6px ${a.ring}, 0 10px 25px ${a.glow}`,
+              boxShadow: `0 0 0 6px ${iconRing}, 0 10px 25px ${iconGlow}`,
             }}
             aria-hidden
           >
@@ -179,7 +215,7 @@ const AdminKpis: React.FC<Props> = ({
             </>
           }
           icon={<UserOutlined />}
-          accent="blue"
+          accent="sky"
           loading={loading}
           clickable={Boolean(onCardClick)}
           onClick={() => onCardClick?.("users")}
@@ -194,7 +230,7 @@ const AdminKpis: React.FC<Props> = ({
           })}
           value={blockedUsers}
           icon={<StopOutlined />}
-          accent="red"
+          accent="amber"
           loading={loading}
           clickable={Boolean(onCardClick)}
           onClick={() => onCardClick?.("blocked")}
@@ -209,7 +245,7 @@ const AdminKpis: React.FC<Props> = ({
           })}
           value={feedbacks}
           icon={<MessageOutlined />}
-          accent="green"
+          accent="teal"
           loading={loading}
           clickable={Boolean(onCardClick)}
           onClick={() => onCardClick?.("feedbacks")}
@@ -224,7 +260,7 @@ const AdminKpis: React.FC<Props> = ({
           })}
           value={bugs}
           icon={<BugOutlined />}
-          accent="purple"
+          accent="indigo"
           loading={loading}
           clickable={Boolean(onCardClick)}
           onClick={() => onCardClick?.("bugs")}

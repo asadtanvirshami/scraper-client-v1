@@ -20,6 +20,7 @@ import {
 import { useRouter } from "next/navigation";
 import CampaignCard from "./campaign-card";
 import { useIntl } from "react-intl";
+import Spinner from "@/components/ui (generic)/spinner";
 
 const { Option } = Select;
 
@@ -79,7 +80,7 @@ const CampaignsDashboard = () => {
 
   const hasActiveFilters = query.search || query.status;
 
-  if (isLoading) return <Spin />;
+  if (isLoading) return <Spinner size="large" />;
   if (isError) return <div>{t("campaigns.dashboard.error")}</div>;
 
   return (

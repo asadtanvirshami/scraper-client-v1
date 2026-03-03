@@ -28,6 +28,7 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { FormattedMessage, useIntl } from "react-intl";
+import TableHeaderTitle from "@/components/ui (generic)/table-header-title";
 
 /* ================= TYPES ================= */
 
@@ -463,12 +464,10 @@ const UsersTableServer: React.FC<Props> = ({
     <>
       <Card
         title={
-          <Space>
-            <UserOutlined style={{ fontSize: 18, color: "#1890ff" }} />
-            <span>
-              <FormattedMessage id="admin.users.title" defaultMessage="Users" />
-            </span>
-          </Space>
+          <TableHeaderTitle
+            icon={<UserOutlined />}
+            title={<FormattedMessage id="admin.users.title" defaultMessage="Users" />}
+          />
         }
         extra={
           <Space>
