@@ -6,6 +6,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 // import TestPanel from "@/components/common/test-panel"; //(only dev)
 import AppLayout from "@/components/layout/app-layout";
 import Providers from "@/providers/antd";
+import AutoFeedbackModal from "@/features/feedbacks/ui/auto-feedback-modal";
 import React, { memo } from "react";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
@@ -16,6 +17,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       <Providers>
         <DrawerProvider>
           <AppLayout childrens={children} />
+          <AutoFeedbackModal />
         </DrawerProvider>
       </Providers>
     </GoogleOAuthProvider>

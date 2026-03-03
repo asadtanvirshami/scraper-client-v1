@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { DownOutlined, LogoutOutlined } from "@ant-design/icons";
 import type { MenuProps } from "antd";
-import { Avatar, Button, Dropdown, Space, Typography } from "antd";
+import { Avatar, Button, Dropdown, Space, Spin, Typography } from "antd";
 import { useUserInfo } from "@/helpers/use-user";
 import { useDispatch } from "react-redux";
 import { logoutUser } from "@/redux/slices/user/user-slice";
@@ -11,6 +11,12 @@ import { persistor } from "@/redux/store";
 
 const ProfileDropdown: React.FC = () => {
   const { user } = useUserInfo();
+  const [avatarLoading, setAvatarLoading] = useState(false);
+
+  useEffect(() => {
+    setAvatarLoading(Boolean(user?.avatar_url));
+  }, [user?.avatar_url]);
+
   const items: MenuProps["items"] = [
     {
       className: "!bg-transparent hover:!bg-transparent",
@@ -34,11 +40,21 @@ const ProfileDropdown: React.FC = () => {
     <Dropdown menu={{ items }} trigger={["click"]}>
       <a onClick={(e) => e.preventDefault()}>
         <Space className="!w-full">
-          <Avatar
-            className="!mb-1"
-            size="large"
-            src="https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250"
-          />
+          
+            <Avatar
+              className="!mb-1"
+              size="large"
+              src={
+                user?.avatar_url ? (
+                  <img
+                    src={user.avatar_url as string}
+                    alt="avatar"
+                    onLoad={() => setAvatarLoading(false)}
+                    onError={() => setAvatarLoading(false)}
+                  />
+                ) : undefined
+              }
+            />
         </Space>
       </a>
     </Dropdown>
@@ -79,6 +95,5 @@ const LogoutButton: React.FC = () => {
     </Button>
   );
 };
-
 
 export { LogoutButton, ProfileDropdown };

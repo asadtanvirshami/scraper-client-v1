@@ -4,6 +4,7 @@ import React, { useMemo, useState } from "react";
 import { Col, Row } from "antd";
 import Spinner from "@/components/ui (generic)/spinner";
 import dayjs, { Dayjs } from "dayjs";
+import { useIntl } from "react-intl";
 import { useFetchDashboard } from "../../hooks/queries";
 
 import WeeklyLeadsAreaChart from "@/features/leads/ui/chart/area-chart";
@@ -12,6 +13,8 @@ import FilterHeader from "../widgets/filter-header";
 import WeeklyLeadsBarChart from "@/features/leads/ui/chart/bar-chart";
 import FolderTable from "@/features/folders/ui/folder-table";
 import LeadsTableServer from "@/features/leads/ui/lead-table";
+import CampaignMetricsChart from "@/features/campaigns/ui/chart/campaign-metrics-chart";
+import CampaignsTable from "@/features/campaigns/ui/campaigns-table";
 
 type PresetKey = "7d" | "14d" | "30d" | "90d";
 
@@ -30,11 +33,13 @@ const PRESETS: { label: string; value: PresetKey }[] = [
 ];
 
 const pageStyle: React.CSSProperties = {
-  padding: 16,
+  padding: "20px 24px",
   minHeight: "100vh",
 };
 
 const UserLayout = ({ id }: { id: string }) => {
+  const intl = useIntl();
+
   // ✅ filters
   const [preset, setPreset] = useState<PresetKey>("7d");
   const [range, setRange] = useState<[Dayjs | null, Dayjs | null]>([
@@ -69,6 +74,7 @@ const UserLayout = ({ id }: { id: string }) => {
 
   // query (NOW affects everything)
   const { data, isLoading, isFetching } = useFetchDashboard(params);
+  console.log(data);
 
   // full page spinner only on first load
   if (isLoading && isTodayOnly) return <Spinner size="large" />;
@@ -97,8 +103,14 @@ const UserLayout = ({ id }: { id: string }) => {
   return (
     <div style={pageStyle}>
       <FilterHeader
-        title="Dashboard"
-        subtitle="Supervisa el rendimiento y la actividad de leads."
+        title={intl.formatMessage({
+          id: "dashboard.title",
+          defaultMessage: "Dashboard",
+        })}
+        subtitle={intl.formatMessage({
+          id: "dashboard.subtitle",
+          defaultMessage: "Track performance and leads activity.",
+        })}
         ctaHref="/leads"
         PRESETS={PRESETS}
         preset={preset}
@@ -116,9 +128,9 @@ const UserLayout = ({ id }: { id: string }) => {
         isCustomRange={isCustomRange}
       />
 
-      {/* ✅ Charts update with filters */}
-      <Row gutter={[12, 12]} style={{ marginTop: 12 }}>
-        <Col xs={24} lg={12}>
+      {/* Lead Analytics Charts */}
+      <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+        <Col xs={24} sm={24} md={24} lg={12} xl={12}>
           <WeeklyLeadsAreaChart
             isLoading={loading}
             showFilters={false}
@@ -136,7 +148,7 @@ const UserLayout = ({ id }: { id: string }) => {
           />
         </Col>
 
-        <Col xs={24} lg={12}>
+        <Col xs={24} sm={24} md={24} lg={12} xl={12}>
           <WeeklyLeadsBarChart
             isLoading={loading}
             showFilters={false}
@@ -154,8 +166,25 @@ const UserLayout = ({ id }: { id: string }) => {
           />
         </Col>
       </Row>
-      <Row gutter={[12, 12]} style={{ marginTop: 12 }}>
-        <Col xs={24} lg={12}>
+
+      {/* Campaign Metrics Chart - Full Width */}
+      <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+        <Col xs={24}>
+          <CampaignMetricsChart
+            isLoading={loading}
+            labels={charts?.campaignsSent?.labels ?? []}
+            campaignCount={charts?.campaignsSent?.campaignCount ?? []}
+            emailsSent={charts?.campaignsSent?.emailsSent ?? []}
+            emailsOpened={charts?.campaignsSent?.emailsOpened ?? []}
+            emailsClicked={charts?.campaignsSent?.emailsClicked ?? []}
+            preset={preset}
+          />
+        </Col>
+      </Row>
+
+      {/* Leads & Campaigns Tables */}
+      <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+        <Col xs={24} sm={24} md={24} lg={12} xl={12}>
           <LeadsTableServer
             onFetch={() => {}}
             user_id=""
@@ -173,7 +202,18 @@ const UserLayout = ({ id }: { id: string }) => {
             leads={data?.data?.recent?.leads}
           />
         </Col>
-        <Col xs={24} lg={12}>
+        <Col xs={24} sm={24} md={24} lg={12} xl={12}>
+          <CampaignsTable
+            loading={isFetching}
+            data={data?.data?.recent?.campaigns}
+            showFilters={false}
+          />
+        </Col>
+      </Row>
+
+      {/* Folders Table - Full Width */}
+      <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+        <Col xs={24}>
           <FolderTable
             loading={isFetching}
             data={data?.data?.recent?.folders}

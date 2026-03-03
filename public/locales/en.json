@@ -7,6 +7,7 @@
     "folders": "Folders",
     "notifications": "Notifications",
     "billing": "Billing",
+    "emails": "Emails",
     "settings": "Settings",
     "role": {
       "admin": "Admin",
@@ -217,7 +218,10 @@
       "title": "Your Campaigns",
       "create": "Create Campaign",
       "empty": "No campaigns yet",
-      "error": "Error loading campaigns"
+      "error": "Error loading campaigns",
+      "search_placeholder": "Search campaigns...",
+      "filter_status": "Filter by status",
+      "clear_filters": "Clear Filters"
     },
     "card": {
       "recipients": "Recipients",
@@ -241,6 +245,7 @@
     },
     "insights": {
       "title": "Campaign Insights",
+      "description": "Monitor key performance metrics and track campaign success.",
       "total_campaigns": "Total campaigns",
       "total_recipients": "Total Recipients",
       "emails_sent": "Emails Sent",
@@ -253,8 +258,11 @@
     },
     "details": {
       "performance_title": "Campaign Performance",
+      "performance_description": "Review detailed metrics about your campaign's effectiveness.",
       "target_folders": "Target Folders",
+      "target_folders_description": "View all folders targeted by this campaign.",
       "target_leads": "Target Leads",
+      "target_leads_description": "View all specific leads targeted by this campaign.",
       "folder_name": "Folder Name",
       "total_leads": "Total Leads",
       "created_at": "Created At",
@@ -271,6 +279,7 @@
       "bounce_rate": "Bounce Rate"
     },
     "info": {
+      "title": "Campaign Information",
       "campaign_id": "Campaign ID",
       "created": "Created",
       "sent": "Sent",
@@ -357,7 +366,15 @@
       "validation_error": "Please fill in all required fields",
       "validation": {
         "select_leads_or_folders": "Please select at least one lead or folder"
-      }
+      },
+      "info_alert_title": "Create Your Email Campaign",
+      "info_alert_description": "Design and schedule professional email campaigns. Target specific leads or folders, track opens, and monitor performance.",
+      "basic_info_description": "Set up the fundamental details of your campaign including name and email subject.",
+      "content_description": "Craft your email message using the rich text editor. Add formatting, links, and styling.",
+      "email_config_description": "Configure sender details. Use a verified email address for better deliverability.",
+      "campaign_settings_description": "Choose campaign type, status, and schedule delivery time.",
+      "targeting_description": "Select recipients for your campaign. Choose specific leads or entire folders.",
+      "tracking_description": "Enable email tracking to monitor campaign performance and engagement."
     }
   },
 
@@ -381,6 +398,7 @@
     "actions": "Actions",
     "cancel": "Cancel",
     "save": "Save",
+    "approve": "Approve",
     "create": "Create",
     "saved": "Saved",
     "save_failed": "Save failed",
@@ -389,6 +407,7 @@
     "clear": "Clear",
     "bulk_delete_failed": "Bulk delete failed",
     "view": "View",
+    "view_all": "View All",
     "end_of_list": "End of list",
     "range_presets": {
       "last7": "Last 7 days",
@@ -425,7 +444,11 @@
       "required": "Please describe the bug.",
       "submit": "Submit bug",
       "success": "Bug report sent.",
-      "fail": "Failed to send bug report."
+      "fail": "Failed to send bug report.",
+      "report_button": "Report a Bug",
+      "your_reports": "Your Reports",
+      "no_reports": "No bug reports yet",
+      "modal_title": "Report a Bug"
     },
     "feedback": {
       "title": "Send feedback",
@@ -440,6 +463,15 @@
     "max_length": "Maximum {max} characters."
   },
 
+  "feedback": {
+    "auto_modal": {
+      "title": "We'd Love Your Feedback!",
+      "description": "Help us improve your experience! Share your thoughts and suggestions.",
+      "later": "Maybe Later",
+      "submit": "Submit Feedback"
+    }
+  },
+
   "leads": {
     "page": {
       "title": "Leads",
@@ -451,6 +483,7 @@
     },
     "widget": {
       "recent_title": "Leads",
+      "scraped_title": "Scraped Leads",
       "total": "Total {total}"
     },
     "empty": "No leads yet",
@@ -458,7 +491,22 @@
       "delete": "Delete",
       "view_all": "View all",
       "download": "Download",
-      "add_to_leads": "Add to leads"
+      "add_to_leads": "Add to leads",
+      "approve_all": "Approve All",
+      "upload": "Upload File",
+      "upload_csv_xlsx": "Upload CSV/XLSX"
+    },
+    "upload": {
+      "title": "Bulk Import Leads",
+      "description": "Upload a CSV or XLSX file to import multiple leads at once.",
+      "button": "Choose File",
+      "supported_formats": "Supported formats: CSV, XLSX, XLS",
+      "drag_drop": "or drag and drop",
+      "processing": "Processing file...",
+      "success": "Successfully imported {count} lead(s)",
+      "no_valid_rows": "No valid rows found in file",
+      "unsupported_format": "Unsupported file type. Please upload .csv or .xlsx",
+      "failed": "Bulk upload failed"
     },
     "search": {
       "placeholder": "Search name, email, company..."
@@ -479,7 +527,8 @@
     },
     "confirm": {
       "delete_one": "Delete this lead?",
-      "delete_selected": "Delete {count} selected lead(s)?"
+      "delete_selected": "Delete {count} selected lead(s)?",
+      "approve_all": "Approve all {count} lead(s)?"
     },
     "drawer": {
       "add_title": "Add Lead",
@@ -530,6 +579,10 @@
     "scrape": {
       "success": "Lead added successfully.",
       "failed": "Failed to add lead."
+    },
+    "approve": {
+      "success": "Successfully approved {count} lead(s).",
+      "failed": "Failed to approve leads."
     }
   },
 
@@ -593,7 +646,11 @@
     },
     "charts": {
       "weekly_leads": "Leads added (last 7 days)",
-      "leads_by_type_bar": "Leads added (by type)"
+      "leads_by_type_bar": "Leads added (by type)",
+      "campaign_metrics": "Campaign Performance"
+    },
+    "tables": {
+      "recent_campaigns": "Recent Campaigns"
     },
     "stats": {
       "totalLeads": "Total Leads",
@@ -625,13 +682,51 @@
       "go_home": "Home"
     }
   },
-
+  "emails": {
+    "widget": {
+      "title": "Emails",
+      "total": "Total {total}"
+    },
+    "empty": "No emails yet",
+    "search": {
+      "placeholder": "Search email..."
+    },
+    "table": {
+      "email": "Email",
+      "status": "Status",
+      "created": "Created"
+    },
+    "status": {
+      "verified": "VERIFIED",
+      "pending": "PENDING"
+    },
+    "confirm": {
+      "delete_selected": "Delete {count} selected email(s)?"
+    },
+    "modal": {
+      "add_title": "Add Email",
+      "verify_title": "Verify Email: {email}",
+      "add_button": "Add",
+      "verify_button": "Verify"
+    },
+    "form": {
+      "email_label": "Email Address",
+      "email_required": "Please enter email address",
+      "email_invalid": "Please enter a valid email",
+      "email_placeholder": "Enter email address",
+      "otp_label": "Enter OTP",
+      "otp_required": "Please enter OTP",
+      "otp_length": "OTP must be 6 digits",
+      "otp_numeric": "OTP must contain only numbers",
+      "otp_placeholder": "Enter 6-digit OTP"
+    }
+  },
   "settings": {
     "tabs": {
       "general": "General",
       "profile": "Profile",
       "password_security": "Password & Security",
-      "support": "Support & Feedback"
+      "support": "Report Bug"
     },
     "general": {
       "title": "General"

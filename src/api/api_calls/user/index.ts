@@ -4,8 +4,6 @@ import { getAccessToken } from "@/lib/cookies";
 import { GenericResponse } from "@/types/api";
 import { UpdateProfilePayload } from "@/types/api/user";
 
-const token = getAccessToken();
-
 export type FetchUsersParams = {
   page?: number; // 1-based
   limit?: number;
@@ -117,12 +115,30 @@ export async function BulkDeleteUsers(
 
 /* ================= UPDATE USER ================= */
 export async function UpdateProfile(
-  input: UpdateProfilePayload,
+  input: UpdateProfilePayload | FormData,
 ): Promise<GenericResponse> {
-  const { data } = await api.put(apiEndpoints.user.updateMe, input, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+  const headers = {
+    Authorization: `Bearer ${getAccessToken()}`,
+  };
+
+  // Don't set Content-Type header for FormData - browser will set it automatically with boundary
+  const config = input instanceof FormData
+    ? { headers }
+    : { headers: { ...headers, "Content-Type": "application/json" } };
+
+  const { data } = await api.put(apiEndpoints.user.updateMe, input, config);
+  return data;
+}
+
+/* ================= UPLOAD AVATAR ================= */
+export async function UploadAvatar(input: FormData): Promise<GenericResponse> {
+  const headers = {
+    Authorization: `Bearer ${getAccessToken()}`,
+  };
+
+  const { data } = await api.put(apiEndpoints.user.uploadAvatar, input, {
+    headers,
   });
+
   return data;
 }

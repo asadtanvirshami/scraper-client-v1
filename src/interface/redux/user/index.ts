@@ -8,6 +8,7 @@ export interface User {
   plan: string;
   is_verified: boolean;
   is_update_enabled: boolean;
+  is_feedback_completed: boolean;
   is_notifications_enabled: boolean;
   blocked?: boolean;
 }

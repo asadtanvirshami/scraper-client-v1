@@ -12,6 +12,7 @@ import {
   Space,
   Typography,
   Tag,
+  Select,
   message,
 } from "antd";
 import { PlayCircleOutlined } from "@ant-design/icons";
@@ -27,6 +28,7 @@ import {
   useScrapeLinkedIn,
 } from "@/features/scraper/hooks";
 import { useFetchLeadsList } from "@/features/leads/hooks/queries";
+import { useFetchFolders } from "@/features/folders/hooks/queries";
 
 type ScrapeType = "LINKEDIN" | "INSTAGRAM";
 
@@ -71,8 +73,27 @@ export default function LeadsScraperCard({
   const [open, setOpen] = useState(false);
   const [type, setType] = useState<ScrapeType>("LINKEDIN");
   const [scrapeId, setScrapeId] = useState("");
-  const [folderId] = useState(defaultFolderId);
   const [form] = Form.useForm();
+
+  const { data: foldersResp, isFetching: foldersLoading } = useFetchFolders({
+    user_id: user_id ?? "",
+    page: 1,
+    limit: 1000,
+  } as any);
+
+  const folderOptions = useMemo(() => {
+    const folders = ((foldersResp as any)?.folders ??
+      (foldersResp as any)?.data ??
+      foldersResp ??
+      []) as Array<{ _id?: string; id?: string; name?: string }>;
+
+    return folders
+      .map((folder) => ({
+        value: String(folder._id ?? folder.id ?? ""),
+        label: folder.name ?? "Untitled folder",
+      }))
+      .filter((option) => option.value);
+  }, [foldersResp]);
 
   // ✅ global lock state: disable all buttons + keep loaders
   const [lockUntil, setLockUntil] = useState<number>(0);
@@ -110,7 +131,7 @@ export default function LeadsScraperCard({
       scrape_status: false,
       user_id: user_id ?? "",
     }),
-    [scrapeId, user_id, folderId],
+    [scrapeId, user_id],
   );
 
   const leadsQuery = useFetchLeadsList(leadsParams); 
@@ -141,6 +162,7 @@ export default function LeadsScraperCard({
     if (uiBusy) return;
     setType(t);
     form.resetFields();
+    form.setFieldValue("folderId", defaultFolderId ?? undefined);
     setOpen(true);
   };
 
@@ -211,6 +233,7 @@ export default function LeadsScraperCard({
 
     const values = await form.validateFields();
     const url = safeString(values.profileUrl).trim();
+    const folder_id = safeString(values.folderId || defaultFolderId).trim();
     if (!user_id) return;
 
     setOpen(false);
@@ -220,7 +243,7 @@ export default function LeadsScraperCard({
         {
           profileUrl: url,
           user_id,
-          folder_id: "",
+          folder_id,
         },
         {
           onSuccess: onScrapeSuccess,
@@ -231,7 +254,7 @@ export default function LeadsScraperCard({
         {
           profile_url: url,
           user_id,
-          folder_id: "",
+          folder_id,
         },
         {
           onSuccess: onScrapeSuccess,
@@ -387,6 +410,36 @@ export default function LeadsScraperCard({
             ]}
           >
             <Input placeholder="https://..." disabled={uiBusy} />
+          </Form.Item>
+
+          <Form.Item
+            label={intl.formatMessage({
+              id: "scraper.modal.folder",
+              defaultMessage: "Folder",
+            })}
+            name="folderId"
+            rules={[
+              {
+                required: true,
+                message: intl.formatMessage({
+                  id: "scraper.modal.folderRequired",
+                  defaultMessage: "Please select a folder",
+                }),
+              },
+            ]}
+          >
+            <Select
+              showSearch
+              allowClear
+              disabled={uiBusy}
+              loading={foldersLoading}
+              options={folderOptions}
+              placeholder={intl.formatMessage({
+                id: "scraper.modal.folderPlaceholder",
+                defaultMessage: "Select folder",
+              })}
+              optionFilterProp="label"
+            />
           </Form.Item>
 
           <Text type="secondary">

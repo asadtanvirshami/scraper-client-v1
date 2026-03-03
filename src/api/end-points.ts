@@ -27,7 +27,24 @@ export const apiEndpoints = {
 
   support: {
     bug_create: "/bug/create",
+    bug_update: "/bug/update",
+    bug_delete: (id: string) => `/bug/delete/${id}`,
+    bugs_list: (params: {
+      offset?: number;
+      limit?: number;
+      search?: string;
+      user_id?: string;
+    }) => withPagination("/bug/get", params),
+
     feedback_create: "/feedback/create",
+    feedback_update: (id: string) => `/feedback/update/${id}`,
+    feedback_delete: (id: string) => `/feedback/delete/${id}`,
+    feedback_list: (params: {
+      offset?: number; // 1-based
+      limit?: number;
+      search?: string;
+      user_id?: string;
+    }) => withPagination("/feedback/get", params),
   },
 
   user: {
@@ -39,7 +56,7 @@ export const apiEndpoints = {
 
     // user
     getAllUser: (params: {
-      offset?: number; // 1-based
+      offset?: number; // 1-based 
       limit?: number;
       search?: string;
       role?: "USER" | "ADMIN";
@@ -76,6 +93,7 @@ export const apiEndpoints = {
     delete: `/lead/delete`,
     bulk_delete: `/lead/bulk-delete`,
     bulk_upload: `/lead/bulk-upload`,
+    bulk_update_scraped: `/lead/bulk-update-scraped`,
     list: (params: {
       offset?: number;
       limit?: number;

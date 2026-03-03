@@ -14,6 +14,7 @@ import {
   Input,
   Popconfirm,
   message,
+  Alert,
 } from "antd";
 import {
   ReloadOutlined,
@@ -22,13 +23,16 @@ import {
   DeleteOutlined,
   EditOutlined,
   DownloadOutlined,
+  UploadOutlined,
+  UsergroupAddOutlined,
 } from "@ant-design/icons";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import type { Lead } from "@/types/leads";
 import { useAppDrawer } from "@/components/layout/app-drawer/user-app-drawer";
+import TableHeaderTitle from "@/components/ui (generic)/table-header-title";
 import LeadForm from "../../form";
-import { useDownloadAllLeads } from "../../hooks/mutations";
+import { useDownloadAllLeads, useBulkUploadLeads } from "../../hooks/mutations";
 
 type ServerFilters = {
   page: number;
@@ -53,9 +57,15 @@ type Props = {
 
   onCreateLead?: (payload: Partial<any>) => Promise<void> | void;
   onUpdateLead?: (id: string, payload: Partial<any>) => Promise<void> | void;
+  onBulkUpload?: (payload: any) => Promise<void> | void;
 
   /** ✅ NEW: if false => hide toolbar + table filters + pagination + selection */
   showFilters?: boolean;
+  /** ✅ Show file upload input */
+  showFileUpload?: boolean;
+  showModernFileUpload?: boolean;
+  /** ✅ Custom card styling for flexible height */
+  cardStyle?: React.CSSProperties;
 };
 
 const LeadsTableServer: React.FC<Props> = ({
@@ -70,7 +80,11 @@ const LeadsTableServer: React.FC<Props> = ({
   onDeleteMany,
   onCreateLead,
   onUpdateLead,
+  onBulkUpload,
   showFilters = true,
+  showFileUpload = false,
+  showModernFileUpload = false,
+  cardStyle,
 }) => {
   const { Text } = Typography;
   const intl = useIntl();
@@ -79,8 +93,12 @@ const LeadsTableServer: React.FC<Props> = ({
 
   const { openDrawer, closeDrawer } = useAppDrawer();
   const download = useDownloadAllLeads();
+  const bulkUpload = useBulkUploadLeads();
 
   const filters = value;
+
+  // File upload states
+  const [uploading, setUploading] = useState(false);
 
   const [searchDraft, setSearchDraft] = useState(filters.search ?? "");
   React.useEffect(() => setSearchDraft(filters.search ?? ""), [filters.search]);
@@ -253,6 +271,17 @@ const LeadsTableServer: React.FC<Props> = ({
     },
     {
       title: (
+        <FormattedMessage id="leads.table.phones" defaultMessage="Phones" />
+      ),
+      key: "phone_numbers",
+      ellipsis: true,
+      render: (_, record) =>
+        Array.isArray(record.phone_numbers)
+          ? record.phone_numbers[0] || "-"
+          : record.phone_numbers || "-",
+    },
+    {
+      title: (
         <FormattedMessage id="leads.table.company" defaultMessage="Company" />
       ),
       dataIndex: "company",
@@ -388,12 +417,156 @@ const LeadsTableServer: React.FC<Props> = ({
 
   const isDirtySearch = (searchDraft || "").trim() !== (filters.search || "");
 
+  // File upload handler
+  const handleFileSelect = async (file?: File) => {
+    if (!file) return;
+    const ext = file.name.split(".").pop()?.toLowerCase();
+    const reader = new FileReader();
+
+    const extract = async (rows: any[]) => {
+      try {
+        setUploading(true);
+
+        const transformed = rows
+          .map((r: any) => {
+            const first_name =
+              r.first_name || r.First_Name || r.FirstName || "";
+            const last_name = r.last_name || r.Last_Name || r.LastName || "";
+
+            const emails = r.emails
+              ? String(r.emails)
+                  .split(",")
+                  .map((e: string) => e.trim())
+              : r.email
+                ? [String(r.email).trim()]
+                : [];
+
+            const phone_numbers = r.phone_numbers
+              ? String(r.phone_numbers)
+                  .split(",")
+                  .map((p: string) => p.trim())
+              : r.phone || r.Phone
+                ? [String(r.phone || r.Phone).trim()]
+                : [];
+
+            return {
+              first_name,
+              last_name,
+              emails,
+              phone_numbers,
+              company: r.company || r.Company || "",
+              job_title:
+                r.job_title || r.Job_Title || r.JobTitle || r.title || "",
+              message: r.message || "",
+              type: r.type || "MANUAL",
+              is_converted:
+                r.is_converted === true || r.is_converted === "TRUE",
+              scrape_status:
+                r.scrape_status === true || r.scrape_status === "TRUE",
+              user_id: user_id ?? "",
+            };
+          })
+          .filter(
+            (row) =>
+              row.first_name ||
+              row.last_name ||
+              row.emails.length ||
+              row.phone_numbers.length,
+          );
+
+        if (!transformed.length) {
+          message.warning(
+            intl.formatMessage({ id: "leads.upload.no_valid_rows" }),
+          );
+          setUploading(false);
+          return;
+        }
+
+        if (onBulkUpload) {
+          await onBulkUpload({
+            user_id: user_id ?? "",
+            leads: transformed,
+          });
+          message.success(
+            intl.formatMessage(
+              { id: "leads.upload.success" },
+              { count: transformed.length },
+            ),
+          );
+          fetchNow({ page: 1 });
+        } else {
+          await bulkUpload.mutateAsync({
+            user_id: user_id ?? "",
+            leads: transformed,
+          });
+          message.success(
+            intl.formatMessage(
+              { id: "leads.upload.success" },
+              { count: transformed.length },
+            ),
+          );
+          fetchNow({ page: 1 });
+        }
+      } catch (err) {
+        console.error(err);
+        message.error(intl.formatMessage({ id: "leads.upload.failed" }));
+      } finally {
+        setUploading(false);
+      }
+    };
+
+    if (ext === "csv") {
+      reader.onload = (e) => {
+        const text = e.target?.result as string;
+        const rows = text.split(/\r?\n/).filter(Boolean);
+        const headers = rows[0].split(",").map((h) => h.trim());
+        const data = rows.slice(1).map((r) => {
+          const values = r.split(",");
+          const obj: any = {};
+          headers.forEach((h, i) => (obj[h] = values[i]?.trim() ?? ""));
+          return obj;
+        });
+        extract(data);
+      };
+      reader.readAsText(file);
+    } else if (ext === "xlsx" || ext === "xls") {
+      import("xlsx")
+        .then((XLSX) => {
+          reader.onload = (e) => {
+            const data = new Uint8Array(e.target?.result as ArrayBuffer);
+            const workbook = (XLSX as any).read(data, { type: "array" });
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            const json = (XLSX as any).utils.sheet_to_json(sheet, {
+              defval: "",
+            }) as any[];
+            extract(json);
+          };
+          reader.readAsArrayBuffer(file);
+        })
+        .catch((err) => {
+          console.error("Failed to load xlsx parser:", err);
+          message.error(intl.formatMessage({ id: "leads.upload.failed" }));
+        });
+    } else {
+      message.error(
+        intl.formatMessage({ id: "leads.upload.unsupported_format" }),
+      );
+    }
+  };
+
   return (
     <Card
+      style={cardStyle}
       title={
-        <FormattedMessage
-          id="leads.widget.recent_title"
-          defaultMessage="Leads"
+        <TableHeaderTitle
+          icon={<UsergroupAddOutlined />}
+          title={
+            <FormattedMessage
+              id="leads.widget.recent_title"
+              defaultMessage="Leads"
+            />
+          }
         />
       }
       extra={
@@ -420,6 +593,22 @@ const LeadsTableServer: React.FC<Props> = ({
                 />
               </Button>
 
+              {showFileUpload && (
+                <Button
+                  icon={<UploadOutlined />}
+                  loading={uploading}
+                  type="default"
+                  onClick={() =>
+                    document.getElementById("lead-file-upload")?.click()
+                  }
+                >
+                  <FormattedMessage
+                    id="leads.actions.upload"
+                    defaultMessage="Upload File"
+                  />
+                </Button>
+              )}
+
               <Button
                 type="primary"
                 icon={<PlusOutlined />}
@@ -432,6 +621,64 @@ const LeadsTableServer: React.FC<Props> = ({
         </Space>
       }
     >
+      {/* Upload Section with Instructions */}
+      {showModernFileUpload && (
+        <div className="mb-4">
+          <Alert
+            description={
+              <div className="flex items-center justify-between">
+                <div>
+                  <strong>
+                    <FormattedMessage
+                      id="leads.upload.title"
+                      defaultMessage="Bulk Import Leads"
+                    />
+                  </strong>
+                  <div className="text-sm mt-1">
+                    <FormattedMessage
+                      id="leads.upload.description"
+                      defaultMessage="Upload a CSV or XLSX file to import multiple leads at once."
+                    />
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    <FormattedMessage
+                      id="leads.upload.supported_formats"
+                      defaultMessage="Supported formats: CSV, XLSX, XLS"
+                    />
+                  </div>
+                </div>
+                <Button
+                  icon={<UploadOutlined />}
+                  size="large"
+                  type="primary"
+                  loading={uploading}
+                  onClick={() =>
+                    document.getElementById("lead-file-upload")?.click()
+                  }
+                >
+                  <FormattedMessage
+                    id="leads.upload.button"
+                    defaultMessage="Choose File"
+                  />
+                </Button>
+              </div>
+            }
+            type="info"
+            showIcon
+          />
+          <input
+            id="lead-file-upload"
+            type="file"
+            accept=".csv, .xlsx, .xls"
+            style={{ display: "none" }}
+            onChange={(e) => {
+              handleFileSelect(e.target.files?.[0]);
+              e.target.value = ""; // Reset input
+            }}
+          />
+        </div>
+      )}
+
       {/* ✅ Toolbar hidden when showFilters=false */}
       {showFilters && (
         <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">

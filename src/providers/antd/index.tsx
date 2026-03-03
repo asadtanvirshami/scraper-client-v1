@@ -23,22 +23,22 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   }, [isDark]);
 
   const palette = useMemo(() => {
-    // Pick ONE blue accent and use it everywhere for consistency
-    const BLUE = "#3B82F6"; // tailwind blue-500 (clean, modern)
-    const BLUE_HOVER = "#2563EB"; // blue-600
-    const BLUE_ACTIVE = "#1D4ED8"; // blue-700
+    // Rose-red accent with grayish-black neutrals
+    const ROSE = "#E11D48";
+    const ROSE_HOVER = "#BE123C";
+    const ROSE_ACTIVE = "#9F1239";
 
     const dark = {
-      // Accent (blue)
-      accent: BLUE,
-      accentHover: BLUE_HOVER,
-      accentActive: BLUE_ACTIVE,
-      accentSoft: "rgba(59,130,246,0.16)",
+      // Accent (rose-red)
+      accent: ROSE,
+      accentHover: ROSE_HOVER,
+      accentActive: ROSE_ACTIVE,
+      accentSoft: "rgba(225,29,72,0.18)",
 
       // Neutrals (black/white)
-      bgBase: "#09090B", // near-black
-      bgContainer: "rgba(24, 24, 27, 0.72)",
-      bgElevated: "rgba(24, 24, 27, 0.90)",
+      bgBase: "#0b0b0d", // grayish black
+      bgContainer: "rgba(22, 22, 24, 0.74)",
+      bgElevated: "rgba(26, 26, 30, 0.90)",
 
       textBase: "rgba(255,255,255,0.92)",
       textSecondary: "rgba(255,255,255,0.62)",
@@ -50,19 +50,19 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       shadow2: "0 10px 30px rgba(0,0,0,0.45)",
 
       appBg:
-        "radial-gradient(1200px 800px at 20% 10%, rgba(59,130,246,0.10), transparent 60%), radial-gradient(900px 600px at 80% 20%, rgba(255,255,255,0.03), transparent 60%), linear-gradient(180deg, #060607 0%, #09090b 100%)",
+        "radial-gradient(1100px 760px at 14% 8%, rgba(225,29,72,0.24), transparent 58%), radial-gradient(900px 640px at 86% 16%, rgba(127,29,29,0.18), transparent 60%), linear-gradient(180deg, #070708 0%, #141418 100%)",
 
-      siderBg: "rgba(24, 24, 27, 0.60)",
-      selectedBg: "rgba(59,130,246,0.18)", // subtle blue selection
+      siderBg: "rgba(20, 20, 24, 0.64)",
+      selectedBg: "rgba(225,29,72,0.22)",
       hoverBg: "rgba(255,255,255,0.06)",
     };
 
     const light = {
-      // Accent (blue)
-      accent: BLUE,
-      accentHover: BLUE_HOVER,
-      accentActive: BLUE_ACTIVE,
-      accentSoft: "rgba(59,130,246,0.12)",
+      // Accent (rose-red)
+      accent: ROSE,
+      accentHover: ROSE_HOVER,
+      accentActive: ROSE_ACTIVE,
+      accentSoft: "rgba(225,29,72,0.12)",
 
       // Neutrals (white/black)
       bgBase: "#FFFFFF",
@@ -79,10 +79,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       shadow2: "0 10px 30px rgba(0,0,0,0.10)",
 
       appBg:
-        "radial-gradient(1200px 800px at 20% 10%, rgba(59,130,246,0.10), transparent 60%), radial-gradient(900px 600px at 80% 20%, rgba(0,0,0,0.02), transparent 60%), linear-gradient(180deg, #ffffff 0%, #fafafa 100%)",
+        "radial-gradient(1100px 760px at 14% 8%, rgba(225,29,72,0.12), transparent 58%), radial-gradient(900px 640px at 86% 16%, rgba(127,29,29,0.08), transparent 60%), linear-gradient(180deg, #ffffff 0%, #f5f5f7 100%)",
 
       siderBg: "rgba(0,0,0,0.03)",
-      selectedBg: "rgba(59,130,246,0.14)",
+      selectedBg: "rgba(225,29,72,0.14)",
       hoverBg: "rgba(0,0,0,0.04)",
     };
 
@@ -97,7 +97,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       theme={{
         algorithm: isDark ? darkAlgorithm : defaultAlgorithm,
         token: {
-          // ✅ Blue is the brand/accent
+          // ✅ Rose-red is the brand/accent
           colorPrimary: palette.accent,
           colorPrimaryHover: palette.accentHover,
           colorPrimaryActive: palette.accentActive,
@@ -106,13 +106,13 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           controlOutline: "transparent",
           controlOutlineWidth: 0,
 
-          // ✅ Links use accent blue (not white/black)
+          // ✅ Links use accent color (not white/black)
           colorLink: palette.accent,
           colorLinkHover: palette.accentHover,
 
           borderRadius: 14,
 
-          // Info should also be blue accent
+          // Info follows accent
           colorInfo: palette.accent,
           colorInfoHover: palette.accentHover,
           colorInfoActive: palette.accentActive,

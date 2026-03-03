@@ -1,4 +1,4 @@
-import { BulkDeleteUsers, UpdateProfile } from "@/api/api_calls/user";
+import { BulkDeleteUsers, UpdateProfile, UploadAvatar } from "@/api/api_calls/user";
 import { GenericResponse } from "@/types/api";
 import { UpdateProfilePayload } from "@/types/api/user";
 import {
@@ -16,10 +16,18 @@ import {
 } from "@/api/api_calls/user";
 
 export const useUpdateProfile = () =>
-  useMutation<GenericResponse, Error, UpdateProfilePayload>({
+  useMutation<GenericResponse, Error, UpdateProfilePayload | FormData>({
     mutationKey: ["user", "updateProfile"],
     mutationFn: async (payload) => {
       return await UpdateProfile(payload);
+    },
+  });
+
+export const useUploadAvatar = () =>
+  useMutation<GenericResponse, Error, FormData>({
+    mutationKey: ["user", "uploadAvatar"],
+    mutationFn: async (payload) => {
+      return await UploadAvatar(payload);
     },
   });
 

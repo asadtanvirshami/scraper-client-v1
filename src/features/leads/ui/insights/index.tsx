@@ -20,6 +20,7 @@ import {
   useUpdateLead,
   useDeleteLead,
   useBulkDeleteLeads,
+  useBulkUpdateScrappedLeads,
 } from "../../hooks/mutations";
 import { useFetchLeadsList } from "../../hooks/queries";
 
@@ -72,16 +73,14 @@ function SkeletonCard() {
 type Accent = "blue" | "green" | "red" | "purple";
 
 function IconPill({ icon, accent }: { icon: React.ReactNode; accent: Accent }) {
-  const { token } = theme.useToken();
-
   const base =
     accent === "blue"
-      ? token.colorPrimary
+      ? "#3b82f6"
       : accent === "green"
-        ? token.colorSuccess
+        ? "#10b981"
         : accent === "red"
-          ? token.colorError
-          : token.colorInfo;
+          ? "#ef4444"
+          : "#8b5cf6";
 
   const bg = `linear-gradient(135deg, ${hexToRgba(base, 0.18)} 0%, ${hexToRgba(
     base,
@@ -105,10 +104,9 @@ function IconPill({ icon, accent }: { icon: React.ReactNode; accent: Accent }) {
 }
 
 function DeltaPill({ value }: { value: number }) {
-  const { token } = theme.useToken();
   const isUp = value >= 0;
 
-  const base = isUp ? token.colorSuccess : token.colorError;
+  const base = isUp ? "#10b981" : "#ef4444";
 
   return (
     <span
@@ -303,6 +301,7 @@ const InsightsCard: React.FC<Props> = ({ stats, dailyTotal, loading }) => {
   const updateLead = useUpdateLead();
   const deleteLead = useDeleteLead();
   const bulkDelete = useBulkDeleteLeads();
+  const bulkUpdateScraped = useBulkUpdateScrappedLeads();
 
   if (loading) {
     return (
@@ -416,10 +415,10 @@ const InsightsCard: React.FC<Props> = ({ stats, dailyTotal, loading }) => {
                   const isLinkedIn = keyLower === "linkedin";
 
                   const chipBase = isInsta
-                    ? token.colorError
+                    ? "#f59e0b"
                     : isLinkedIn
-                      ? token.colorPrimary
-                      : token.colorInfo;
+                      ? "#0ea5e9"
+                      : "#a855f7";
 
                   return (
                     <span
@@ -477,6 +476,15 @@ const InsightsCard: React.FC<Props> = ({ stats, dailyTotal, loading }) => {
             }}
             onDeleteMany={async (ids: string[]) => {
               await bulkDelete.mutateAsync(ids);
+            }}
+            onApproveAll={async () => {
+              const allLeads = (leads?.data ?? []).map((lead: any) => ({
+                _id: lead._id,
+                scrape_status: true,
+              }));
+              if (allLeads.length > 0) {
+                await bulkUpdateScraped.mutateAsync({ leads: allLeads });
+              }
             }}
           />
         </Col>

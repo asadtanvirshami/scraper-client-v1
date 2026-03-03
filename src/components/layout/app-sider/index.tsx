@@ -14,6 +14,7 @@ import {
   BugAntIcon,
   DocumentTextIcon,
   UsersIcon,
+  EnvelopeIcon,
 } from "@heroicons/react/24/outline";
 import { useIntl } from "react-intl";
 import { usePathname, useRouter } from "next/navigation";
@@ -30,10 +31,12 @@ type MenuKey =
   | "billing"
   | "settings"
   | "notifications"
+  | "emails"
   // admin
   | "admin_dashboard"
   | "admin_users"
   | "admin_bugs"
+  | "admin_feedbacks"
   | "admin_notifications"
   | "admin_reports";
 
@@ -57,13 +60,15 @@ const AppSider: React.FC = () => {
     notifications: "/notifications",
     billing: "/billings",
     settings: "/settings",
+    emails: "/emails",
 
     // admin (you can adjust paths if yours differ)
     admin_dashboard: uid ? `/dashboard/a/${uid}` : "/dashboard/a",
     admin_users: "/users",
-    admin_bugs: "/admin/bugs",
-    admin_notifications: "/admin/notifications",
-    admin_reports: "/admin/reports",
+    admin_bugs: "/bugs",
+    admin_feedbacks: "/feedback",
+    admin_notifications: "/notifications",
+    admin_reports: "/reports",
   };
 
   const workspaceItems: MenuProps["items"] = [
@@ -101,13 +106,18 @@ const AppSider: React.FC = () => {
       label: intl.formatMessage({ id: "sidebar.notifications" }),
     },
     {
+      key: "emails",
+      icon: <EnvelopeIcon className="h-5 w-5" />,
+      label: intl.formatMessage({ id: "sidebar.emails" }),
+    },
+    {
       key: "settings",
       icon: <Cog6ToothIcon className="h-5 w-5" />,
       label: intl.formatMessage({ id: "sidebar.settings" }),
     },
   ];
 
-  // ✅ Admin menu: Users, Bugs, Notifications, Dashboard, Reports
+  // ✅ Admin menu: Users, Bugs, Feedbacks, Notifications, Dashboard, Reports
   const adminItems: MenuProps["items"] = [
     {
       key: "admin_dashboard",
@@ -125,30 +135,38 @@ const AppSider: React.FC = () => {
         defaultMessage: "Users",
       }),
     },
-    // {
-    //   key: "admin_bugs",
-    //   icon: <BugAntIcon className="h-5 w-5" />,
-    //   label: intl.formatMessage({
-    //     id: "sidebar.admin.bugs",
-    //     defaultMessage: "Bugs",
-    //   }),
-    // },
-    // {
-    //   key: "admin_notifications",
-    //   icon: <BellIcon className="h-5 w-5" />,
-    //   label: intl.formatMessage({
-    //     id: "sidebar.admin.notifications",
-    //     defaultMessage: "Notifications",
-    //   }),
-    // },
-    // {
-    //   key: "admin_reports",
-    //   icon: <DocumentTextIcon className="h-5 w-5" />,
-    //   label: intl.formatMessage({
-    //     id: "sidebar.admin.reports",
-    //     defaultMessage: "Reports",
-    //   }),
-    // },
+    {
+      key: "admin_bugs",
+      icon: <BugAntIcon className="h-5 w-5" />,
+      label: intl.formatMessage({
+        id: "sidebar.admin.bugs",
+        defaultMessage: "Bugs",
+      }),
+    },
+    {
+      key: "admin_feedbacks",
+      icon: <DocumentTextIcon className="h-5 w-5" />,
+      label: intl.formatMessage({
+        id: "sidebar.admin.feedbacks",
+        defaultMessage: "Feedbacks",
+      }),
+    },
+    {
+      key: "admin_notifications",
+      icon: <BellIcon className="h-5 w-5" />,
+      label: intl.formatMessage({
+        id: "sidebar.admin.notifications",
+        defaultMessage: "Notifications",
+      }),
+    },
+    {
+      key: "admin_reports",
+      icon: <DocumentTextIcon className="h-5 w-5" />,
+      label: intl.formatMessage({
+        id: "sidebar.admin.reports",
+        defaultMessage: "Reports",
+      }),
+    },
   ];
 
   const items = isAdmin ? adminItems : workspaceItems;
@@ -209,9 +227,11 @@ const AppSider: React.FC = () => {
               style={{
                 fontSize: 16,
                 fontWeight: 800,
-                // color: "rgba(15,23,42,0.9)",
+                background: "linear-gradient(90deg, #fb7185 0%, #e11d48 55%, #be123c 100%)",
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                color: "transparent",
               }}
-              className="!text-blue-600 dark:text-white"
             >
               {intl.formatMessage({ id: "sidebar.brand" })}
             </div>
@@ -262,11 +282,9 @@ const AppSider: React.FC = () => {
         }
 
         .dhx-sider-menu .ant-menu-item:hover {
-
         }
 
         .dhx-sider-menu .ant-menu-item-selected {
- 
         }
 
         .dhx-sider-menu .ant-menu-item-selected::after {
@@ -274,7 +292,6 @@ const AppSider: React.FC = () => {
         }
 
         .dhx-sider-menu .ant-menu-item-icon {
-    
         }
 
         .dhx-sider-menu .ant-menu-item-selected .ant-menu-item-icon {

@@ -14,6 +14,9 @@ import {
   Popconfirm,
   message,
   Tooltip,
+  Select,
+  Spin,
+  Tag,
 } from "antd";
 import {
   ReloadOutlined,
@@ -21,8 +24,10 @@ import {
   DeleteOutlined,
   EditOutlined,
   EyeOutlined,
+  BugOutlined,
 } from "@ant-design/icons";
 import { FormattedMessage, useIntl } from "react-intl";
+import TableHeaderTitle from "@/components/ui (generic)/table-header-title";
 
 type AppUserLite = {
   _id: string;
@@ -34,6 +39,7 @@ type AppUserLite = {
 export type BugItem = {
   _id: string;
   bug?: string;
+  status?: "open" | "in_progress" | "resolved";
   user_id?: AppUserLite | string | null;
   is_deleted?: boolean;
   createdAt?: string | Date;
@@ -63,6 +69,12 @@ type Props = {
   /** ✅ if false => hide toolbar + pagination + selection */
   showFilters?: boolean;
 
+  /** ✅ if true => disable status dropdown (for admin dashboard) */
+  disableStatusChange?: boolean;
+
+  /** ✅ if false => show status as Tag instead of Select */
+  showSelect?: boolean;
+
   onOpenEdit?: (row: BugItem) => void;
   onOpenView?: (row: BugItem) => void;
 };
@@ -79,7 +91,34 @@ const formatEmail = (u?: AppUserLite | string | null) => {
   return u.email || "-";
 };
 
-const safeDate = (d?: string | Date) => (d ? new Date(d).toLocaleString() : "-");
+const safeDate = (d?: string | Date) =>
+  d ? new Date(d).toLocaleString() : "-";
+
+const getStatusColor = (status?: string) => {
+  switch (status) {
+    case "open":
+      return "error";
+    case "in_progress":
+      return "processing";
+    case "resolved":
+      return "success";
+    default:
+      return "default";
+  }
+};
+
+const getStatusLabel = (status?: string) => {
+  switch (status) {
+    case "open":
+      return "Open";
+    case "in_progress":
+      return "In Progress";
+    case "resolved":
+      return "Resolved";
+    default:
+      return "Open";
+  }
+};
 
 const BugsTableServer: React.FC<Props> = ({
   bugs = [],
@@ -91,6 +130,8 @@ const BugsTableServer: React.FC<Props> = ({
   onDeleteMany,
   onUpdateBug,
   showFilters = true,
+  disableStatusChange = false,
+  showSelect = true,
   onOpenEdit,
   onOpenView,
 }) => {
@@ -105,7 +146,11 @@ const BugsTableServer: React.FC<Props> = ({
   // ✅ selection
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
-  const fetchNow = (next: Partial<ServerFilters>) => onFetch({ ...filters, ...next });
+  // ✅ status update state
+  const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null);
+
+  const fetchNow = (next: Partial<ServerFilters>) =>
+    onFetch({ ...filters, ...next });
 
   const applySearch = () => {
     const term = (searchDraft || "").trim();
@@ -127,11 +172,19 @@ const BugsTableServer: React.FC<Props> = ({
   const doDeleteOne = async (row: BugItem) => {
     try {
       if (onDeleteOne) await onDeleteOne(row);
-      message.success(intl.formatMessage({ id: "commons.deleted", defaultMessage: "Deleted" }));
+      message.success(
+        intl.formatMessage({
+          id: "commons.deleted",
+          defaultMessage: "Deleted",
+        }),
+      );
       fetchNow({});
     } catch {
       message.error(
-        intl.formatMessage({ id: "commons.delete_failed", defaultMessage: "Delete failed" }),
+        intl.formatMessage({
+          id: "commons.delete_failed",
+          defaultMessage: "Delete failed",
+        }),
       );
     }
   };
@@ -157,16 +210,76 @@ const BugsTableServer: React.FC<Props> = ({
     }
   };
 
+  const handleStatusChange = async (id: string, newStatus: string) => {
+    if (!onUpdateBug) return;
+
+    setUpdatingStatusId(id);
+    try {
+      await onUpdateBug(id, { status: newStatus as any });
+      message.success(
+        intl.formatMessage({
+          id: "commons.updated",
+          defaultMessage: "Updated",
+        }),
+      );
+    } catch (error) {
+      message.error(
+        intl.formatMessage({
+          id: "commons.update_failed",
+          defaultMessage: "Update failed",
+        }),
+      );
+    } finally {
+      setUpdatingStatusId(null);
+    }
+  };
+
   const columns: ColumnsType<BugItem> = [
     {
-      title: <FormattedMessage id="admin.bugs.table.bug" defaultMessage="Bug" />,
+      title: (
+        <FormattedMessage id="admin.bugs.table.bug" defaultMessage="Bug" />
+      ),
       dataIndex: "bug",
       key: "bug",
       ellipsis: true,
       render: (v?: string) => v || "-",
     },
     {
-      title: <FormattedMessage id="admin.bugs.table.user" defaultMessage="User" />,
+      title: (
+        <FormattedMessage
+          id="admin.bugs.table.status"
+          defaultMessage="Status"
+        />
+      ),
+      dataIndex: "status",
+      key: "status",
+      width: 140,
+      render: (status: string, record) => {
+        if (!showSelect) {
+          return <Tag color={getStatusColor(status)}>{getStatusLabel(status)}</Tag>;
+        }
+        return (
+          <Spin spinning={updatingStatusId === record._id} size="small">
+            <Select
+              value={status || "open"}
+              onChange={(val) => handleStatusChange(record._id, val)}
+              options={[
+                { label: "Open", value: "open" },
+                { label: "In Progress", value: "in_progress" },
+                { label: "Resolved", value: "resolved" },
+              ]}
+              disabled={disableStatusChange || updatingStatusId === record._id}
+              size="small"
+              style={{ width: "100%" }}
+            />
+          </Spin>
+        );
+      },
+    },
+    {
+      title: (
+        <FormattedMessage id="admin.bugs.table.user" defaultMessage="User" />
+      ),
       key: "user",
       ellipsis: true,
       render: (_, r) => (
@@ -177,13 +290,23 @@ const BugsTableServer: React.FC<Props> = ({
       ),
     },
     {
-      title: <FormattedMessage id="admin.bugs.table.created" defaultMessage="Created" />,
+      title: (
+        <FormattedMessage
+          id="admin.bugs.table.created"
+          defaultMessage="Created"
+        />
+      ),
       dataIndex: "createdAt",
       key: "createdAt",
       render: (d?: string | Date) => safeDate(d),
     },
     {
-      title: <FormattedMessage id="admin.bugs.table.updated" defaultMessage="Updated" />,
+      title: (
+        <FormattedMessage
+          id="admin.bugs.table.updated"
+          defaultMessage="Updated"
+        />
+      ),
       dataIndex: "updatedAt",
       key: "updatedAt",
       render: (d?: string | Date) => safeDate(d),
@@ -196,17 +319,34 @@ const BugsTableServer: React.FC<Props> = ({
       hidden: !showFilters,
       render: (_, record) => (
         <Space>
-          <Tooltip title={intl.formatMessage({ id: "commons.view", defaultMessage: "View" })}>
-            <Button size="small" icon={<EyeOutlined />} onClick={() => onOpenView?.(record)} />
+          <Tooltip
+            title={intl.formatMessage({
+              id: "commons.view",
+              defaultMessage: "View",
+            })}
+          >
+            <Button
+              size="small"
+              icon={<EyeOutlined />}
+              onClick={() => onOpenView?.(record)}
+            />
           </Tooltip>
 
-          <Tooltip title={intl.formatMessage({ id: "commons.edit", defaultMessage: "Edit" })}>
+          <Tooltip
+            title={intl.formatMessage({
+              id: "commons.edit",
+              defaultMessage: "Edit",
+            })}
+          >
             <Button
               size="small"
               icon={<EditOutlined />}
               onClick={() => {
-                if (onOpenEdit) return onOpenEdit(record);
-                if (onUpdateBug) return onUpdateBug(String(record._id), { bug: record.bug });
+                if (onOpenEdit) {
+                  onOpenEdit(record);
+                } else if (onUpdateBug) {
+                  onUpdateBug(String(record._id), { bug: record.bug });
+                }
               }}
             />
           </Tooltip>
@@ -216,7 +356,10 @@ const BugsTableServer: React.FC<Props> = ({
               id: "admin.bugs.confirm.delete_one",
               defaultMessage: "Delete this bug?",
             })}
-            okText={intl.formatMessage({ id: "commons.delete", defaultMessage: "Delete" })}
+            okText={intl.formatMessage({
+              id: "commons.delete",
+              defaultMessage: "Delete",
+            })}
             okButtonProps={{ danger: true }}
             onConfirm={() => doDeleteOne(record)}
           >
@@ -238,28 +381,47 @@ const BugsTableServer: React.FC<Props> = ({
   };
 
   const rowSelection = showFilters
-    ? { selectedRowKeys, onChange: (keys: React.Key[]) => setSelectedRowKeys(keys) }
+    ? {
+        selectedRowKeys,
+        onChange: (keys: React.Key[]) => setSelectedRowKeys(keys),
+      }
     : undefined;
 
   const isDirtySearch = (searchDraft || "").trim() !== (filters.search || "");
 
   return (
     <Card
-      title={<FormattedMessage id="admin.bugs.title" defaultMessage="Bugs" />}
-      extra={
-        <Space>
-          <Text className="!text-lg !font-semibold">
-            <FormattedMessage
-              id="admin.bugs.total"
-              defaultMessage="Total {total}"
-              values={{ total }}
-            />
-          </Text>
-        </Space>
+      title={
+        <TableHeaderTitle
+          icon={<BugOutlined />}
+          title={<FormattedMessage id="admin.bugs.title" defaultMessage="Bugs" />}
+        />
       }
+      extra={
+        <Tag color="red" style={{ fontSize: 14, padding: "4px 12px" }}>
+          <FormattedMessage
+            id="admin.bugs.total"
+            defaultMessage="Total {total}"
+            values={{ total }}
+          />
+        </Tag>
+      }
+      style={{
+        borderRadius: 8,
+        boxShadow:
+          "0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02)",
+      }}
     >
       {showFilters && (
-        <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div
+          className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+          style={{
+            padding: "16px",
+            background: "#fafafa",
+            borderRadius: 8,
+            marginBottom: 16,
+          }}
+        >
           <Input
             allowClear
             prefix={<SearchOutlined />}
@@ -270,6 +432,7 @@ const BugsTableServer: React.FC<Props> = ({
             })}
             onChange={(e) => setSearchDraft(e.target.value)}
             className="sm:max-w-md"
+            size="large"
           />
 
           <Space>
@@ -278,11 +441,17 @@ const BugsTableServer: React.FC<Props> = ({
               icon={<SearchOutlined />}
               onClick={applySearch}
               disabled={loading || !isDirtySearch}
+              size="large"
             >
               <FormattedMessage id="commons.search" defaultMessage="Search" />
             </Button>
 
-            <Button onClick={resetAll} icon={<ReloadOutlined />} disabled={loading}>
+            <Button
+              onClick={resetAll}
+              icon={<ReloadOutlined />}
+              disabled={loading}
+              size="large"
+            >
               <FormattedMessage id="commons.reset" defaultMessage="Reset" />
             </Button>
 
@@ -294,13 +463,24 @@ const BugsTableServer: React.FC<Props> = ({
                 },
                 { count: selectedRowKeys.length },
               )}
-              okText={intl.formatMessage({ id: "commons.delete", defaultMessage: "Delete" })}
+              okText={intl.formatMessage({
+                id: "commons.delete",
+                defaultMessage: "Delete",
+              })}
               okButtonProps={{ danger: true }}
               onConfirm={doDeleteSelected}
               disabled={selectedRowKeys.length === 0}
             >
-              <Button danger icon={<DeleteOutlined />} disabled={selectedRowKeys.length === 0}>
-                <FormattedMessage id="commons.delete_selected" defaultMessage="Delete selected" />
+              <Button
+                danger
+                icon={<DeleteOutlined />}
+                disabled={selectedRowKeys.length === 0}
+                size="large"
+              >
+                <FormattedMessage
+                  id="commons.delete_selected"
+                  defaultMessage="Delete selected"
+                />
               </Button>
             </Popconfirm>
           </Space>
@@ -321,13 +501,17 @@ const BugsTableServer: React.FC<Props> = ({
                 pageSize: filters.limit,
                 total,
                 showSizeChanger: true,
+                showTotal: (total, range) =>
+                  `${range[0]}-${range[1]} of ${total} items`,
               }
             : false
         }
-        size="large"
-        scroll={{ x: 980 }}
+        size="middle"
+        scroll={{ x: 1200 }}
         locale={{
-          emptyText: <FormattedMessage id="admin.bugs.empty" defaultMessage="No bugs" />,
+          emptyText: (
+            <FormattedMessage id="admin.bugs.empty" defaultMessage="No bugs" />
+          ),
         }}
       />
     </Card>

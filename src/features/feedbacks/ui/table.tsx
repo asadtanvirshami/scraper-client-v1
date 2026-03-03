@@ -14,15 +14,19 @@ import {
   Popconfirm,
   message,
   Tooltip,
+  Tag,
+  Select,
+  Spin,
 } from "antd";
 import {
   ReloadOutlined,
   SearchOutlined,
   DeleteOutlined,
-  EditOutlined,
   EyeOutlined,
+  MessageOutlined,
 } from "@ant-design/icons";
 import { FormattedMessage, useIntl } from "react-intl";
+import TableHeaderTitle from "@/components/ui (generic)/table-header-title";
 
 type AppUserLite = {
   _id: string;
@@ -33,11 +37,17 @@ type AppUserLite = {
 
 export type FeedbackItem = {
   _id: string;
-  feedback?: string;
-  user_id?: AppUserLite | string | null;
-  is_deleted?: boolean;
-  createdAt?: string | Date;
-  updatedAt?: string | Date;
+  feedback: string;
+  user_id: string | {
+    _id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
+  is_deleted: boolean;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
 };
 
 export type ServerFilters = {
@@ -58,11 +68,8 @@ type Props = {
   onDeleteOne?: (row: FeedbackItem) => Promise<void> | void;
   onDeleteMany?: (ids: string[]) => Promise<void> | void;
 
-  onUpdateFeedback?: (id: string, payload: Partial<FeedbackItem>) => Promise<void> | void;
-
   showFilters?: boolean;
 
-  onOpenEdit?: (row: FeedbackItem) => void;
   onOpenView?: (row: FeedbackItem) => void;
 };
 
@@ -78,7 +85,34 @@ const formatEmail = (u?: AppUserLite | string | null) => {
   return u.email || "-";
 };
 
-const safeDate = (d?: string | Date) => (d ? new Date(d).toLocaleString() : "-");
+const safeDate = (d?: string | Date) =>
+  d ? new Date(d).toLocaleString() : "-";
+
+const getStatusColor = (status?: string) => {
+  switch (status) {
+    case "open":
+      return "error";
+    case "in_progress":
+      return "processing";
+    case "resolved":
+      return "success";
+    default:
+      return "default";
+  }
+};
+
+const getStatusLabel = (status?: string) => {
+  switch (status) {
+    case "open":
+      return "Open";
+    case "in_progress":
+      return "In Progress";
+    case "resolved":
+      return "Resolved";
+    default:
+      return "Open";
+  }
+};
 
 const FeedbacksTableServer: React.FC<Props> = ({
   feedbacks = [],
@@ -88,9 +122,7 @@ const FeedbacksTableServer: React.FC<Props> = ({
   onFetch,
   onDeleteOne,
   onDeleteMany,
-  onUpdateFeedback,
   showFilters = true,
-  onOpenEdit,
   onOpenView,
 }) => {
   const { Text } = Typography;
@@ -100,9 +132,11 @@ const FeedbacksTableServer: React.FC<Props> = ({
   const [searchDraft, setSearchDraft] = useState(filters.search ?? "");
   React.useEffect(() => setSearchDraft(filters.search ?? ""), [filters.search]);
 
+  // ✅ selection
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
-  const fetchNow = (next: Partial<ServerFilters>) => onFetch({ ...filters, ...next });
+  const fetchNow = (next: Partial<ServerFilters>) =>
+    onFetch({ ...filters, ...next });
 
   const applySearch = () => {
     const term = (searchDraft || "").trim();
@@ -124,11 +158,19 @@ const FeedbacksTableServer: React.FC<Props> = ({
   const doDeleteOne = async (row: FeedbackItem) => {
     try {
       if (onDeleteOne) await onDeleteOne(row);
-      message.success(intl.formatMessage({ id: "commons.deleted", defaultMessage: "Deleted" }));
+      message.success(
+        intl.formatMessage({
+          id: "commons.deleted",
+          defaultMessage: "Deleted",
+        }),
+      );
       fetchNow({});
     } catch {
       message.error(
-        intl.formatMessage({ id: "commons.delete_failed", defaultMessage: "Delete failed" }),
+        intl.formatMessage({
+          id: "commons.delete_failed",
+          defaultMessage: "Delete failed",
+        }),
       );
     }
   };
@@ -156,14 +198,24 @@ const FeedbacksTableServer: React.FC<Props> = ({
 
   const columns: ColumnsType<FeedbackItem> = [
     {
-      title: <FormattedMessage id="admin.feedbacks.table.feedback" defaultMessage="Feedback" />,
+      title: (
+        <FormattedMessage
+          id="admin.feedbacks.table.feedback"
+          defaultMessage="Feedback"
+        />
+      ),
       dataIndex: "feedback",
       key: "feedback",
       ellipsis: true,
       render: (v?: string) => v || "-",
     },
     {
-      title: <FormattedMessage id="admin.feedbacks.table.user" defaultMessage="User" />,
+      title: (
+        <FormattedMessage
+          id="admin.feedbacks.table.user"
+          defaultMessage="User"
+        />
+      ),
       key: "user",
       ellipsis: true,
       render: (_, r) => (
@@ -174,13 +226,23 @@ const FeedbacksTableServer: React.FC<Props> = ({
       ),
     },
     {
-      title: <FormattedMessage id="admin.feedbacks.table.created" defaultMessage="Created" />,
+      title: (
+        <FormattedMessage
+          id="admin.feedbacks.table.created"
+          defaultMessage="Created"
+        />
+      ),
       dataIndex: "createdAt",
       key: "createdAt",
       render: (d?: string | Date) => safeDate(d),
     },
     {
-      title: <FormattedMessage id="admin.feedbacks.table.updated" defaultMessage="Updated" />,
+      title: (
+        <FormattedMessage
+          id="admin.feedbacks.table.updated"
+          defaultMessage="Updated"
+        />
+      ),
       dataIndex: "updatedAt",
       key: "updatedAt",
       render: (d?: string | Date) => safeDate(d),
@@ -193,19 +255,16 @@ const FeedbacksTableServer: React.FC<Props> = ({
       hidden: !showFilters,
       render: (_, record) => (
         <Space>
-          <Tooltip title={intl.formatMessage({ id: "commons.view", defaultMessage: "View" })}>
-            <Button size="small" icon={<EyeOutlined />} onClick={() => onOpenView?.(record)} />
-          </Tooltip>
-
-          <Tooltip title={intl.formatMessage({ id: "commons.edit", defaultMessage: "Edit" })}>
+          <Tooltip
+            title={intl.formatMessage({
+              id: "commons.view",
+              defaultMessage: "View",
+            })}
+          >
             <Button
               size="small"
-              icon={<EditOutlined />}
-              onClick={() => {
-                if (onOpenEdit) return onOpenEdit(record);
-                if (onUpdateFeedback)
-                  return onUpdateFeedback(String(record._id), { feedback: record.feedback });
-              }}
+              icon={<EyeOutlined />}
+              onClick={() => onOpenView?.(record)}
             />
           </Tooltip>
 
@@ -214,7 +273,10 @@ const FeedbacksTableServer: React.FC<Props> = ({
               id: "admin.feedbacks.confirm.delete_one",
               defaultMessage: "Delete this feedback?",
             })}
-            okText={intl.formatMessage({ id: "commons.delete", defaultMessage: "Delete" })}
+            okText={intl.formatMessage({
+              id: "commons.delete",
+              defaultMessage: "Delete",
+            })}
             okButtonProps={{ danger: true }}
             onConfirm={() => doDeleteOne(record)}
           >
@@ -236,28 +298,52 @@ const FeedbacksTableServer: React.FC<Props> = ({
   };
 
   const rowSelection = showFilters
-    ? { selectedRowKeys, onChange: (keys: React.Key[]) => setSelectedRowKeys(keys) }
+    ? {
+        selectedRowKeys,
+        onChange: (keys: React.Key[]) => setSelectedRowKeys(keys),
+      }
     : undefined;
 
   const isDirtySearch = (searchDraft || "").trim() !== (filters.search || "");
 
   return (
     <Card
-      title={<FormattedMessage id="admin.feedbacks.title" defaultMessage="Feedbacks" />}
-      extra={
-        <Space>
-          <Text className="!text-lg !font-semibold">
+      title={
+        <TableHeaderTitle
+          icon={<MessageOutlined />}
+          title={
             <FormattedMessage
-              id="admin.feedbacks.total"
-              defaultMessage="Total {total}"
-              values={{ total }}
+              id="admin.feedbacks.title"
+              defaultMessage="Feedbacks"
             />
-          </Text>
-        </Space>
+          }
+        />
       }
+      extra={
+        <Tag color="green" style={{ fontSize: 14, padding: "4px 12px" }}>
+          <FormattedMessage
+            id="admin.feedbacks.total"
+            defaultMessage="Total {total}"
+            values={{ total }}
+          />
+        </Tag>
+      }
+      style={{
+        borderRadius: 8,
+        boxShadow:
+          "0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02)",
+      }}
     >
       {showFilters && (
-        <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div
+          className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+          style={{
+            padding: "16px",
+            background: "#fafafa",
+            borderRadius: 8,
+            marginBottom: 16,
+          }}
+        >
           <Input
             allowClear
             prefix={<SearchOutlined />}
@@ -268,6 +354,7 @@ const FeedbacksTableServer: React.FC<Props> = ({
             })}
             onChange={(e) => setSearchDraft(e.target.value)}
             className="sm:max-w-md"
+            size="large"
           />
 
           <Space>
@@ -276,11 +363,17 @@ const FeedbacksTableServer: React.FC<Props> = ({
               icon={<SearchOutlined />}
               onClick={applySearch}
               disabled={loading || !isDirtySearch}
+              size="large"
             >
               <FormattedMessage id="commons.search" defaultMessage="Search" />
             </Button>
 
-            <Button onClick={resetAll} icon={<ReloadOutlined />} disabled={loading}>
+            <Button
+              onClick={resetAll}
+              icon={<ReloadOutlined />}
+              disabled={loading}
+              size="large"
+            >
               <FormattedMessage id="commons.reset" defaultMessage="Reset" />
             </Button>
 
@@ -292,13 +385,24 @@ const FeedbacksTableServer: React.FC<Props> = ({
                 },
                 { count: selectedRowKeys.length },
               )}
-              okText={intl.formatMessage({ id: "commons.delete", defaultMessage: "Delete" })}
+              okText={intl.formatMessage({
+                id: "commons.delete",
+                defaultMessage: "Delete",
+              })}
               okButtonProps={{ danger: true }}
               onConfirm={doDeleteSelected}
               disabled={selectedRowKeys.length === 0}
             >
-              <Button danger icon={<DeleteOutlined />} disabled={selectedRowKeys.length === 0}>
-                <FormattedMessage id="commons.delete_selected" defaultMessage="Delete selected" />
+              <Button
+                danger
+                icon={<DeleteOutlined />}
+                disabled={selectedRowKeys.length === 0}
+                size="large"
+              >
+                <FormattedMessage
+                  id="commons.delete_selected"
+                  defaultMessage="Delete selected"
+                />
               </Button>
             </Popconfirm>
           </Space>
@@ -319,13 +423,20 @@ const FeedbacksTableServer: React.FC<Props> = ({
                 pageSize: filters.limit,
                 total,
                 showSizeChanger: true,
+                showTotal: (total, range) =>
+                  `${range[0]}-${range[1]} of ${total} items`,
               }
             : false
         }
-        size="large"
+        size="middle"
         scroll={{ x: 980 }}
         locale={{
-          emptyText: <FormattedMessage id="admin.feedbacks.empty" defaultMessage="No feedbacks" />,
+          emptyText: (
+            <FormattedMessage
+              id="admin.feedbacks.empty"
+              defaultMessage="No feedbacks"
+            />
+          ),
         }}
       />
     </Card>

@@ -8,6 +8,7 @@ import {
   Popconfirm,
   Space,
   message,
+  theme,
 } from "antd";
 import {
   ArrowRightOutlined,
@@ -84,6 +85,7 @@ const CampaignCard: React.FC<CampaignCardProps> = ({ data }) => {
   const { id: userId } = useUserInfo();
   const { deleteCampaign, isPending } = useCampaignActions();
   const { formatMessage } = useIntl();
+  const { token } = theme.useToken();
 
   const t = (id: string) => formatMessage({ id });
 
@@ -107,53 +109,53 @@ const CampaignCard: React.FC<CampaignCardProps> = ({ data }) => {
     <Card
       hoverable
       style={{
-        marginTop: 16,
-        borderRadius: 16,
-        border: "1px solid #f0f0f0",
+        marginTop: 12,
+        borderRadius: 12,
+        boxShadow: "0 1px 6px rgba(0,0,0,0.05)",
+        border: `1px solid ${token.colorBorderSecondary}`,
       }}
-      bodyStyle={{ padding: 24 }}
+      bodyStyle={{ padding: 14 }}
     >
-      {/* Header */}
+      {/* Top Row */}
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: 20,
+          marginBottom: 10,
         }}
       >
         <div>
-          <Text
-            strong
-            style={{ fontSize: 18, display: "block", marginBottom: 6 }}
-          >
+          <Text strong style={{ fontSize: 15 }}>
             {data.name}
           </Text>
-
-          <Text type="secondary" style={{ fontSize: 13 }}>
-            <CalendarOutlined style={{ marginRight: 6 }} />
+          <div style={{ fontSize: 11, color: "#8c8c8c", marginTop: 2 }}>
+            <CalendarOutlined style={{ marginRight: 4 }} />
             {dayjs(displayDate).format("MMM D, YYYY")}
-          </Text>
+          </div>
         </div>
 
         <Tag
           color={getStatusColor(data.status)}
           style={{
-            borderRadius: 20,
-            padding: "4px 12px",
+            borderRadius: 999,
+            padding: "1px 10px",
+            fontSize: 11,
             fontWeight: 500,
+            lineHeight: "18px",
           }}
         >
           {data.status}
         </Tag>
       </div>
 
-      {/* Stats */}
+      {/* Compact Stats Row */}
       <div
         style={{
-          display: "flex",
-          justifyContent: "space-between",
-          marginBottom: 24,
+          display: "grid",
+          gridTemplateColumns: "repeat(4, 1fr)",
+          gap: 8,
+          marginBottom: 10,
         }}
       >
         <StatItem
@@ -178,45 +180,49 @@ const CampaignCard: React.FC<CampaignCardProps> = ({ data }) => {
         />
       </div>
 
-      {/* Open Rate */}
-      <div style={{ marginBottom: 20 }}>
-        <Text type="secondary">{t("campaigns.card.open_rate")}</Text>
-        <Progress
-          percent={Number(openRate)}
-          size="small"
-          strokeColor="#1677ff"
-        />
+      {/* Slim Open Rate */}
+      <div style={{ marginBottom: 10 }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            fontSize: 11,
+            marginBottom: 4,
+            color: "#8c8c8c",
+          }}
+        >
+          <span>{t("campaigns.card.open_rate")}</span>
+          <span style={{ fontWeight: 600, color: "#000" }}>{openRate}%</span>
+        </div>
+        <Progress percent={Number(openRate)} showInfo={false} strokeWidth={4} />
       </div>
 
-      {/* CTA */}
-      <Space style={{ width: "100%" }} direction="vertical" size="middle">
+      {/* Compact Actions */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <Button
           type="primary"
-          className="w-fit"
+          size="small"
           icon={<ArrowRightOutlined />}
           onClick={() => router.push(`/campaigns/${data._id}?form_type=view`)}
-          style={{
-            borderRadius: 10,
-            height: 42,
-            fontWeight: 500,
-          }}
+          style={{ borderRadius: 6, height: 30 }}
         >
           {t("campaigns.card.view_details")}
         </Button>
-        <Space style={{ width: "100%" }} size="middle">
+
+        <Space size={6}>
           <Button
+            size="small"
             icon={<EditOutlined />}
             onClick={() => router.push(`/campaigns/edit/${data._id}`)}
             disabled={isPending}
-            style={{
-              borderRadius: 10,
-              height: 42,
-              fontWeight: 500,
-              flex: 1,
-            }}
-          >
-            {t("campaigns.card.edit")}
-          </Button>
+            style={{ borderRadius: 6, height: 30 }}
+          />
           <Popconfirm
             title={t("campaigns.card.delete_title")}
             description={t("campaigns.card.delete_desc")}
@@ -227,21 +233,15 @@ const CampaignCard: React.FC<CampaignCardProps> = ({ data }) => {
           >
             <Button
               danger
+              size="small"
               icon={<DeleteOutlined />}
               disabled={isPending}
               loading={isPending}
-              style={{
-                borderRadius: 10,
-                height: 42,
-                fontWeight: 500,
-                flex: 1,
-              }}
-            >
-              {t("campaigns.card.delete")}
-            </Button>
+              style={{ borderRadius: 6, height: 30 }}
+            />
           </Popconfirm>
         </Space>
-      </Space>
+      </div>
     </Card>
   );
 };

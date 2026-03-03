@@ -42,7 +42,7 @@ const SettingTabs: React.FC = () => {
       key: "support",
       label: intl.formatMessage({
         id: "settings.tabs.support",
-        defaultMessage: "Support & Feedback",
+        defaultMessage: "Report Bug",
       }),
       children: <SupportTabContent />,
     },

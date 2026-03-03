@@ -21,6 +21,7 @@ import {
   DeleteOutlined,
   EditOutlined,
   DownloadOutlined,
+  InboxOutlined,
 } from "@ant-design/icons";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -52,6 +53,7 @@ type Props = {
 
   onCreateLead?: (payload: Partial<Lead>) => Promise<void> | void;
   onUpdateLead?: (id: string, payload: Partial<Lead>) => Promise<void> | void;
+  onApproveAll?: () => Promise<void> | void;
 };
 
 const UnscrappedLeadsTable: React.FC<Props> = ({
@@ -65,6 +67,7 @@ const UnscrappedLeadsTable: React.FC<Props> = ({
   onDeleteMany,
   onCreateLead,
   onUpdateLead,
+  onApproveAll,
 }) => {
   const { Text } = Typography;
   const intl = useIntl();
@@ -190,6 +193,23 @@ const UnscrappedLeadsTable: React.FC<Props> = ({
     }
   };
 
+  const doApproveAll = async () => {
+    if (!leads.length) return;
+
+    try {
+      if (onApproveAll) await onApproveAll();
+      message.success(
+        intl.formatMessage(
+          { id: "leads.approve.success" },
+          { count: leads.length },
+        ),
+      );
+      fetchNow({ page: 1 });
+    } catch {
+      message.error(intl.formatMessage({ id: "leads.approve.failed" }));
+    }
+  };
+
   const columns: ColumnsType<Lead> = [
     {
       title: <FormattedMessage id="leads.table.name" defaultMessage="Name" />,
@@ -202,6 +222,17 @@ const UnscrappedLeadsTable: React.FC<Props> = ({
       key: "emails",
       ellipsis: true,
       render: (_, record) => record.emails?.[0] || "-",
+    },
+    {
+      title: (
+        <FormattedMessage id="leads.table.phones" defaultMessage="Phones" />
+      ),
+      key: "phone_numbers",
+      ellipsis: true,
+      render: (_, record) =>
+        Array.isArray(record.phone_numbers)
+          ? record.phone_numbers[0] || "-"
+          : record.phone_numbers || "-",
     },
     {
       title: (
@@ -332,10 +363,15 @@ const UnscrappedLeadsTable: React.FC<Props> = ({
   return (
     <Card
       title={
-        <FormattedMessage
-          id="leads.widget.recent_title"
-          defaultMessage="Leads"
-        />
+        <Space style={{ alignItems: "center" }}>
+          <InboxOutlined style={{ fontSize: 16 }} />
+          <span>
+            <FormattedMessage
+              id="leads.widget.scraped_title"
+              defaultMessage="Scraped Leads"
+            />
+          </span>
+        </Space>
       }
       extra={
         <Space>
@@ -400,6 +436,27 @@ const UnscrappedLeadsTable: React.FC<Props> = ({
           >
             <FormattedMessage id="commons.reset" defaultMessage="Reset" />
           </Button>
+
+          <Popconfirm
+            title={intl.formatMessage(
+              { id: "leads.confirm.approve_all" },
+              { count: leads.length },
+            )}
+            okText={intl.formatMessage({ id: "commons.approve" })}
+            okButtonProps={{ type: "primary" }}
+            onConfirm={doApproveAll}
+            disabled={leads.length === 0 || !onApproveAll}
+          >
+            <Button
+              type="primary"
+              disabled={leads.length === 0 || !onApproveAll}
+            >
+              <FormattedMessage
+                id="leads.actions.approve_all"
+                defaultMessage="Approve All"
+              />
+            </Button>
+          </Popconfirm>
 
           <Popconfirm
             title={intl.formatMessage(

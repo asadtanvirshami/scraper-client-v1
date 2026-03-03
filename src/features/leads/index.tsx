@@ -18,6 +18,7 @@ import {
   useUpdateLead,
   useDeleteLead,
   useBulkDeleteLeads,
+  useBulkUploadLeads,
 } from "./hooks/mutations";
 
 const { Title, Text } = Typography;
@@ -97,6 +98,7 @@ const LeadsLayout = () => {
   const updateLead = useUpdateLead();
   const deleteLead = useDeleteLead();
   const bulkDelete = useBulkDeleteLeads();
+  const bulkUpload = useBulkUploadLeads();
 
   // Full-page spinner ONLY on first load
   if (summaryLoading && isDefaultView) {
@@ -200,6 +202,7 @@ const LeadsLayout = () => {
             loading={leadsFetching}
             value={query}
             onFetch={(next) => setQuery(next as any)}
+            showFileUpload={true}
             onCreateLead={async (payload: any) => {
               await createLead.mutateAsync(payload as any);
             }}
@@ -211,6 +214,9 @@ const LeadsLayout = () => {
             }}
             onDeleteMany={async (ids: string[]) => {
               await bulkDelete.mutateAsync(ids);
+            }}
+            onBulkUpload={async (payload: any) => {
+              await bulkUpload.mutateAsync(payload);
             }}
           />
         </Col>
