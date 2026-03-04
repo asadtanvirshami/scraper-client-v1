@@ -69,6 +69,8 @@ type Props = {
   onDeleteMany?: (ids: string[]) => Promise<void> | void;
 
   showFilters?: boolean;
+  showSelect?: boolean;
+  disableStatusChange?: boolean;
 
   onOpenView?: (row: FeedbackItem) => void;
 };
@@ -123,6 +125,8 @@ const FeedbacksTableServer: React.FC<Props> = ({
   onDeleteOne,
   onDeleteMany,
   showFilters = true,
+  showSelect = true,
+  disableStatusChange = false,
   onOpenView,
 }) => {
   const { Text } = Typography;
