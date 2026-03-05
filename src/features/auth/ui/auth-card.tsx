@@ -2,17 +2,17 @@
 
 import React from "react";
 import { Card, Typography } from "antd";
-import { SafetyCertificateOutlined } from "@ant-design/icons";
 import { FormattedMessage } from "react-intl";
+import Image from "next/image";
+import logo from "../../../../public/assets/PNGs/logo.png";
 
 const { Title, Text } = Typography;
 
 type Props = {
   children: React.ReactNode;
   title: string;
-  icon?: React.ReactNode;
 };
-const AuthCard = ({ children, title, icon }: Props) => {
+const AuthCard = ({ children, title }: Props) => {
   return (
     <div className="min-h-screen w-full flex items-center justify-center px-4">
       {/* Background like screenshot */}
@@ -21,11 +21,14 @@ const AuthCard = ({ children, title, icon }: Props) => {
         <Card>
           {/* Top badge icon */}
           <div className="flex items-center justify-center">
-            <div className="h-12 w-12 rounded-2xl bg-white/70 border border-white/60 shadow-sm flex items-center justify-center">
-              {icon || (
-                <SafetyCertificateOutlined className="text-xl text-black/70" />
-              )}
-            </div>
+              <Image
+                src={logo}
+                alt="Logo"
+                width={100}
+                height={100}
+                className="h-fit w-fit object-contain"
+                priority
+              />
           </div>
 
           <div className="mt-3 text-center">
