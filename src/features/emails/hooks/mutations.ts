@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { message } from "antd";
+import { bulkDeleteEmail, deleteEmail } from "@/api/api_calls/emails";
 
 type CreateEmailParams = {
   user_id: string;
@@ -19,6 +20,7 @@ type UpdateEmailParams = {
 };
 
 type DeleteEmailsParams = string[];
+type DeleteEmailParams = string;
 
 const createEmail = async (params: CreateEmailParams) => {
   const response = await fetch('http://localhost:4000/api/email/add', {
@@ -68,21 +70,8 @@ const updateEmail = async (params: UpdateEmailParams) => {
   return response.json();
 };
 
-const bulkDeleteEmails = async (ids: DeleteEmailsParams) => {
-  const response = await fetch('/api/emails/bulk-delete', {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ ids }),
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to delete emails');
-  }
-
-  return response.json();
-};
+const removeEmail = async (emailId: DeleteEmailParams) => deleteEmail(emailId);
+const bulkDeleteEmails = async (ids: DeleteEmailsParams) => bulkDeleteEmail(ids);
 
 export const useCreateEmail = () => {
   const queryClient = useQueryClient();
@@ -148,4 +137,25 @@ export const useBulkDeleteEmails = () => {
   });
 };
 
-export type { CreateEmailParams, VerifyEmailParams, UpdateEmailParams, DeleteEmailsParams };
+export const useDeleteEmail = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: removeEmail,
+    onSuccess: () => {
+      message.success('Email deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ['emails'] });
+    },
+    onError: () => {
+      message.error('Failed to delete email');
+    },
+  });
+};
+
+export type {
+  CreateEmailParams,
+  VerifyEmailParams,
+  UpdateEmailParams,
+  DeleteEmailsParams,
+  DeleteEmailParams,
+};

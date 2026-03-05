@@ -94,6 +94,15 @@ const CampaignCard: React.FC<CampaignCardProps> = ({ data }) => {
       ? ((data.analytics.unique_opens / data.analytics.sent) * 100).toFixed(1)
       : 0;
 
+  const totalRecipients = Number(data.total_recipients || 0);
+  const sentCount = Number(data.analytics.sent || 0);
+  const normalizedStatus = String(data.status || "").toUpperCase();
+  const isDraftOrScheduled =
+    normalizedStatus === "DRAFT" || normalizedStatus === "SCHEDULED";
+  const failedCount = isDraftOrScheduled
+    ? 0
+    : Math.max(totalRecipients - sentCount, 0);
+
   const displayDate = data.sent_at || data.scheduled_at || data.createdAt;
 
   const handleDelete = async () => {
@@ -176,7 +185,7 @@ const CampaignCard: React.FC<CampaignCardProps> = ({ data }) => {
         <StatItem
           icon={<CloseCircleOutlined />}
           label={t("campaigns.card.failed")}
-          value={data.analytics.failed}
+          value={failedCount}
         />
       </div>
 

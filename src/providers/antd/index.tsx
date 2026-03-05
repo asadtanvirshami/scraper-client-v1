@@ -22,6 +22,26 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     document.documentElement.classList.toggle("dark", isDark);
   }, [isDark]);
 
+  useEffect(() => {
+    const onThemeChange = (event: Event) => {
+      const customEvent = event as CustomEvent<"dark" | "light" | undefined>;
+      const nextTheme = customEvent.detail;
+
+      if (nextTheme === "dark") setIsDark(true);
+      else if (nextTheme === "light") setIsDark(false);
+      else {
+        const savedTheme = localStorage.getItem("theme");
+        if (savedTheme === "dark") setIsDark(true);
+        else if (savedTheme === "light") setIsDark(false);
+      }
+    };
+
+    window.addEventListener("app-theme-change", onThemeChange as EventListener);
+    return () => {
+      window.removeEventListener("app-theme-change", onThemeChange as EventListener);
+    };
+  }, []);
+
   const palette = useMemo(() => {
     // Rose-red accent with grayish-black neutrals
     const ROSE = "#E11D48";

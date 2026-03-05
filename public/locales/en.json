@@ -323,6 +323,7 @@
       "from_email": "From Email",
       "from_email_placeholder": "your-email@example.com",
       "from_email_required": "From email is required",
+      "no_verified_emails": "No verified from emails available",
       "from_name": "From Name",
       "from_name_placeholder": "Your Name or Company",
       "reply_to": "Reply To",

@@ -149,6 +149,17 @@ export const apiEndpoints = {
     bulkCreate: "/notification/bulk",
   },
 
+  emails: {
+    get: (params: {
+      user_id: string;
+      page?: number;
+      limit?: number;
+      subject?: string;
+    }) => withPagination("/email/get", params),
+    delete: "/email/delete",
+    bulkDelete: "/email/bulk-delete",
+  },
+
   /* ================= CAMPAIGNS ================= */
 
   campaigns: {

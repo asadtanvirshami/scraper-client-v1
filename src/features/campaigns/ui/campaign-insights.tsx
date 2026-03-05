@@ -42,7 +42,7 @@ const CampaignInsights: React.FC<Props> = ({ campaign, stats }) => {
   const { token } = theme.useToken();
 
   const t = (key: string) => formatMessage({ id: key });
-
+  
   if (!campaign) return null;
 
   const totalCampaigns =
@@ -54,8 +54,18 @@ const CampaignInsights: React.FC<Props> = ({ campaign, stats }) => {
     open_rate,
     click_rate,
     bounce_rate,
-    delivery_rate,
   } = campaign;
+
+  const sentCount = Number(analytics?.sent || 0);
+  const failedCount = Number(analytics?.failed || 0);
+  const totalRecipients = Number(total_recipients || 0);
+
+  const emailsSentPercent =
+    totalRecipients > 0 ? (sentCount / totalRecipients) * 100 : 0;
+
+  const deliveredCount = Math.max(sentCount - failedCount, 0);
+  const computedDeliveryRate =
+    totalRecipients > 0 ? (deliveredCount / totalRecipients) * 100 : 0;
 
   return (
     <Card
@@ -110,7 +120,8 @@ const CampaignInsights: React.FC<Props> = ({ campaign, stats }) => {
           >
             <Statistic
               title={t("campaigns.insights.emails_sent")}
-              value={analytics?.sent || 0}
+              value={sentCount}
+              suffix={`(${emailsSentPercent.toFixed(1)}%)`}
               valueStyle={{ fontSize: 28, fontWeight: 600 }}
             />
           </Card>
@@ -194,7 +205,7 @@ const CampaignInsights: React.FC<Props> = ({ campaign, stats }) => {
               {t("campaigns.insights.delivery_rate")}
             </Text>
             <Progress
-              percent={Number(delivery_rate || 0)}
+              percent={Number(computedDeliveryRate.toFixed(2))}
               strokeColor="#722ed1"
               strokeWidth={10}
             />

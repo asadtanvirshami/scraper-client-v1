@@ -32,6 +32,15 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({ campaign }) => {
   const t = (key: string) => formatMessage({ id: key });
   const isFolderCampaign = campaign.campaign_type === "FOLDER";
 
+  const sentCount = Number(campaign?.analytics?.sent || 0);
+  const failedCount = Number(campaign?.analytics?.failed || 0);
+  const totalRecipients = Number(campaign?.total_recipients || 0);
+  const deliveredCount = Math.max(sentCount - failedCount, 0);
+  const computedDeliveryRate =
+    totalRecipients > 0
+      ? ((deliveredCount / totalRecipients) * 100).toFixed(2)
+      : String(campaign?.delivery_rate || 0);
+
   /* ===============================
      KPI DATA
   =============================== */
@@ -43,7 +52,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({ campaign }) => {
     },
     {
       label: t("campaigns.details.delivery_rate"),
-      value: `${campaign.delivery_rate || 0}%`,
+      value: `${computedDeliveryRate}%`,
     },
     {
       label: t("campaigns.details.open_rate"),

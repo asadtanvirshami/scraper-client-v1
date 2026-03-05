@@ -32,7 +32,7 @@ export const useCampaign = ({
   });
 };
 
-export const useCampaignStats = () => {
+export const useCampaignStats = ({id}) => {
   return useQuery({
     queryKey: ["campaign-stats"],
     queryFn: campaignsApi.fetchCampaignStats,

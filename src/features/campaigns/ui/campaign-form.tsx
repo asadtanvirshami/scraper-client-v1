@@ -28,6 +28,7 @@ import {
   SettingOutlined,
   AimOutlined,
   LineChartOutlined,
+  SendOutlined,
 } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import { useIntl } from "react-intl";
@@ -42,7 +43,7 @@ import { useFetchEmails } from "@/features/emails/hooks/queries";
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 
 const { Option } = Select;
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 interface CampaignFormProps {
   mode: "create" | "edit" | "view";
@@ -76,7 +77,8 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
   const { formatMessage } = useIntl();
   const { token } = theme.useToken();
   const { id: userId } = useUserInfo();
-  const { createCampaign, updateCampaign, isPending } = useCampaignActions();
+  const { createCampaign, updateCampaign, sendCampaign, isPending } =
+    useCampaignActions();
 
   const t = (id: string) => formatMessage({ id });
 
@@ -117,6 +119,8 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
 
   // Watch campaign type to conditionally show targeting fields
   const campaignType = Form.useWatch("campaign_type", form);
+  const selectedFromEmail = Form.useWatch("from_email", form);
+  const currentStatus = Form.useWatch("status", form);
 
   /* ===============================
      Load Initial Data
@@ -164,27 +168,36 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
     }
   }, [campaignType, form]);
 
+  useEffect(() => {
+    form.setFieldValue("reply_to", selectedFromEmail || undefined);
+  }, [selectedFromEmail, form]);
+
   /* ===============================
      Submit Logic
   =============================== */
 
+  const buildPayload = (values: FormValues) => {
+    const payload: any = {
+      ...values,
+      reply_to: values.from_email,
+      user_id: userId,
+      scheduled_at: values.scheduled_at
+        ? values.scheduled_at.toISOString()
+        : undefined,
+    };
+
+    if (values.campaign_type === "FOLDER") {
+      delete payload.target_leads;
+    } else if (values.campaign_type === "SPECIFIC") {
+      delete payload.target_folders;
+    }
+
+    return payload;
+  };
+
   const handleSubmit = async (values: FormValues) => {
     try {
-      // Clean up payload based on campaign type
-      const payload: any = {
-        ...values,
-        user_id: userId,
-        scheduled_at: values.scheduled_at
-          ? values.scheduled_at.toISOString()
-          : undefined,
-      };
-
-      // Remove unused targeting fields
-      if (values.campaign_type === "FOLDER") {
-        delete payload.target_leads;
-      } else if (values.campaign_type === "SPECIFIC") {
-        delete payload.target_folders;
-      }
+      const payload = buildPayload(values);
 
       if (isEditMode && campaignId) {
         await updateCampaign({ campaign_id: campaignId, ...payload });
@@ -205,6 +218,51 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
           ? t("campaigns.form.error_update")
           : t("campaigns.form.error_create"),
       );
+    }
+  };
+
+  const handleSendNow = async () => {
+    try {
+      const values = await form.validateFields();
+      const payload = buildPayload(values);
+
+      if (!userId) {
+        message.error(t("campaigns.form.error_create"));
+        return;
+      }
+
+      if (isEditMode && campaignId) {
+        await updateCampaign({
+          campaign_id: campaignId,
+          ...payload,
+          status: "DRAFT",
+          scheduled_at: undefined,
+        });
+        await sendCampaign({ campaign_id: campaignId, user_id: userId });
+      } else {
+        const createdCampaign = await createCampaign({
+          ...payload,
+          status: "DRAFT",
+          scheduled_at: undefined,
+        });
+
+        const createdCampaignId =
+          createdCampaign?.data?.data?._id ||
+          createdCampaign?.data?._id ||
+          createdCampaign?._id ||
+          createdCampaign?.campaign_id;
+
+        if (!createdCampaignId) {
+          throw new Error("Campaign ID missing from create response");
+        }
+
+        await sendCampaign({ campaign_id: createdCampaignId, user_id: userId });
+      }
+
+      message.success(t("campaigns.form.send_now"));
+      router.push("/campaigns");
+    } catch {
+      message.error(t("campaigns.form.error_create"));
     }
   };
 
@@ -418,6 +476,7 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
                   placeholder={t("campaigns.form.from_email_placeholder")}
                   disabled={isViewMode}
                   size="large"
+                  onChange={(value) => form.setFieldValue("reply_to", value)}
                   showSearch
                   optionFilterProp="children"
                   filterOption={(input, option) =>
@@ -455,7 +514,7 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
                 <Input
                   placeholder={t("campaigns.form.reply_to_placeholder")}
                   type="email"
-                  disabled={isViewMode}
+                  disabled
                   size="large"
                 />
               </Form.Item>
@@ -482,14 +541,17 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
           </Text>
           <Row gutter={16}>
             <Col xs={24} md={8}>
-              <Form.Item name="status" label={t("campaigns.form.status")}>
-                <Select disabled={isViewMode} size="large">
-                  <Option value="DRAFT">{t("campaigns.status.DRAFT")}</Option>
-                  <Option value="SCHEDULED">
-                    {t("campaigns.status.SCHEDULED")}
-                  </Option>
-                  <Option value="PAUSED">{t("campaigns.status.PAUSED")}</Option>
-                </Select>
+              <Form.Item label={t("campaigns.form.status")}>
+                <Input
+                  size="large"
+                  disabled
+                  value={
+                    currentStatus ? t(`campaigns.status.${currentStatus}`) : "-"
+                  }
+                />
+              </Form.Item>
+              <Form.Item name="status" hidden>
+                <Input />
               </Form.Item>
             </Col>
 
@@ -510,17 +572,22 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
             </Col>
 
             <Col xs={24} md={8}>
-              <Form.Item
-                name="scheduled_at"
-                label={t("campaigns.form.scheduled_at")}
-              >
-                <DatePicker
-                  showTime
-                  style={{ width: "100%" }}
-                  disabled={isViewMode}
-                  size="large"
-                  placeholder={t("campaigns.form.scheduled_at_placeholder")}
-                />
+              {!isViewMode && isCreateMode && (
+                <Form.Item label={t("campaigns.form.scheduled_at")}>
+                  <Button
+                    type="primary"
+                    size="large"
+                    icon={<ClockCircleOutlined />}
+                    onClick={() => setIsScheduleModalOpen(true)}
+                    loading={isPending}
+                    style={{ width: "100%" }}
+                  >
+                    Schedule when
+                  </Button>
+                </Form.Item>
+              )}
+              <Form.Item name="scheduled_at" hidden>
+                <DatePicker />
               </Form.Item>
             </Col>
           </Row>
@@ -667,16 +734,18 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
                 {t("campaigns.form.save_draft")}
               </Button>
 
-              <Button
-                type="primary"
-                size="large"
-                icon={<ClockCircleOutlined />}
-                onClick={() => setIsScheduleModalOpen(true)}
-                loading={isPending}
-                style={{ minWidth: 160 }}
-              >
-                {t("campaigns.form.schedule")}
-              </Button>
+              {isCreateMode && (
+                <Button
+                  type="primary"
+                  size="large"
+                  icon={<SendOutlined />}
+                  onClick={handleSendNow}
+                  loading={isPending}
+                  style={{ minWidth: 140 }}
+                >
+                  {t("campaigns.form.send_now")}
+                </Button>
+              )}
             </div>
           </Card>
         )}

@@ -331,6 +331,7 @@
       "from_email": "Email del Remitente",
       "from_email_placeholder": "su-email@ejemplo.com",
       "from_email_required": "El email del remitente es obligatorio",
+      "no_verified_emails": "No hay correos de remitente verificados disponibles",
       "from_name": "Nombre del Remitente",
       "from_name_placeholder": "Su Nombre o Empresa",
       "reply_to": "Responder A",

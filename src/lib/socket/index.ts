@@ -1,26 +1,28 @@
 // client/src/lib/socket/index.ts
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
+
+let socketInstance: Socket | null = null;
 
 export function getSocket(userId?: string) {
   if (typeof window === "undefined") return null;
+  if (socketInstance) return socketInstance;
 
-  const url = process.env.NEXT_PUBLIC_WS_URL!; // http://localhost:8080
-  const path = process.env.NEXT_PUBLIC_WS_PATH || "/socket.io";
+  const url = (process.env.NEXT_PUBLIC_WS_URL || window.location.origin).trim();
+  const path = (process.env.NEXT_PUBLIC_WS_PATH || "/socket.io").trim();
 
   console.log("[socket] will connect", { url, path, userId });
 
-  const socket = io(url, {
+  socketInstance = io(url, {
     path,
     withCredentials: true,
-    // 👇 allow polling while we debug the WS upgrade
-    transports: ["websocket"],
+    transports: ["websocket", "polling"],
     autoConnect: true,
     query: userId ? { userId } : undefined,
     timeout: 10000,
   });
 
-  socket.on("connect_error", (e) =>
+  socketInstance.on("connect_error", (e) =>
     console.error("connect_error:", e?.message ?? e)
   );
-  return socket;
+  return socketInstance;
 }
