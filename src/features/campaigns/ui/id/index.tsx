@@ -23,7 +23,8 @@ const ViewLayout = ({ id }: { id?: any }) => {
   if (isLoading) {
     return <Spinner size="large" />;
   }
-
+  console.log(data);
+  
   if (!data?.data) {
     return (
       <div style={{ padding: 24 }}>

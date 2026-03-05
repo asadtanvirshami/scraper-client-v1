@@ -57,6 +57,32 @@ function formatRangeLabel(range?: RangeValue, preset?: PresetKey) {
   return `${range[0].format("MMM D")} → ${range[1].format("MMM D")}`;
 }
 
+function getIsDarkMode(colorBgBase: string) {
+  const value = colorBgBase.trim().toLowerCase();
+
+  const hex = value.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+  if (hex) {
+    const raw = hex[1];
+    const full = raw.length === 3 ? raw.split("").map((c) => c + c).join("") : raw;
+    const r = parseInt(full.slice(0, 2), 16);
+    const g = parseInt(full.slice(2, 4), 16);
+    const b = parseInt(full.slice(4, 6), 16);
+    const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+    return luminance < 0.5;
+  }
+
+  const rgb = value.match(/^rgba?\((\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
+  if (rgb) {
+    const r = Number(rgb[1]);
+    const g = Number(rgb[2]);
+    const b = Number(rgb[3]);
+    const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+    return luminance < 0.5;
+  }
+
+  return false;
+}
+
 const WeeklyLeadsAreaChart: React.FC<WeeklyLeadsAreaChartProps> = ({
   labels,
   counts,
@@ -72,9 +98,14 @@ const WeeklyLeadsAreaChart: React.FC<WeeklyLeadsAreaChartProps> = ({
 }) => {
   const { token } = theme.useToken();
   const intl = useIntl();
-  const isDarkMode = token.colorBgBase === "#000" || token.colorBgContainer === "#141414";
-  const axisLabelColor = isDarkMode ? "rgba(255, 255, 255, 0.72)" : "rgba(15, 23, 42, 0.72)";
-  const legendLabelColor = isDarkMode ? "rgba(255, 255, 255, 0.85)" : "rgba(15, 23, 42, 0.85)";
+
+  const isDarkMode = getIsDarkMode(token.colorBgBase);
+  const axisLabelColor = isDarkMode
+    ? "rgba(255, 255, 255, 0.72)"
+    : "rgba(15, 23, 42, 0.72)";
+  const legendLabelColor = isDarkMode
+    ? "rgba(255, 255, 255, 0.85)"
+    : "rgba(15, 23, 42, 0.85)";
 
   const GREEN_BY_TYPE: Record<string, string> = {
     INSTAGRAM: "#39ff14",
@@ -255,7 +286,7 @@ const WeeklyLeadsAreaChart: React.FC<WeeklyLeadsAreaChartProps> = ({
       }
     >
       <div style={{ height: MAX_CHART_HEIGHT }}>
-        <Area colorField="type" {...config} />
+        <Area theme={isDarkMode ? "dark" : "light"} colorField="type" {...config} />
       </div>
     </Card>
   );

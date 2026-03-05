@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { DownOutlined, LogoutOutlined } from "@ant-design/icons";
+import { LogoutOutlined, MoonOutlined, SunOutlined } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { Avatar, Button, Dropdown, Space, Spin, Typography } from "antd";
 import { useUserInfo } from "@/helpers/use-user";
@@ -8,6 +8,37 @@ import { logoutUser } from "@/redux/slices/user/user-slice";
 import { clearAuthCookies } from "@/lib/cookies";
 import { useRouter } from "next/navigation";
 import { persistor } from "@/redux/store";
+
+const ThemeModeButton: React.FC = () => {
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    setIsDark(savedTheme === "dark");
+  }, []);
+
+  const handleToggleTheme = () => {
+    const nextIsDark = !isDark;
+    const nextTheme = nextIsDark ? "dark" : "light";
+
+    setIsDark(nextIsDark);
+    localStorage.setItem("theme", nextTheme);
+    document.documentElement.classList.toggle("dark", nextIsDark);
+    window.dispatchEvent(new CustomEvent("app-theme-change", { detail: nextTheme }));
+  };
+
+  return (
+    <Button
+      type="default"
+      size="large"
+      className="!p-3 !bg-transparent !rounded-full"
+      onClick={handleToggleTheme}
+      aria-label="Toggle theme"
+    >
+      {isDark ? <SunOutlined /> : <MoonOutlined />}
+    </Button>
+  );
+};
 
 const ProfileDropdown: React.FC = () => {
   const { user } = useUserInfo();
@@ -96,4 +127,4 @@ const LogoutButton: React.FC = () => {
   );
 };
 
-export { LogoutButton, ProfileDropdown };
+export { LogoutButton, ProfileDropdown, ThemeModeButton };

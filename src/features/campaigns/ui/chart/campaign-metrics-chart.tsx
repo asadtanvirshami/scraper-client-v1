@@ -9,6 +9,32 @@ const { Text } = Typography;
 
 const MAX_CHART_HEIGHT = 340;
 
+function getIsDarkMode(colorBgBase: string) {
+  const value = colorBgBase.trim().toLowerCase();
+
+  const hex = value.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+  if (hex) {
+    const raw = hex[1];
+    const full = raw.length === 3 ? raw.split("").map((c) => c + c).join("") : raw;
+    const r = parseInt(full.slice(0, 2), 16);
+    const g = parseInt(full.slice(2, 4), 16);
+    const b = parseInt(full.slice(4, 6), 16);
+    const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+    return luminance < 0.5;
+  }
+
+  const rgb = value.match(/^rgba?\((\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
+  if (rgb) {
+    const r = Number(rgb[1]);
+    const g = Number(rgb[2]);
+    const b = Number(rgb[3]);
+    const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+    return luminance < 0.5;
+  }
+
+  return false;
+}
+
 interface CampaignMetricsChartProps {
   labels: string[];
   campaignCount: number[];
@@ -50,6 +76,7 @@ const CampaignMetricsChart: React.FC<CampaignMetricsChartProps> = ({
 }) => {
   const { token } = theme.useToken();
   const intl = useIntl();
+  const isDarkMode = getIsDarkMode(token.colorBgBase);
 
   const data = useMemo(() => {
     if (!labels?.length) return [];
@@ -166,7 +193,7 @@ const CampaignMetricsChart: React.FC<CampaignMetricsChartProps> = ({
         </Space>
       }
     >
-      <Line {...config} />
+      <Line theme={isDarkMode ? "dark" : "light"} {...config} />
     </Card>
   );
 };

@@ -26,13 +26,22 @@ export async function initNotifications(dispatch: AppDispatch, userId: string) {
       dispatch(setNotifications(data?.data?.data));
     }
 
-    const socket = getSocket();
+    const socket = getSocket(userId);
+    if (!socket) return;
 
-    // Subscribe to user-specific room
-    socket?.emit("subscribe", `user:${userId}`);
+    const subscribeToRoom = () => {
+      socket.emit("subscribe", `user:${userId}`);
+    };
 
-    // Listen for new notifications in real-time
-    socket?.on("event", (payload) => {
+    if (socket.connected) {
+      subscribeToRoom();
+    } else {
+      socket.once("connect", subscribeToRoom);
+      socket.connect();
+    }
+
+    socket.off("event");
+    socket.on("event", (payload) => {
       dispatch(addNotification(payload));
     });
   } catch (error) {
