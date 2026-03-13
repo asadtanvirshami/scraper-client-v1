@@ -607,6 +607,27 @@
       "followers": "Followers",
       "following": "Following",
       "total_posts": "Total Posts"
+    },
+    "instagram_view": {
+      "private": "Private",
+      "verified": "Verified",
+      "public": "Public",
+      "followers": "Followers",
+      "following": "Following",
+      "total_posts": "Total Posts",
+      "reels": "Reels",
+      "profile": "Profile",
+      "full_name": "Full Name",
+      "username": "Username",
+      "instagram_profile_id": "Instagram Profile ID",
+      "source_visibility": "Source & Visibility",
+      "external_url": "External URL",
+      "external_url_linkshimmed": "External URL Linkshimmed",
+      "deep_data": "Instagram Deep Data",
+      "highlight_reel_count": "Highlight Reel Count",
+      "fb_biolink_url": "FB BioLink URL",
+      "fb_biolink_name": "FB BioLink Name",
+      "links": "Links"
     }
   },
 

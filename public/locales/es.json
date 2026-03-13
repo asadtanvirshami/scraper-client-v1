@@ -689,6 +689,27 @@
       "followers": "Seguidores",
       "following": "Siguiendo",
       "total_posts": "Publicaciones totales"
+    },
+    "instagram_view": {
+      "private": "Privado",
+      "verified": "Verificado",
+      "public": "Publico",
+      "followers": "Seguidores",
+      "following": "Siguiendo",
+      "total_posts": "Publicaciones totales",
+      "reels": "Reels",
+      "profile": "Perfil",
+      "full_name": "Nombre completo",
+      "username": "Nombre de usuario",
+      "instagram_profile_id": "ID de perfil de Instagram",
+      "source_visibility": "Origen y visibilidad",
+      "external_url": "URL externa",
+      "external_url_linkshimmed": "URL externa linkshimmed",
+      "deep_data": "Datos profundos de Instagram",
+      "highlight_reel_count": "Cantidad de reels destacados",
+      "fb_biolink_url": "URL de FB BioLink",
+      "fb_biolink_name": "Nombre de FB BioLink",
+      "links": "Enlaces"
     }
   },
 

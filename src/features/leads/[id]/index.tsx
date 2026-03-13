@@ -92,7 +92,7 @@ function InfoItem({
   value,
   icon,
 }: {
-  label: string;
+  label: React.ReactNode;
   value: React.ReactNode;
   icon?: React.ReactNode;
 }) {
@@ -112,7 +112,7 @@ function StatTile({
   value,
   icon,
 }: {
-  label: string;
+  label: React.ReactNode;
   value: React.ReactNode;
   icon?: React.ReactNode;
 }) {
@@ -191,7 +191,14 @@ export default function LeadParamsLayout({ leadId, queryType }: Props) {
               <Space wrap>
                 <Tag>{type}</Tag>
                 <Tag icon={<SafetyCertificateOutlined />}>
-                  {lead.is_converted ? "Converted" : "New"}
+                  {lead.is_converted ? (
+                    <FormattedMessage
+                      id="leads.status.converted"
+                      defaultMessage="Converted"
+                    />
+                  ) : (
+                    <FormattedMessage id="leads.status.new" defaultMessage="New" />
+                  )}
                 </Tag>
                 <Tag icon={<GlobalOutlined />}>
                   ID: {leadId}
@@ -199,13 +206,49 @@ export default function LeadParamsLayout({ leadId, queryType }: Props) {
               </Space>
               <div className="mt-3 flex flex-wrap gap-2">
                 <Tag icon={<SafetyCertificateOutlined />}>
-                  Private: {typeof lead.is_private === "boolean" ? (lead.is_private ? "Yes" : "No") : "-"}
+                  <FormattedMessage
+                    id="leads.instagram_view.private"
+                    defaultMessage="Private"
+                  />
+                  : {typeof lead.is_private === "boolean" ? (
+                    lead.is_private ? (
+                      <FormattedMessage id="commons.yes" defaultMessage="Yes" />
+                    ) : (
+                      <FormattedMessage id="commons.no" defaultMessage="No" />
+                    )
+                  ) : (
+                    "-"
+                  )}
                 </Tag>
                 <Tag icon={<SafetyCertificateOutlined />}>
-                  Verified: {typeof lead.is_verified === "boolean" ? (lead.is_verified ? "Yes" : "No") : "-"}
+                  <FormattedMessage
+                    id="leads.instagram_view.verified"
+                    defaultMessage="Verified"
+                  />
+                  : {typeof lead.is_verified === "boolean" ? (
+                    lead.is_verified ? (
+                      <FormattedMessage id="commons.yes" defaultMessage="Yes" />
+                    ) : (
+                      <FormattedMessage id="commons.no" defaultMessage="No" />
+                    )
+                  ) : (
+                    "-"
+                  )}
                 </Tag>
                 <Tag icon={<SafetyCertificateOutlined />}>
-                  Public: {typeof lead.is_public === "boolean" ? (lead.is_public ? "Yes" : "No") : "-"}
+                  <FormattedMessage
+                    id="leads.instagram_view.public"
+                    defaultMessage="Public"
+                  />
+                  : {typeof lead.is_public === "boolean" ? (
+                    lead.is_public ? (
+                      <FormattedMessage id="commons.yes" defaultMessage="Yes" />
+                    ) : (
+                      <FormattedMessage id="commons.no" defaultMessage="No" />
+                    )
+                  ) : (
+                    "-"
+                  )}
                 </Tag>
               </div>
             </div>
@@ -214,24 +257,24 @@ export default function LeadParamsLayout({ leadId, queryType }: Props) {
 
         <div className="grid grid-cols-2 gap-2 p-4 sm:gap-3 md:grid-cols-4">
           <StatTile
-            label="Followers"
+            label={<FormattedMessage id="leads.instagram_view.followers" defaultMessage="Followers" />}
             value={toNumber(lead.followers ?? lead.follower_count)}
             icon={<TeamOutlined />}
           />
           <StatTile
-            label="Following"
+            label={<FormattedMessage id="leads.instagram_view.following" defaultMessage="Following" />}
             value={toNumber(lead.following ?? lead.following_count)}
             icon={<UserOutlined />}
           />
           {hasNumber(lead.total_posts) ? (
             <StatTile
-              label="Total Posts"
+              label={<FormattedMessage id="leads.instagram_view.total_posts" defaultMessage="Total Posts" />}
               value={toNumber(lead.total_posts)}
               icon={<ProfileOutlined />}
             />
           ) : null}
           <StatTile
-            label="Reels"
+            label={<FormattedMessage id="leads.instagram_view.reels" defaultMessage="Reels" />}
             value={toNumber(lead.highlight_reel_count)}
             icon={<PictureOutlined />}
           />
@@ -240,34 +283,34 @@ export default function LeadParamsLayout({ leadId, queryType }: Props) {
 
       <Row gutter={[16, 16]}>
         <Col xs={24} lg={12}>
-          <Card title="Profile">
+          <Card title={<FormattedMessage id="leads.instagram_view.profile" defaultMessage="Profile" />}>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              <InfoItem label="First Name" value={toDisplay(lead.first_name)} icon={<UserOutlined />} />
-              <InfoItem label="Last Name" value={toDisplay(lead.last_name)} icon={<UserOutlined />} />
-              <InfoItem label="Full Name" value={toDisplay(lead.full_name)} icon={<IdcardOutlined />} />
-              <InfoItem label="Username" value={toDisplay(lead.username)} icon={<UserOutlined />} />
-              <InfoItem label="Email" value={toDisplay(lead.emails)} icon={<MailOutlined />} />
-              <InfoItem label="Phone" value={toDisplay(lead.phone_numbers)} icon={<PhoneOutlined />} />
-              <InfoItem label="Company" value={toDisplay(lead.company)} icon={<ApartmentOutlined />} />
-              <InfoItem label="Job Title" value={toDisplay(lead.job_title)} icon={<ProfileOutlined />} />
-              <InfoItem label="Category" value={toDisplay(lead.category)} icon={<InfoCircleOutlined />} />
-              <InfoItem label="Instagram Profile ID" value={toDisplay(lead.instagram_profile_id)} icon={<NumberOutlined />} />
+              <InfoItem label={<FormattedMessage id="leads.form.first_name" defaultMessage="First name" />} value={toDisplay(lead.first_name)} icon={<UserOutlined />} />
+              <InfoItem label={<FormattedMessage id="leads.form.last_name" defaultMessage="Last name" />} value={toDisplay(lead.last_name)} icon={<UserOutlined />} />
+              <InfoItem label={<FormattedMessage id="leads.instagram_view.full_name" defaultMessage="Full Name" />} value={toDisplay(lead.full_name)} icon={<IdcardOutlined />} />
+              <InfoItem label={<FormattedMessage id="leads.instagram_view.username" defaultMessage="Username" />} value={toDisplay(lead.username)} icon={<UserOutlined />} />
+              <InfoItem label={<FormattedMessage id="leads.table.email" defaultMessage="Email" />} value={toDisplay(lead.emails)} icon={<MailOutlined />} />
+              <InfoItem label={<FormattedMessage id="leads.table.phones" defaultMessage="Phones" />} value={toDisplay(lead.phone_numbers)} icon={<PhoneOutlined />} />
+              <InfoItem label={<FormattedMessage id="leads.table.company" defaultMessage="Company" />} value={toDisplay(lead.company)} icon={<ApartmentOutlined />} />
+              <InfoItem label={<FormattedMessage id="leads.table.jobTitle" defaultMessage="Job Title" />} value={toDisplay(lead.job_title)} icon={<ProfileOutlined />} />
+              <InfoItem label={<FormattedMessage id="leads.table.category" defaultMessage="Category" />} value={toDisplay(lead.category)} icon={<InfoCircleOutlined />} />
+              <InfoItem label={<FormattedMessage id="leads.instagram_view.instagram_profile_id" defaultMessage="Instagram Profile ID" />} value={toDisplay(lead.instagram_profile_id)} icon={<NumberOutlined />} />
             </div>
             <Divider />
-            <InfoItem label="Bio" value={toDisplay(lead.bio)} icon={<InfoCircleOutlined />} />
+            <InfoItem label={<FormattedMessage id="leads.table.bio" defaultMessage="Bio" />} value={toDisplay(lead.bio)} icon={<InfoCircleOutlined />} />
           </Card>
         </Col>
 
         <Col xs={24} lg={12}>
-          <Card title="Source & Visibility">
+          <Card title={<FormattedMessage id="leads.instagram_view.source_visibility" defaultMessage="Source & Visibility" />}>
             <div className="grid grid-cols-1 gap-3">
-              <InfoItem label="Source URL" value={renderLink(lead.source_url)} icon={<GlobalOutlined />} />
-              <InfoItem label="Source RUL" value={renderLink(lead.source_rul)} icon={<GlobalOutlined />} />
-              <InfoItem label="Avatar URL" value={renderLink(lead.avatar_url)} icon={<PictureOutlined />} />
-              <InfoItem label="Avatar RUL" value={renderLink(lead.avatar_rul)} icon={<PictureOutlined />} />
-              <InfoItem label="External URL" value={renderLink(lead.external_url)} icon={<LinkOutlined />} />
+              <InfoItem label={<FormattedMessage id="leads.table.source_url" defaultMessage="Source URL" />} value={renderLink(lead.source_url)} icon={<GlobalOutlined />} />
+              <InfoItem label={<FormattedMessage id="leads.table.source_rul" defaultMessage="Source RUL" />} value={renderLink(lead.source_rul)} icon={<GlobalOutlined />} />
+              <InfoItem label={<FormattedMessage id="leads.table.avatar_url" defaultMessage="Avatar" />} value={renderLink(lead.avatar_url)} icon={<PictureOutlined />} />
+              <InfoItem label={<FormattedMessage id="leads.table.avatar_rul" defaultMessage="Avatar RUL" />} value={renderLink(lead.avatar_rul)} icon={<PictureOutlined />} />
+              <InfoItem label={<FormattedMessage id="leads.instagram_view.external_url" defaultMessage="External URL" />} value={renderLink(lead.external_url)} icon={<LinkOutlined />} />
               <InfoItem
-                label="External URL Linkshimmed"
+                label={<FormattedMessage id="leads.instagram_view.external_url_linkshimmed" defaultMessage="External URL Linkshimmed" />}
                 value={renderLink(lead.external_url_linkshimmed)}
                 icon={<LinkOutlined />}
               />
@@ -277,25 +320,27 @@ export default function LeadParamsLayout({ leadId, queryType }: Props) {
 
         {isInstagram ? (
           <Col xs={24}>
-            <Card title="Instagram Deep Data">
+            <Card title={<FormattedMessage id="leads.instagram_view.deep_data" defaultMessage="Instagram Deep Data" />}>
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-                <InfoItem label="Followers" value={toNumber(lead.followers)} icon={<TeamOutlined />} />
-                <InfoItem label="Following" value={toNumber(lead.following)} icon={<UserOutlined />} />
-                <InfoItem label="Follower Count" value={toNumber(lead.follower_count)} icon={<TeamOutlined />} />
-                <InfoItem label="Following Count" value={toNumber(lead.following_count)} icon={<UserOutlined />} />
+                <InfoItem label={<FormattedMessage id="leads.instagram_view.followers" defaultMessage="Followers" />} value={toNumber(lead.followers)} icon={<TeamOutlined />} />
+                <InfoItem label={<FormattedMessage id="leads.instagram_view.following" defaultMessage="Following" />} value={toNumber(lead.following)} icon={<UserOutlined />} />
+                <InfoItem label={<FormattedMessage id="leads.table.follower_count" defaultMessage="Followers" />} value={toNumber(lead.follower_count)} icon={<TeamOutlined />} />
+                <InfoItem label={<FormattedMessage id="leads.table.following_count" defaultMessage="Following" />} value={toNumber(lead.following_count)} icon={<UserOutlined />} />
                 {hasNumber(lead.total_posts) ? (
-                  <InfoItem label="Total Posts" value={toNumber(lead.total_posts)} icon={<ProfileOutlined />} />
+                  <InfoItem label={<FormattedMessage id="leads.instagram_view.total_posts" defaultMessage="Total Posts" />} value={toNumber(lead.total_posts)} icon={<ProfileOutlined />} />
                 ) : null}
-                <InfoItem label="Highlight Reel Count" value={toNumber(lead.highlight_reel_count)} icon={<PictureOutlined />} />
-                <InfoItem label="FB BioLink URL" value={renderLink(lead.fb_profile_biolink?.url)} icon={<LinkOutlined />} />
-                <InfoItem label="FB BioLink Name" value={toDisplay(lead.fb_profile_biolink?.name)} icon={<InfoCircleOutlined />} />
-                <InfoItem label="External URLs" value={toDisplay(lead.external_urls)} icon={<GlobalOutlined />} />
+                <InfoItem label={<FormattedMessage id="leads.instagram_view.highlight_reel_count" defaultMessage="Highlight Reel Count" />} value={toNumber(lead.highlight_reel_count)} icon={<PictureOutlined />} />
+                <InfoItem label={<FormattedMessage id="leads.instagram_view.fb_biolink_url" defaultMessage="FB BioLink URL" />} value={renderLink(lead.fb_profile_biolink?.url)} icon={<LinkOutlined />} />
+                <InfoItem label={<FormattedMessage id="leads.instagram_view.fb_biolink_name" defaultMessage="FB BioLink Name" />} value={toDisplay(lead.fb_profile_biolink?.name)} icon={<InfoCircleOutlined />} />
+                <InfoItem label={<FormattedMessage id="leads.table.external_urls" defaultMessage="External URLs" />} value={toDisplay(lead.external_urls)} icon={<GlobalOutlined />} />
               </div>
 
               <Divider />
 
               <div>
-                <Text strong>Links</Text>
+                <Text strong>
+                  <FormattedMessage id="leads.instagram_view.links" defaultMessage="Links" />
+                </Text>
                 <div className="mt-2 space-y-2">
                   {Array.isArray(lead.links) && lead.links.length ? (
                     lead.links.map((item, index) => (
