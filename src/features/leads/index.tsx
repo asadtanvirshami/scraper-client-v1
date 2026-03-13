@@ -92,6 +92,7 @@ const LeadsLayout = () => {
     type: query.type,
     is_converted: query.is_converted,
   });
+console.log(leads);
 
   // ====== MUTATIONS ======
   const createLead = useCreateLead();

@@ -35,6 +35,7 @@ type ScrapeType = "LINKEDIN" | "INSTAGRAM";
 type Props = {
   defaultFolderId?: string;
   showManageButton?: boolean;
+  platform?: ScrapeType;
 };
 
 const { Title, Text } = Typography;
@@ -62,6 +63,7 @@ function normalizeScrapedLeads(resp: any): any[] {
 export default function LeadsScraperCard({
   defaultFolderId,
   showManageButton = true,
+  platform,
 }: Props) {
   const intl = useIntl();
   const queryClient = useQueryClient();
@@ -286,68 +288,81 @@ export default function LeadsScraperCard({
 
         <Divider />
 
-        {/* LinkedIn row */}
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex gap-3">
-            <Image alt="LinkedIn" src={linkedIn_SVG} width={40} height={40} />
-            <div>
-              <Title level={5} className="!mb-0">
-                <FormattedMessage
-                  id="scraper.linkedin.title"
-                  defaultMessage="LinkedIn"
-                />
-              </Title>
-              <Text type="secondary">
-                <FormattedMessage
-                  id="scraper.linkedin.desc"
-                  defaultMessage="Scrape profile details + contacts if available."
-                />
-              </Text>
+        {platform !== "INSTAGRAM" ? (
+          <>
+            {/* LinkedIn row */}
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex gap-3">
+                <Image alt="LinkedIn" src={linkedIn_SVG} width={40} height={40} />
+                <div>
+                  <Title level={5} className="!mb-0">
+                    <FormattedMessage
+                      id="scraper.linkedin.title"
+                      defaultMessage="LinkedIn"
+                    />
+                  </Title>
+                  <Text type="secondary">
+                    <FormattedMessage
+                      id="scraper.linkedin.desc"
+                      defaultMessage="Scrape profile details + contacts if available."
+                    />
+                  </Text>
+                </div>
+              </div>
+
+              <Button
+                icon={<PlayCircleOutlined />}
+                type="primary"
+                onClick={() => openModal("LINKEDIN")}
+                loading={uiBusy && type === "LINKEDIN"}
+                disabled={uiBusy}
+              >
+                <FormattedMessage id="scraper.start" defaultMessage="Start" />
+              </Button>
             </div>
-          </div>
+          </>
+        ) : null}
 
-          <Button
-            icon={<PlayCircleOutlined />}
-            type="primary"
-            onClick={() => openModal("LINKEDIN")}
-            loading={uiBusy && type === "LINKEDIN"}
-            disabled={uiBusy}
-          >
-            <FormattedMessage id="scraper.start" defaultMessage="Start" />
-          </Button>
-        </div>
+        {platform === undefined ? <Divider /> : null}
 
-        <Divider />
-
-        {/* Instagram row */}
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex gap-3">
-            <Image alt="Instagram" src={instagram_SVG} width={40} height={40} />
-            <div>
-              <Title level={5} className="!mb-0">
-                <FormattedMessage
-                  id="scraper.instagram.title"
-                  defaultMessage="Instagram"
+        {platform !== "LINKEDIN" ? (
+          <>
+            {/* Instagram row */}
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex gap-3">
+                <Image
+                  alt="Instagram"
+                  src={instagram_SVG}
+                  width={40}
+                  height={40}
                 />
-              </Title>
-              <Text type="secondary">
-                <FormattedMessage
-                  id="scraper.instagram.desc"
-                  defaultMessage="Scrape public profile details like username and bio."
-                />
-              </Text>
+                <div>
+                  <Title level={5} className="!mb-0">
+                    <FormattedMessage
+                      id="scraper.instagram.title"
+                      defaultMessage="Instagram"
+                    />
+                  </Title>
+                  <Text type="secondary">
+                    <FormattedMessage
+                      id="scraper.instagram.desc"
+                      defaultMessage="Scrape public profile details like username and bio."
+                    />
+                  </Text>
+                </div>
+              </div>
+
+              <Button
+                icon={<PlayCircleOutlined />}
+                onClick={() => openModal("INSTAGRAM")}
+                loading={uiBusy && type === "INSTAGRAM"}
+                disabled={uiBusy}
+              >
+                <FormattedMessage id="scraper.start" defaultMessage="Start" />
+              </Button>
             </div>
-          </div>
-
-          <Button
-            icon={<PlayCircleOutlined />}
-            onClick={() => openModal("INSTAGRAM")}
-            loading={uiBusy && type === "INSTAGRAM"}
-            disabled={uiBusy}
-          >
-            <FormattedMessage id="scraper.start" defaultMessage="Start" />
-          </Button>
-        </div>
+          </>
+        ) : null}
 
         {/* (Optional) you can show a small hint while locked */}
         {locked ? (

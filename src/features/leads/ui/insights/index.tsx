@@ -8,7 +8,7 @@ import {
   Squares2X2Icon,
 } from "@heroicons/react/24/outline";
 import { cn } from "@/lib/utils";
-import { Card, Col, Row, theme, Typography } from "antd";
+import { Card, Col, Row, Tabs, theme } from "antd";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import LeadsScraperCard from "@/features/scraper/ui/scrapper-card";
@@ -23,8 +23,6 @@ import {
   useBulkUpdateScrappedLeads,
 } from "../../hooks/mutations";
 import { useFetchLeadsList } from "../../hooks/queries";
-
-const { Text } = Typography;
 
 type InsightsStats = {
   total?: number;
@@ -224,6 +222,8 @@ type LeadsQueryState = {
   is_converted?: boolean;
 };
 
+type LeadPlatform = "INSTAGRAM" | "LINKEDIN";
+
 const DEFAULT_QUERY: LeadsQueryState = {
   page: 1,
   limit: 10,
@@ -231,6 +231,11 @@ const DEFAULT_QUERY: LeadsQueryState = {
   type: "",
   is_converted: undefined,
 };
+
+const PLATFORM_TABS: Array<{ key: LeadPlatform; label: string }> = [
+  { key: "INSTAGRAM", label: "Instagram" },
+  { key: "LINKEDIN", label: "LinkedIn" },
+];
 
 const InsightsCard: React.FC<Props> = ({ stats, dailyTotal, loading }) => {
   const intl = useIntl();
@@ -284,16 +289,26 @@ const InsightsCard: React.FC<Props> = ({ stats, dailyTotal, loading }) => {
   const deletedPercent = total > 0 ? Math.round((deleted / total) * 100) : null;
 
   // --- table filters ---
-  const [query, setQuery] = useState<LeadsQueryState>(DEFAULT_QUERY);
+  const [activePlatform, setActivePlatform] = useState<LeadPlatform>(
+    "INSTAGRAM",
+  );
+  const [platformQueries, setPlatformQueries] = useState<
+    Record<LeadPlatform, LeadsQueryState>
+  >({
+    INSTAGRAM: DEFAULT_QUERY,
+    LINKEDIN: DEFAULT_QUERY,
+  });
+
+  const activeQuery = platformQueries[activePlatform];
 
   const { data: leads, isFetching: leadsFetching } = useFetchLeadsList({
     user_id: userId ?? "",
-    limit: query.limit,
-    page: query.page,
-    search: query.search,
+    limit: activeQuery.limit,
+    page: activeQuery.page,
+    search: activeQuery.search,
     scrape_status: false,
-    type: query.type,
-    is_converted: query.is_converted,
+    type: activePlatform,
+    is_converted: activeQuery.is_converted,
   });
 
   // --- mutations ---
@@ -451,44 +466,76 @@ const InsightsCard: React.FC<Props> = ({ stats, dailyTotal, loading }) => {
         />
       </div>
 
-      {/* Bottom area: scraper + table */}
-      <Row gutter={[16, 16]}>
-        <Col xs={24} lg={8}>
-          <LeadsScraperCard />
-        </Col>
+      <Card
+        className="rounded-2xl"
+        style={{
+          borderRadius: 16,
+          border: `1px solid ${token.colorBorderSecondary}`,
+          boxShadow: token.boxShadowSecondary,
+        }}
+      >
+        <Tabs
+          activeKey={activePlatform}
+          onChange={(key) => setActivePlatform(key as LeadPlatform)}
+          items={PLATFORM_TABS.map(({ key, label }) => ({
+            key,
+            label,
+            children: (
+              <Row gutter={[16, 16]}>
+                <Col xs={24} lg={8}>
+                  <LeadsScraperCard platform={key} />
+                </Col>
 
-        <Col xs={24} lg={16}>
-          <UnscrappedLeadsTable
-            user_id={userId ?? ""}
-            leads={leads?.data ?? []}
-            total={leads?.pagination?.total ?? 0}
-            loading={leadsFetching}
-            value={query}
-            onFetch={(next) => setQuery(next as any)}
-            onCreateLead={async (payload: any) => {
-              await createLead.mutateAsync(payload);
-            }}
-            onUpdateLead={async (leadId, payload) => {
-              await updateLead.mutateAsync({ lead_id: leadId, ...payload });
-            }}
-            onDeleteOne={async (lead: any) => {
-              await deleteLead.mutateAsync(lead._id);
-            }}
-            onDeleteMany={async (ids: string[]) => {
-              await bulkDelete.mutateAsync(ids);
-            }}
-            onApproveAll={async () => {
-              const allLeads = (leads?.data ?? []).map((lead: any) => ({
-                _id: lead._id,
-                scrape_status: true,
-              }));
-              if (allLeads.length > 0) {
-                await bulkUpdateScraped.mutateAsync({ leads: allLeads });
-              }
-            }}
-          />
-        </Col>
-      </Row>
+                <Col xs={24} lg={16}>
+                  <UnscrappedLeadsTable
+                    platform={key}
+                    user_id={userId ?? ""}
+                    leads={activePlatform === key ? (leads?.data ?? []) : []}
+                    total={
+                      activePlatform === key ? (leads?.pagination?.total ?? 0) : 0
+                    }
+                    loading={leadsFetching && activePlatform === key}
+                    value={platformQueries[key]}
+                    onFetch={(next) => {
+                      setPlatformQueries((prev) => ({
+                        ...prev,
+                        [key]: {
+                          ...(next as LeadsQueryState),
+                          type: key,
+                        },
+                      }));
+                    }}
+                    onCreateLead={async (payload: any) => {
+                      await createLead.mutateAsync(payload);
+                    }}
+                    onUpdateLead={async (leadId, payload) => {
+                      await updateLead.mutateAsync({
+                        lead_id: leadId,
+                        ...payload,
+                      });
+                    }}
+                    onDeleteOne={async (lead: any) => {
+                      await deleteLead.mutateAsync(lead._id);
+                    }}
+                    onDeleteMany={async (ids: string[]) => {
+                      await bulkDelete.mutateAsync(ids);
+                    }}
+                    onApproveAll={async () => {
+                      const allLeads = (leads?.data ?? []).map((lead: any) => ({
+                        _id: lead._id,
+                        scrape_status: true,
+                      }));
+                      if (allLeads.length > 0) {
+                        await bulkUpdateScraped.mutateAsync({ leads: allLeads });
+                      }
+                    }}
+                  />
+                </Col>
+              </Row>
+            ),
+          }))}
+        />
+      </Card>
     </div>
   );
 };

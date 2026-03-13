@@ -601,7 +601,18 @@
       "status": "Estado",
       "type": "Tipo",
       "createdAt": "Creado",
-      "phones": "Teléfonos"
+      "phones": "Teléfonos",
+      "source_url": "URL de origen",
+      "source_rul": "RUL de origen",
+      "avatar_url": "Avatar",
+      "avatar_rul": "RUL de avatar",
+      "bio": "Biografía",
+      "category": "Categoría",
+      "is_verified": "Verificado",
+      "is_public": "Público",
+      "follower_count": "Seguidores",
+      "following_count": "Siguiendo",
+      "external_urls": "URLs externas"
     },
 
     "status": {
@@ -666,6 +677,39 @@
     "approve": {
       "success": "{count} lead(s) aprobado(s) correctamente.",
       "failed": "No se pudieron aprobar los leads."
+    },
+    "linkedIn_view": {
+      "title": "Detalles de LinkedIn",
+      "sms_number": "Numero SMS",
+      "whatsapp_number": "Numero de WhatsApp",
+      "landline_number": "Numero de linea fija",
+      "instagram_profile_id": "ID de perfil de Instagram",
+      "username": "Nombre de usuario",
+      "full_name": "Nombre completo",
+      "followers": "Seguidores",
+      "following": "Siguiendo",
+      "total_posts": "Publicaciones totales"
+    },
+    "instagram_view": {
+      "private": "Privado",
+      "verified": "Verificado",
+      "public": "Publico",
+      "followers": "Seguidores",
+      "following": "Siguiendo",
+      "total_posts": "Publicaciones totales",
+      "reels": "Reels",
+      "profile": "Perfil",
+      "full_name": "Nombre completo",
+      "username": "Nombre de usuario",
+      "instagram_profile_id": "ID de perfil de Instagram",
+      "source_visibility": "Origen y visibilidad",
+      "external_url": "URL externa",
+      "external_url_linkshimmed": "URL externa linkshimmed",
+      "deep_data": "Datos profundos de Instagram",
+      "highlight_reel_count": "Cantidad de reels destacados",
+      "fb_biolink_url": "URL de FB BioLink",
+      "fb_biolink_name": "Nombre de FB BioLink",
+      "links": "Enlaces"
     }
   },
 

@@ -520,7 +520,18 @@
       "status": "Status",
       "type": "Type",
       "createdAt": "Created",
-      "phones": "Phones"
+      "phones": "Phones",
+      "source_url": "Source URL",
+      "source_rul": "Source RUL",
+      "avatar_url": "Avatar",
+      "avatar_rul": "Avatar RUL",
+      "bio": "Bio",
+      "category": "Category",
+      "is_verified": "Verified",
+      "is_public": "Public",
+      "follower_count": "Followers",
+      "following_count": "Following",
+      "external_urls": "External URLs"
     },
     "status": {
       "new": "New",
@@ -584,6 +595,39 @@
     "approve": {
       "success": "Successfully approved {count} lead(s).",
       "failed": "Failed to approve leads."
+    },
+    "linkedIn_view": {
+      "title": "LinkedIn Details",
+      "sms_number": "SMS Number",
+      "whatsapp_number": "WhatsApp Number",
+      "landline_number": "Landline Number",
+      "instagram_profile_id": "Instagram Profile ID",
+      "username": "Username",
+      "full_name": "Full Name",
+      "followers": "Followers",
+      "following": "Following",
+      "total_posts": "Total Posts"
+    },
+    "instagram_view": {
+      "private": "Private",
+      "verified": "Verified",
+      "public": "Public",
+      "followers": "Followers",
+      "following": "Following",
+      "total_posts": "Total Posts",
+      "reels": "Reels",
+      "profile": "Profile",
+      "full_name": "Full Name",
+      "username": "Username",
+      "instagram_profile_id": "Instagram Profile ID",
+      "source_visibility": "Source & Visibility",
+      "external_url": "External URL",
+      "external_url_linkshimmed": "External URL Linkshimmed",
+      "deep_data": "Instagram Deep Data",
+      "highlight_reel_count": "Highlight Reel Count",
+      "fb_biolink_url": "FB BioLink URL",
+      "fb_biolink_name": "FB BioLink Name",
+      "links": "Links"
     }
   },
 
