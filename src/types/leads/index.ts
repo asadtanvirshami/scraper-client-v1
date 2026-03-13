@@ -69,11 +69,48 @@ export type Lead = {
 
   emails?: string[];
   phone_numbers?: string | string[];
+  sms_number?: string;
+  whatsapp_number?: string;
+  landline_number?: string;
 
   company?: string;
   job_title?: string;
+  message?: string;
   folder_id?: string;
   scrape_status?: boolean;
   is_converted?: boolean;
   createdAt?: string | Date;
+
+  source_url?: string;
+  source_rul?: string;
+  instagram_profile_id?: string;
+  username?: string;
+  full_name?: string;
+  avatar_url?: string;
+  avatar_rul?: string;
+  bio?: string;
+  followers?: number | null;
+  following?: number | null;
+  category?: string;
+  total_posts?: number | null;
+  external_url?: string;
+  external_url_linkshimmed?: string;
+  is_verified?: boolean | null;
+  is_private?: boolean | null;
+  is_public?: boolean | null;
+  fb_profile_biolink?: {
+    url?: string;
+    name?: string;
+  };
+  highlight_reel_count?: number | null;
+  links?: Array<{
+    title?: string;
+    url?: string;
+    lynx_url?: string;
+    link_type?: string;
+    subtitle?: string;
+  }>;
+  follower_count?: number | null;
+  following_count?: number | null;
+  external_urls?: string[];
 };

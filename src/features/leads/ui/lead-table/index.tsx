@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from "react";
 import type { ColumnsType, TablePaginationConfig } from "antd/es/table";
 import type { FilterValue } from "antd/es/table/interface";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Card,
   Table,
@@ -25,6 +25,7 @@ import {
   DownloadOutlined,
   UploadOutlined,
   UsergroupAddOutlined,
+  EyeOutlined,
 } from "@ant-design/icons";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -88,6 +89,7 @@ const LeadsTableServer: React.FC<Props> = ({
 }) => {
   const { Text } = Typography;
   const intl = useIntl();
+  const router = useRouter();
   const pathname = usePathname();
   const isFolderRoute = pathname?.startsWith("/folders");
 
@@ -256,6 +258,21 @@ const LeadsTableServer: React.FC<Props> = ({
     }
   };
 
+  const openViewPage = (lead: Lead) => {
+    const leadId = String((lead as any)?._id || "");
+    if (!leadId) return;
+
+    const typeRaw = String((lead as any)?.type || "").toUpperCase();
+    const type =
+      typeRaw === "INSTAGRAM"
+        ? "Instagram"
+        : typeRaw === "LINKEDIN"
+          ? "LinkedIn"
+          : "Manual";
+
+    router.push(`/leads/${leadId}?type=${encodeURIComponent(type)}`);
+  };
+
   const baseColumns: ColumnsType<Lead> = [
     {
       title: <FormattedMessage id="leads.table.name" defaultMessage="Name" />,
@@ -369,10 +386,17 @@ const LeadsTableServer: React.FC<Props> = ({
       title: <FormattedMessage id="commons.actions" defaultMessage="Actions" />,
       key: "actions",
       fixed: "right",
-      width: 140,
+      width: 240,
       hidden: !showFilters,
       render: (_, record) => (
         <Space>
+          <Button
+            size="small"
+            icon={<EyeOutlined />}
+            onClick={() => openViewPage(record)}
+          >
+            <FormattedMessage id="commons.view" defaultMessage="View" />
+          </Button>
           <Button
             size="small"
             icon={<EditOutlined />}
