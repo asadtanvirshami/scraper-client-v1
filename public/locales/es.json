@@ -710,6 +710,36 @@
       "fb_biolink_url": "URL de FB BioLink",
       "fb_biolink_name": "Nombre de FB BioLink",
       "links": "Enlaces"
+    },
+    "tabs": {
+      "all_leads": "Todos los Leads",
+      "instagram_analyzer": "Analizador de Instagram"
+    },
+    "instagram_analyzer": {
+      "title": "Analizador de Instagram",
+      "subtitle": "Extraer seguidores o siguiendo de cualquier cuenta de Instagram",
+      "info": "La extracción puede tardar varios minutos dependiendo del número de cuentas. Los resultados aparecerán en la tabla a continuación.",
+      "form": {
+        "title": "Configuración del Extractor",
+        "folder": "Seleccionar Carpeta",
+        "folder_placeholder": "Elegir una carpeta",
+        "folder_required": "Por favor seleccione una carpeta",
+        "username": "Nombre de Usuario de Instagram",
+        "username_placeholder": "p. ej., filmdirectorbrucemac",
+        "username_required": "Por favor ingrese un nombre de usuario",
+        "type": "Tipo de Extracción",
+        "type_required": "Por favor seleccione un tipo",
+        "type_followers": "Seguidores",
+        "type_following": "Siguiendo",
+        "max_limit": "Límite Máximo",
+        "max_limit_required": "Por favor ingrese un límite",
+        "max_limit_range": "El límite debe estar entre 1 y 10,000",
+        "submit": "Iniciar Extracción"
+      },
+      "results": {
+        "title": "Leads Extraídos",
+        "empty": "Complete el formulario arriba para comenzar la extracción. Los resultados aparecerán aquí."
+      }
     }
   },
 

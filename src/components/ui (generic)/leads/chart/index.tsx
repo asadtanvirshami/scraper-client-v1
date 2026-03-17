@@ -24,7 +24,13 @@ function getIsDarkMode(colorBgBase: string) {
   const hex = value.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
   if (hex) {
     const raw = hex[1];
-    const full = raw.length === 3 ? raw.split("").map((c) => c + c).join("") : raw;
+    const full =
+      raw.length === 3
+        ? raw
+            .split("")
+            .map((c) => c + c)
+            .join("")
+        : raw;
     const r = parseInt(full.slice(0, 2), 16);
     const g = parseInt(full.slice(2, 4), 16);
     const b = parseInt(full.slice(4, 6), 16);
@@ -52,11 +58,17 @@ const WeeklyLeadsAreaChart: React.FC<WeeklyLeadsAreaChartProps> = ({
 }) => {
   const { token } = theme.useToken();
   const isDarkMode = getIsDarkMode(token.colorBgBase);
+  const roseByType: Record<string, string> = {
+    INSTAGRAM: "#E11D48",
+    LINKEDIN: "#BE123C",
+    MANUAL: "#FB7185",
+    TOTAL: "#E11D48",
+  };
 
   const hasTypeData =
     (countsByType?.INSTAGRAM?.length ?? 0) > 0 ||
     (countsByType?.LINKEDIN?.length ?? 0) > 0 ||
-    (countsByType?.MANUAL?.length ?? 0) > 0 
+    (countsByType?.MANUAL?.length ?? 0) > 0;
 
   // ✅ Keep type keys consistent with backend: INSTAGRAM / LINKEDIN
   const data = hasTypeData
@@ -83,26 +95,26 @@ const WeeklyLeadsAreaChart: React.FC<WeeklyLeadsAreaChartProps> = ({
         type: "TOTAL",
       }));
 
-const config: any = {
-  data,
-  xField: "date",
-  yField: "leads",
-  seriesField: "type",
-  smooth: true,
-  autoFit: true,
-  height: MAX_CHART_HEIGHT,
+  const config: any = {
+    data,
+    xField: "date",
+    yField: "leads",
+    seriesField: "type",
+    color: ({ type }: { type: string }) => roseByType[type] ?? "#E11D48",
+    smooth: true,
+    autoFit: true,
+    height: MAX_CHART_HEIGHT,
 
-  // ✅ Keep area style simple (supported everywhere)
-  areaStyle: { fillOpacity: 0.25 },
+    // ✅ Keep area style simple (supported everywhere)
+    areaStyle: { fillOpacity: 0.25 },
 
-  // ✅ line + points can also be color-driven automatically by series color
-  line: { size: 2 },
+    // ✅ line + points can also be color-driven automatically by series color
+    line: { size: 2 },
 
-  legend: { position: "top" },
+    legend: { position: "top" },
 
-  tooltip: { shared: true, showMarkers: true },
-};
-
+    tooltip: { shared: true, showMarkers: true },
+  };
 
   return (
     <Card
@@ -114,7 +126,11 @@ const config: any = {
       }
       loading={isLoading}
     >
-      <Area theme={isDarkMode ? "dark" : "light"} colorField="type" {...config} />
+      <Area
+        theme={isDarkMode ? "dark" : "light"}
+        colorField="type"
+        {...config}
+      />
     </Card>
   );
 };

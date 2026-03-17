@@ -29,7 +29,6 @@ export type Lead = {
   updatedAt?: string;
 };
 
-
 export type LeadsListParams = {
   user_id: string;
   page?: number;
@@ -38,6 +37,8 @@ export type LeadsListParams = {
   type?: LeadType | "";
   folder_id?: string;
   is_converted?: boolean | undefined;
+  scrape_status?: boolean;
+  scraped_from_username?: string;
 };
 
 export type LeadsSummaryParams = {
@@ -55,7 +56,6 @@ export type Pagination = {
   limit: number;
   totalPages: number;
 };
-
 
 type LeadsSummaryResponse = {
   success?: boolean;

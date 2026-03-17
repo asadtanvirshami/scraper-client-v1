@@ -628,6 +628,36 @@
       "fb_biolink_url": "FB BioLink URL",
       "fb_biolink_name": "FB BioLink Name",
       "links": "Links"
+    },
+    "tabs": {
+      "all_leads": "All Leads",
+      "instagram_analyzer": "Instagram Analyzer"
+    },
+    "instagram_analyzer": {
+      "title": "Instagram Analyzer",
+      "subtitle": "Scrape followers or following from any Instagram account",
+      "info": "Scraping may take several minutes depending on the number of accounts. Results will appear in the table below.",
+      "form": {
+        "title": "Scraper Settings",
+        "folder": "Select Folder",
+        "folder_placeholder": "Choose a folder",
+        "folder_required": "Please select a folder",
+        "username": "Instagram Username",
+        "username_placeholder": "e.g., filmdirectorbrucemac",
+        "username_required": "Please enter a username",
+        "type": "Scrape Type",
+        "type_required": "Please select a type",
+        "type_followers": "Followers",
+        "type_following": "Following",
+        "max_limit": "Max Limit",
+        "max_limit_required": "Please enter a limit",
+        "max_limit_range": "Limit must be between 1 and 10,000",
+        "submit": "Start Scraping"
+      },
+      "results": {
+        "title": "Scraped Leads",
+        "empty": "Submit the form above to start scraping. Results will appear here."
+      }
     }
   },
 

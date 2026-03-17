@@ -1,6 +1,7 @@
 "use client";
 
-import { Col, Row, Card, Typography } from "antd";
+import { Col, Row, Card, Typography, Tabs } from "antd";
+import { TableOutlined, InstagramOutlined } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
 import { useMemo, useState } from "react";
 import { FormattedMessage } from "react-intl";
@@ -11,6 +12,7 @@ import Spinner from "@/components/ui (generic)/spinner";
 import InsightsCard from "./ui/insights";
 import WeeklyLeadsAreaChart from "./ui/chart/area-chart";
 import LeadsTableServer from "./ui/lead-table";
+import InstagramAnalyzer from "./ui/instagram-analyzer";
 
 import { useFetchLeadsList, useFetchLeadsSummary } from "./hooks/queries";
 import {
@@ -36,6 +38,9 @@ const PRESET_DAYS: Record<PresetKey, number> = {
 
 const LeadsLayout = () => {
   const { id } = useUserInfo();
+
+  // ====== TAB STATE ======
+  const [activeTab, setActiveTab] = useState<string>("leads");
 
   // ====== TABLE FILTERS (server list) ======
   const [query, setQuery] = useState({
@@ -92,7 +97,7 @@ const LeadsLayout = () => {
     type: query.type,
     is_converted: query.is_converted,
   });
-console.log(leads);
+  console.log(leads);
 
   // ====== MUTATIONS ======
   const createLead = useCreateLead();
@@ -112,6 +117,134 @@ console.log(leads);
   const stats = summary?.data?.stats;
   const dailyTotal = summary?.data?.charts?.dailyTotal;
 
+  const tabItems = [
+    {
+      key: "leads",
+      label: (
+        <span>
+          <TableOutlined />
+          <FormattedMessage
+            id="leads.tabs.all_leads"
+            defaultMessage="All Leads"
+          />
+        </span>
+      ),
+      children: (
+        <div>
+          <Row gutter={[16, 16]}>
+            {/* Insights (wired to same chart filters) */}
+            <Col xs={24}>
+              <Card>
+                <div className="flex flex-col gap-1">
+                  <Title level={5} className="!mb-0">
+                    <FormattedMessage
+                      id="leads.insights.title"
+                      defaultMessage="Insights"
+                    />
+                  </Title>
+                  <Text type="secondary">
+                    <FormattedMessage
+                      id="leads.insights.subtitle"
+                      defaultMessage="Pick a date range to update charts & insights."
+                    />
+                  </Text>
+                </div>
+
+                <div className="mt-4">
+                  <InsightsCard stats={stats} dailyTotal={dailyTotal} />
+                </div>
+              </Card>
+            </Col>
+
+            {/* Charts */}
+            <Col xs={24} lg={12}>
+              {/* NOTE: WeeklyLeadsAreaChart already renders its own Card + filters */}
+              <WeeklyLeadsAreaChart
+                isLoading={chartsLoading}
+                labels={summary?.data?.charts?.dailyByType?.labels}
+                countsByType={{
+                  INSTAGRAM:
+                    summary?.data?.charts?.dailyByType?.countsByType?.INSTAGRAM,
+                  LINKEDIN:
+                    summary?.data?.charts?.dailyByType?.countsByType?.LINKEDIN,
+                  MANUAL:
+                    summary?.data?.charts?.dailyByType?.countsByType?.MANUAL,
+                }}
+                // ✅ wire filters
+                showFilters
+                preset={preset}
+                onPresetChange={(p) => {
+                  setPreset(p);
+                  setRange([null, null]); // preset becomes source of truth
+                }}
+                range={safeRange}
+                onRangeChange={(r) => {
+                  setRange(r);
+                  // if user sets a custom range, keep preset as-is but range wins in summaryParams
+                }}
+                showRangePicker
+              />
+            </Col>
+
+            <Col xs={24} lg={12}>
+              {/* Second chart shares same filter state but hides duplicate controls */}
+              <WeeklyLeadsAreaChart
+                isLoading={chartsLoading}
+                labels={summary?.data?.charts?.dailyTotal?.labels}
+                counts={summary?.data?.charts?.dailyTotal?.counts}
+                // ✅ share same state, but no duplicate controls
+                showFilters={false}
+                preset={preset}
+                range={safeRange}
+              />
+            </Col>
+
+            {/* Table */}
+            <Col xs={24}>
+              <LeadsTableServer
+                user_id={id ?? ""}
+                leads={leads?.data ?? []}
+                total={leads?.pagination?.total ?? 0}
+                loading={leadsFetching}
+                value={query}
+                onFetch={(next) => setQuery(next as any)}
+                showFileUpload={true}
+                onCreateLead={async (payload: any) => {
+                  await createLead.mutateAsync(payload as any);
+                }}
+                onUpdateLead={async (leadId: string, payload: any) => {
+                  await updateLead.mutateAsync({ lead_id: leadId, ...payload });
+                }}
+                onDeleteOne={async (lead: any) => {
+                  await deleteLead.mutateAsync((lead as any)._id);
+                }}
+                onDeleteMany={async (ids: string[]) => {
+                  await bulkDelete.mutateAsync(ids);
+                }}
+                onBulkUpload={async (payload: any) => {
+                  await bulkUpload.mutateAsync(payload);
+                }}
+              />
+            </Col>
+          </Row>
+        </div>
+      ),
+    },
+    {
+      key: "instagram-analyzer",
+      label: (
+        <span>
+          <InstagramOutlined />
+          <FormattedMessage
+            id="leads.tabs.instagram_analyzer"
+            defaultMessage="Instagram Analyzer"
+          />
+        </span>
+      ),
+      children: <InstagramAnalyzer />,
+    },
+  ];
+
   return (
     <div className="p-4 lg:p-6">
       {/* Header */}
@@ -127,101 +260,12 @@ console.log(leads);
         </Text>
       </div>
 
-      <Row gutter={[16, 16]}>
-        {/* Insights (wired to same chart filters) */}
-        <Col xs={24}>
-          <Card>
-            <div className="flex flex-col gap-1">
-              <Title level={5} className="!mb-0">
-                <FormattedMessage
-                  id="leads.insights.title"
-                  defaultMessage="Insights"
-                />
-              </Title>
-              <Text type="secondary">
-                <FormattedMessage
-                  id="leads.insights.subtitle"
-                  defaultMessage="Pick a date range to update charts & insights."
-                />
-              </Text>
-            </div>
-
-            <div className="mt-4">
-              <InsightsCard stats={stats} dailyTotal={dailyTotal} />
-            </div>
-          </Card>
-        </Col>
-
-        {/* Charts */}
-        <Col xs={24} lg={12}>
-          {/* NOTE: WeeklyLeadsAreaChart already renders its own Card + filters */}
-          <WeeklyLeadsAreaChart
-            isLoading={chartsLoading}
-            labels={summary?.data?.charts?.dailyByType?.labels}
-            countsByType={{
-              INSTAGRAM:
-                summary?.data?.charts?.dailyByType?.countsByType?.INSTAGRAM,
-              LINKEDIN:
-                summary?.data?.charts?.dailyByType?.countsByType?.LINKEDIN,
-              MANUAL: summary?.data?.charts?.dailyByType?.countsByType?.MANUAL,
-            }}
-            // ✅ wire filters
-            showFilters
-            preset={preset}
-            onPresetChange={(p) => {
-              setPreset(p);
-              setRange([null, null]); // preset becomes source of truth
-            }}
-            range={safeRange}
-            onRangeChange={(r) => {
-              setRange(r);
-              // if user sets a custom range, keep preset as-is but range wins in summaryParams
-            }}
-            showRangePicker
-          />
-        </Col>
-
-        <Col xs={24} lg={12}>
-          {/* Second chart shares same filter state but hides duplicate controls */}
-          <WeeklyLeadsAreaChart
-            isLoading={chartsLoading}
-            labels={summary?.data?.charts?.dailyTotal?.labels}
-            counts={summary?.data?.charts?.dailyTotal?.counts}
-            // ✅ share same state, but no duplicate controls
-            showFilters={false}
-            preset={preset}
-            range={safeRange}
-          />
-        </Col>
-
-        {/* Table */}
-        <Col xs={24}>
-          <LeadsTableServer
-            user_id={id ?? ""}
-            leads={leads?.data ?? []}
-            total={leads?.pagination?.total ?? 0}
-            loading={leadsFetching}
-            value={query}
-            onFetch={(next) => setQuery(next as any)}
-            showFileUpload={true}
-            onCreateLead={async (payload: any) => {
-              await createLead.mutateAsync(payload as any);
-            }}
-            onUpdateLead={async (leadId: string, payload: any) => {
-              await updateLead.mutateAsync({ lead_id: leadId, ...payload });
-            }}
-            onDeleteOne={async (lead: any) => {
-              await deleteLead.mutateAsync((lead as any)._id);
-            }}
-            onDeleteMany={async (ids: string[]) => {
-              await bulkDelete.mutateAsync(ids);
-            }}
-            onBulkUpload={async (payload: any) => {
-              await bulkUpload.mutateAsync(payload);
-            }}
-          />
-        </Col>
-      </Row>
+      <Tabs
+        activeKey={activeTab}
+        onChange={setActiveTab}
+        items={tabItems}
+        size="large"
+      />
     </div>
   );
 };

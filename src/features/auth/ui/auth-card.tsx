@@ -4,7 +4,8 @@ import React from "react";
 import { Card, Typography } from "antd";
 import { FormattedMessage } from "react-intl";
 import Image from "next/image";
-import logo from "../../../../public/assets/PNGs/logo.png";
+import lightLogo from "../../../../public/assets/PNGs/logo.png";
+import darkLogo from "../../../../public/assets/PNGs/logo_dark.png";
 
 const { Title, Text } = Typography;
 
@@ -21,14 +22,22 @@ const AuthCard = ({ children, title }: Props) => {
         <Card>
           {/* Top badge icon */}
           <div className="flex items-center justify-center">
-              <Image
-                src={logo}
-                alt="Logo"
-                width={100}
-                height={100}
-                className="h-fit w-fit object-contain"
-                priority
-              />
+            <Image
+              src={lightLogo}
+              alt="Logo"
+              width={100}
+              height={100}
+              className="h-fit w-fit object-contain dark:hidden"
+              priority
+            />
+            <Image
+              src={darkLogo}
+              alt="Logo"
+              width={100}
+              height={100}
+              className="hidden h-fit w-fit object-contain dark:block"
+              priority
+            />
           </div>
 
           <div className="mt-3 text-center">
