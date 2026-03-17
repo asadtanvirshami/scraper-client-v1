@@ -97,7 +97,7 @@ const LeadsLayout = () => {
     type: query.type,
     is_converted: query.is_converted,
   });
-console.log(leads);
+  console.log(leads);
 
   // ====== MUTATIONS ======
   const createLead = useCreateLead();
@@ -123,7 +123,10 @@ console.log(leads);
       label: (
         <span>
           <TableOutlined />
-          <FormattedMessage id="leads.tabs.all_leads" defaultMessage="All Leads" />
+          <FormattedMessage
+            id="leads.tabs.all_leads"
+            defaultMessage="All Leads"
+          />
         </span>
       ),
       children: (
@@ -164,7 +167,8 @@ console.log(leads);
                     summary?.data?.charts?.dailyByType?.countsByType?.INSTAGRAM,
                   LINKEDIN:
                     summary?.data?.charts?.dailyByType?.countsByType?.LINKEDIN,
-                  MANUAL: summary?.data?.charts?.dailyByType?.countsByType?.MANUAL,
+                  MANUAL:
+                    summary?.data?.charts?.dailyByType?.countsByType?.MANUAL,
                 }}
                 // ✅ wire filters
                 showFilters

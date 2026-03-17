@@ -29,7 +29,6 @@ export type Lead = {
   updatedAt?: string;
 };
 
-
 export type LeadsListParams = {
   user_id: string;
   page?: number;
@@ -57,7 +56,6 @@ export type Pagination = {
   limit: number;
   totalPages: number;
 };
-
 
 type LeadsSummaryResponse = {
   success?: boolean;
