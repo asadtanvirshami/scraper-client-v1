@@ -124,10 +124,7 @@ const SignInForm: React.FC = () => {
         <Link href="/auth/signup" className="text-[11px] ">
           <FormattedMessage id="auth.sign_in.dont_have_account" />
         </Link>
-        <Link
-          href="/auth/forgot-password"
-          className="text-[11px] "
-        >
+        <Link href="/auth/forgot-password" className="text-[11px] ">
           <FormattedMessage id="auth.sign_in.forgot_password" />
         </Link>
       </div>
@@ -153,11 +150,13 @@ const SignInForm: React.FC = () => {
       </Divider>
 
       <div className="flex items-center justify-center gap-4">
-        <GoogleLogin
-          onSuccess={onGoogleSuccess}
-          onError={onGoogleError}
-          useOneTap
-        />
+        <div className="rounded-xl bg-white p-1 dark:bg-[#1a1a1a]">
+          <GoogleLogin
+            onSuccess={onGoogleSuccess}
+            onError={onGoogleError}
+            useOneTap
+          />
+        </div>
       </div>
     </Form>
   );

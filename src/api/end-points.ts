@@ -17,6 +17,7 @@ export const apiEndpoints = {
   scrapper: {
     instagram: "/scrapper/scrap-instagram",
     linkedin: "/scrapper/scrap-linkedin",
+    scrapeFollowers: "/beta-insta/scrape-followers",
     // callback is server-to-server, frontend doesn't call it
   },
 
@@ -56,7 +57,7 @@ export const apiEndpoints = {
 
     // user
     getAllUser: (params: {
-      offset?: number; // 1-based 
+      offset?: number; // 1-based
       limit?: number;
       search?: string;
       role?: "USER" | "ADMIN";

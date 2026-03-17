@@ -63,7 +63,13 @@ function getIsDarkMode(colorBgBase: string) {
   const hex = value.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
   if (hex) {
     const raw = hex[1];
-    const full = raw.length === 3 ? raw.split("").map((c) => c + c).join("") : raw;
+    const full =
+      raw.length === 3
+        ? raw
+            .split("")
+            .map((c) => c + c)
+            .join("")
+        : raw;
     const r = parseInt(full.slice(0, 2), 16);
     const g = parseInt(full.slice(2, 4), 16);
     const b = parseInt(full.slice(4, 6), 16);
@@ -107,11 +113,11 @@ const WeeklyLeadsAreaChart: React.FC<WeeklyLeadsAreaChartProps> = ({
     ? "rgba(255, 255, 255, 0.85)"
     : "rgba(15, 23, 42, 0.85)";
 
-  const GREEN_BY_TYPE: Record<string, string> = {
-    INSTAGRAM: "#39ff14",
-    LINKEDIN: "#22c55e",
-    MANUAL: "#86efac",
-    TOTAL: "#39ff14",
+  const ROSE_BY_TYPE: Record<string, string> = {
+    INSTAGRAM: "#E11D48",
+    LINKEDIN: "#BE123C",
+    MANUAL: "#FB7185",
+    TOTAL: "#E11D48",
   };
 
   const hasTypeData =
@@ -153,20 +159,20 @@ const WeeklyLeadsAreaChart: React.FC<WeeklyLeadsAreaChartProps> = ({
     xField: "date",
     yField: "leads",
     seriesField: "type",
-    color: ({ type }: { type: string }) => GREEN_BY_TYPE[type] ?? "#39ff14",
+    color: ({ type }: { type: string }) => ROSE_BY_TYPE[type] ?? "#E11D48",
     smooth: true,
     autoFit: true,
     height: MAX_CHART_HEIGHT,
 
     areaStyle: ({ type }: { type: string }) => ({
       fillOpacity: isDarkMode ? 0.24 : 0.18,
-      shadowColor: GREEN_BY_TYPE[type] ?? "#39ff14",
+      shadowColor: ROSE_BY_TYPE[type] ?? "#E11D48",
       shadowBlur: isDarkMode ? 10 : 6,
     }),
     line: {
       size: 2.4,
       style: {
-        shadowColor: "#39ff14",
+        shadowColor: "#E11D48",
         shadowBlur: isDarkMode ? 10 : 6,
       },
     },
@@ -174,7 +180,9 @@ const WeeklyLeadsAreaChart: React.FC<WeeklyLeadsAreaChartProps> = ({
 
     legend: {
       position: "top",
-      itemName: { style: { fill: legendLabelColor, fontWeight: 700, fontSize: 12 } },
+      itemName: {
+        style: { fill: legendLabelColor, fontWeight: 700, fontSize: 12 },
+      },
     },
     meta: {
       date: { type: "timeCat" }, // ✅ important
@@ -207,7 +215,8 @@ const WeeklyLeadsAreaChart: React.FC<WeeklyLeadsAreaChartProps> = ({
       label: {
         autoHide: true,
         autoRotate: true,
-        formatter: (value: string) => dayjs(value).isValid() ? dayjs(value).format("MMM D") : value,
+        formatter: (value: string) =>
+          dayjs(value).isValid() ? dayjs(value).format("MMM D") : value,
         style: { fill: axisLabelColor, fontSize: 12, fontWeight: 500 },
       },
     },
@@ -286,7 +295,11 @@ const WeeklyLeadsAreaChart: React.FC<WeeklyLeadsAreaChartProps> = ({
       }
     >
       <div style={{ height: MAX_CHART_HEIGHT }}>
-        <Area theme={isDarkMode ? "dark" : "light"} colorField="type" {...config} />
+        <Area
+          theme={isDarkMode ? "dark" : "light"}
+          colorField="type"
+          {...config}
+        />
       </div>
     </Card>
   );

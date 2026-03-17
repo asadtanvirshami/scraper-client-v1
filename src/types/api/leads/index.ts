@@ -38,6 +38,8 @@ export type LeadsListParams = {
   type?: LeadType | "";
   folder_id?: string;
   is_converted?: boolean | undefined;
+  scrape_status?: boolean;
+  scraped_from_username?: string;
 };
 
 export type LeadsSummaryParams = {
