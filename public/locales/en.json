@@ -657,7 +657,8 @@
       "results": {
         "title": "Scraped Leads",
         "empty": "Submit the form above to start scraping. Results will appear here."
-      }
+      },
+      "has_contacts": "Has Contacts"
     }
   },
 

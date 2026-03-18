@@ -739,7 +739,8 @@
       "results": {
         "title": "Leads Extraídos",
         "empty": "Complete el formulario arriba para comenzar la extracción. Los resultados aparecerán aquí."
-      }
+      },
+      "has_contacts": "Tiene Contactos"
     }
   },
 
