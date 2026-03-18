@@ -13,6 +13,7 @@ import {
   Typography,
   Space,
   Alert,
+  Switch,
 } from "antd";
 import { InstagramOutlined, LoadingOutlined } from "@ant-design/icons";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -35,6 +36,7 @@ const InstagramAnalyzer: React.FC = () => {
     page: 1,
     limit: 10,
     search: "",
+    has_contacts: false,
     type: "INSTAGRAM" as string,
   });
 
@@ -61,10 +63,11 @@ const InstagramAnalyzer: React.FC = () => {
     limit: scrapeQuery.limit,
     page: scrapeQuery.page,
     search: scrapeQuery.search,
-    type: scrapeQuery.type,
+    type: "INSTAGRAM",
     folder_id: selectedFolderId || undefined,
     scrape_status: false,
     scraped_from_username: scrapedUsername || undefined,
+    has_contacts: scrapeQuery.has_contacts || undefined,
   });
 
   const scrapeMutation = useScrapeFollowersOrFollowing();
@@ -72,6 +75,11 @@ const InstagramAnalyzer: React.FC = () => {
   // Auto-refetch leads when username or folder changes after scraping
   useEffect(() => {
     if (scrapedUsername && selectedFolderId) {
+      // Reset pagination to page 1 when filter changes
+      setScrapeQuery((prev) => ({
+        ...prev,
+        page: 1,
+      }));
       refetchLeads();
     }
   }, [scrapedUsername, selectedFolderId, refetchLeads]);
@@ -86,7 +94,7 @@ const InstagramAnalyzer: React.FC = () => {
         max_limit: values.max_limit,
       });
 
-      // Update state to trigger refetch via useEffect
+      // Update state to trigger refetch via useEffect (will also reset page to 1)
       setSelectedFolderId(values.folder_id);
       setScrapedUsername(values.username);
     } catch (error) {
@@ -145,7 +153,7 @@ const InstagramAnalyzer: React.FC = () => {
               onFinish={handleSubmit}
               initialValues={{
                 type: "followers",
-                max_limit: 3000,
+                max_limit: 1000,
               }}
             >
               <Row gutter={16}>
@@ -324,6 +332,28 @@ const InstagramAnalyzer: React.FC = () => {
                   defaultMessage="Scraped Leads"
                 />
               </Space>
+            }
+            extra={
+              selectedFolderId && (
+                <Space>
+                  <Text>
+                    <FormattedMessage
+                      id="leads.instagram_analyzer.has_contacts"
+                      defaultMessage="Has Contacts"
+                    />
+                  </Text>
+                  <Switch
+                    checked={scrapeQuery.has_contacts}
+                    onChange={(checked) => {
+                      setScrapeQuery((prev) => ({
+                        ...prev,
+                        has_contacts: checked,
+                        page: 1,
+                      }));
+                    }}
+                  />
+                </Space>
+              )
             }
           >
             {!selectedFolderId ? (
