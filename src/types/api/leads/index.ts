@@ -39,6 +39,7 @@ export type LeadsListParams = {
   is_converted?: boolean | undefined;
   scrape_status?: boolean;
   scraped_from_username?: string;
+  has_contacts?: boolean;
 };
 
 export type LeadsSummaryParams = {

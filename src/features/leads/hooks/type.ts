@@ -27,5 +27,6 @@ type LeadsListParams = {
   scrape_status?: boolean;
   scrape_id?: string;
   scraped_from_username?: string;
+  has_contacts?: boolean;
   _id?: string;
 };
