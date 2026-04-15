@@ -19,6 +19,7 @@ import {
 import { FormattedMessage } from "react-intl";
 
 import type { Lead } from "@/types/leads";
+import { getLeadAvatarSrc } from "@/features/leads/utils/avatar";
 
 const { Title } = Typography;
 
@@ -54,12 +55,12 @@ function InfoItem({
   icon?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl p-3">
+    <div className="rounded-xl border border-slate-200/70 bg-white/70 p-4">
       <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide leading-none">
         {icon ? <span className="inline-flex shrink-0 text-sm">{icon}</span> : null}
         <span className="leading-none">{label}</span>
       </div>
-      <div className="mt-2 text-sm break-words leading-6">{value}</div>
+      <div className="mt-2.5 text-sm break-words leading-6">{value}</div>
     </div>
   );
 }
@@ -70,6 +71,8 @@ type Props = {
 };
 
 export default function LinkedInLeadView({ lead, leadId }: Props) {
+  const avatarSrc = getLeadAvatarSrc(lead);
+
   const displayName =
     toDisplay(lead.full_name) !== "-"
       ? toDisplay(lead.full_name)
@@ -79,16 +82,17 @@ export default function LinkedInLeadView({ lead, leadId }: Props) {
         ).trim() || "Lead";
 
   return (
-    <div className="p-4 lg:p-6 space-y-4">
+    <div className="p-4 lg:p-6 space-y-5">
       <Card className="overflow-hidden" styles={{ body: { padding: 0 } }}>
-        <div className="p-5">
-          <Space align="center" size={16}>
+        <div className="p-6">
+          <Space align="start" size={16} className="w-full">
             <Avatar
-              size={72}
-              src={lead.avatar_url || lead.avatar_rul}
+              size={76}
+              src={avatarSrc}
               icon={<UserOutlined />}
+              style={{ backgroundColor: "#f5f5f5", flexShrink: 0 }}
             />
-            <div>
+            <div className="min-w-0 flex-1">
               <Title level={4} className="!mb-1">
                 {displayName}
               </Title>
@@ -126,7 +130,7 @@ export default function LinkedInLeadView({ lead, leadId }: Props) {
               />
             }
           >
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               <InfoItem
                 label={
                   <FormattedMessage

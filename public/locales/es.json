@@ -1,14 +1,15 @@
-{
+﻿{
   "sidebar": {
     "brand": "DataHarvX",
     "dashboard": "Panel",
-    "campaigns": "Campañas",
+    "analysis": "Analisis",
+    "campaigns": "CampaÃ±as",
     "leads": "Leads",
     "folders": "Carpetas",
-    "billing": "Facturación",
+    "billing": "FacturaciÃ³n",
     "emails": "Emails",
     "notifications": "Notificaciones",
-    "settings": "Configuración",
+    "settings": "ConfiguraciÃ³n",
     "admin": {
       "dashboard": "Dashboard",
       "users": "Usuarios",
@@ -24,7 +25,7 @@
   },
 
   "admin": {
-    "panel_title": "Panel de Administración",
+    "panel_title": "Panel de AdministraciÃ³n",
     "panel_subtitle": "Supervisa usuarios, accesos y actividad del sistema.",
     "kpis": {
       "total_users": "Total de usuarios",
@@ -32,7 +33,7 @@
       "feedbacks": "Sugerencias",
       "bugs": "Errores",
       "new_in_range": "Nuevos en el rango: {count}",
-      "avg_per_day": "Prom./día: {count}"
+      "avg_per_day": "Prom./dÃ­a: {count}"
     },
     "charts": {
       "users_created": {
@@ -57,8 +58,8 @@
         "updated": "Actualizado"
       },
       "confirm": {
-        "delete_one": "¿Eliminar este feedback?",
-        "delete_selected": "¿Eliminar {count} elemento(s) seleccionado(s)?"
+        "delete_one": "Â¿Eliminar este feedback?",
+        "delete_selected": "Â¿Eliminar {count} elemento(s) seleccionado(s)?"
       }
     },
     "bugs": {
@@ -75,8 +76,8 @@
         "updated": "Actualizado"
       },
       "confirm": {
-        "delete_one": "¿Eliminar este bug?",
-        "delete_selected": "¿Eliminar {count} elemento(s) seleccionado(s)?"
+        "delete_one": "Â¿Eliminar este bug?",
+        "delete_selected": "Â¿Eliminar {count} elemento(s) seleccionado(s)?"
       }
     },
     "users": {
@@ -99,42 +100,42 @@
         "created": "Creado"
       },
       "confirm": {
-        "bulk_delete": "¿Eliminar los usuarios seleccionados?",
-        "bulk_delete_desc": "Esto eliminará {count} usuario(s). Esta acción no se puede deshacer.",
-        "delete_all": "¿Eliminar todos los usuarios?",
-        "delete_all_desc": "Esto eliminará todos los usuarios que coincidan con los filtros actuales. Esta acción no se puede deshacer.",
-        "delete_one": "¿Eliminar este usuario?",
-        "delete_selected": "¿Eliminar {count} usuario(s) seleccionado(s)?"
+        "bulk_delete": "Â¿Eliminar los usuarios seleccionados?",
+        "bulk_delete_desc": "Esto eliminarÃ¡ {count} usuario(s). Esta acciÃ³n no se puede deshacer.",
+        "delete_all": "Â¿Eliminar todos los usuarios?",
+        "delete_all_desc": "Esto eliminarÃ¡ todos los usuarios que coincidan con los filtros actuales. Esta acciÃ³n no se puede deshacer.",
+        "delete_one": "Â¿Eliminar este usuario?",
+        "delete_selected": "Â¿Eliminar {count} usuario(s) seleccionado(s)?"
       }
     }
   },
 
   "auth": {
     "sign_in": {
-      "sign_in_with_email": "Iniciar sesión con correo electrónico",
-      "forgot_password": "¿Olvidaste tu contraseña?",
-      "buttonCTA": "Iniciar sesión",
-      "dont_have_account": "¿No tienes una cuenta? Regístrate",
-      "strip_line": "o inicia sesión con",
-      "success_message": "Inicio de sesión exitoso.",
+      "sign_in_with_email": "Iniciar sesiÃ³n con correo electrÃ³nico",
+      "forgot_password": "Â¿Olvidaste tu contraseÃ±a?",
+      "buttonCTA": "Iniciar sesiÃ³n",
+      "dont_have_account": "Â¿No tienes una cuenta? RegÃ­strate",
+      "strip_line": "o inicia sesiÃ³n con",
+      "success_message": "Inicio de sesiÃ³n exitoso.",
       "errors": {
-        "invalid_credentials": "Credenciales inválidas. Por favor, inténtalo de nuevo.",
+        "invalid_credentials": "Credenciales invÃ¡lidas. Por favor, intÃ©ntalo de nuevo.",
         "account_locked": "Tu cuenta ha sido bloqueada. Contacta al soporte.",
-        "network_error": "Error de red. Por favor, verifica tu conexión e inténtalo de nuevo.",
-        "unknown_error": "Ocurrió un error desconocido. Por favor, inténtalo de nuevo más tarde.",
-        "email_required": "El correo electrónico es obligatorio.",
-        "password_required": "La contraseña es obligatoria.",
-        "invalid_email_format": "El formato del correo electrónico no es válido.",
-        "password_too_short": "La contraseña debe tener al menos 8 caracteres."
+        "network_error": "Error de red. Por favor, verifica tu conexiÃ³n e intÃ©ntalo de nuevo.",
+        "unknown_error": "OcurriÃ³ un error desconocido. Por favor, intÃ©ntalo de nuevo mÃ¡s tarde.",
+        "email_required": "El correo electrÃ³nico es obligatorio.",
+        "password_required": "La contraseÃ±a es obligatoria.",
+        "invalid_email_format": "El formato del correo electrÃ³nico no es vÃ¡lido.",
+        "password_too_short": "La contraseÃ±a debe tener al menos 8 caracteres."
       }
     },
 
     "sign_up": {
-      "sign_up_with_email": "Registrarse con correo electrónico",
+      "sign_up_with_email": "Registrarse con correo electrÃ³nico",
       "buttonCTA": "Crear cuenta",
-      "have_account": "¿Ya tienes una cuenta? Inicia sesión",
-      "strip_line": "o regístrate con",
-      "success_message": "Cuenta creada correctamente. Por favor, inicia sesión.",
+      "have_account": "Â¿Ya tienes una cuenta? Inicia sesiÃ³n",
+      "strip_line": "o regÃ­strate con",
+      "success_message": "Cuenta creada correctamente. Por favor, inicia sesiÃ³n.",
       "placeholders": {
         "first_name": "Nombre",
         "last_name": "Apellido",
@@ -144,97 +145,97 @@
       "errors": {
         "first_name_required": "El nombre es obligatorio.",
         "last_name_required": "El apellido es obligatorio.",
-        "email_required": "El correo electrónico es obligatorio.",
-        "password_required": "La contraseña es obligatoria.",
-        "invalid_email_format": "El formato del correo electrónico no es válido.",
-        "password_too_short": "La contraseña debe tener al menos 8 caracteres."
+        "email_required": "El correo electrÃ³nico es obligatorio.",
+        "password_required": "La contraseÃ±a es obligatoria.",
+        "invalid_email_format": "El formato del correo electrÃ³nico no es vÃ¡lido.",
+        "password_too_short": "La contraseÃ±a debe tener al menos 8 caracteres."
       }
     },
 
     "forgot_password": {
-      "title": "Restablecer contraseña",
-      "forgot_password": "¿Olvidaste tu contraseña?",
+      "title": "Restablecer contraseÃ±a",
+      "forgot_password": "Â¿Olvidaste tu contraseÃ±a?",
       "buttonCTA": "Enviar correo de restablecimiento",
-      "strip_line": "o inicia sesión con",
+      "strip_line": "o inicia sesiÃ³n con",
       "success_message": "Correo de restablecimiento enviado.",
       "errors": {
-        "email_required": "El correo electrónico es obligatorio.",
-        "invalid_email_format": "El formato del correo electrónico no es válido."
+        "email_required": "El correo electrÃ³nico es obligatorio.",
+        "invalid_email_format": "El formato del correo electrÃ³nico no es vÃ¡lido."
       }
     },
 
     "reset_password": {
-      "title": "Restablecer contraseña",
-      "buttonCTA": "Restablecer contraseña",
-      "success_message": "La contraseña se restableció correctamente.",
+      "title": "Restablecer contraseÃ±a",
+      "buttonCTA": "Restablecer contraseÃ±a",
+      "success_message": "La contraseÃ±a se restableciÃ³ correctamente.",
 
-      "otp": "Código de verificación (OTP)",
-      "otp_placeholder": "Introduce el código OTP",
-      "otp_required": "El código OTP es obligatorio.",
-      "otp_length": "El código OTP debe tener 6 dígitos.",
-      "otp_numeric": "El código OTP solo debe contener números.",
+      "otp": "CÃ³digo de verificaciÃ³n (OTP)",
+      "otp_placeholder": "Introduce el cÃ³digo OTP",
+      "otp_required": "El cÃ³digo OTP es obligatorio.",
+      "otp_length": "El cÃ³digo OTP debe tener 6 dÃ­gitos.",
+      "otp_numeric": "El cÃ³digo OTP solo debe contener nÃºmeros.",
 
-      "new_password": "Nueva contraseña",
-      "new_password_placeholder": "Introduce la nueva contraseña",
+      "new_password": "Nueva contraseÃ±a",
+      "new_password_placeholder": "Introduce la nueva contraseÃ±a",
 
-      "confirm_password": "Confirmar contraseña",
-      "confirm_password_placeholder": "Confirma la nueva contraseña",
+      "confirm_password": "Confirmar contraseÃ±a",
+      "confirm_password_placeholder": "Confirma la nueva contraseÃ±a",
 
-      "password_required": "La contraseña es obligatoria.",
-      "password_too_short": "La contraseña debe tener al menos 8 caracteres.",
-      "password_mismatch": "Las contraseñas no coinciden."
+      "password_required": "La contraseÃ±a es obligatoria.",
+      "password_too_short": "La contraseÃ±a debe tener al menos 8 caracteres.",
+      "password_mismatch": "Las contraseÃ±as no coinciden."
     },
 
     "messages": {
       "errors": {
         "user_not_found": "Usuario no encontrado",
         "user_already_verified": "El usuario ya ha sido verificado",
-        "invalid_otp": "OTP inválido",
-        "invalid_email_or_password": "Correo electrónico o contraseña incorrectos",
+        "invalid_otp": "OTP invÃ¡lido",
+        "invalid_email_or_password": "Correo electrÃ³nico o contraseÃ±a incorrectos",
         "account_blocked": "Esta cuenta ha sido bloqueada",
         "account_deleted": "Esta cuenta ha sido eliminada",
-        "account_not_verified": "Esta cuenta no está verificada. Por favor, verifica tu correo electrónico.",
-        "no_account_found": "No se encontró ninguna cuenta con este correo electrónico",
-        "incorrect_password": "Contraseña incorrecta",
-        "email_already_exists": "Ya existe una cuenta con este correo electrónico",
-        "weak_password_6": "La contraseña debe tener al menos 6 caracteres",
-        "too_many_attempts": "Demasiados intentos. Por favor, inténtalo de nuevo más tarde",
-        "google_signin_failed": "Error al iniciar sesión con Google. Por favor, inténtalo de nuevo.",
-        "unexpected_error": "Ocurrió un error inesperado"
+        "account_not_verified": "Esta cuenta no estÃ¡ verificada. Por favor, verifica tu correo electrÃ³nico.",
+        "no_account_found": "No se encontrÃ³ ninguna cuenta con este correo electrÃ³nico",
+        "incorrect_password": "ContraseÃ±a incorrecta",
+        "email_already_exists": "Ya existe una cuenta con este correo electrÃ³nico",
+        "weak_password_6": "La contraseÃ±a debe tener al menos 6 caracteres",
+        "too_many_attempts": "Demasiados intentos. Por favor, intÃ©ntalo de nuevo mÃ¡s tarde",
+        "google_signin_failed": "Error al iniciar sesiÃ³n con Google. Por favor, intÃ©ntalo de nuevo.",
+        "unexpected_error": "OcurriÃ³ un error inesperado"
       },
       "success": {
         "otp_sent": "OTP enviado correctamente",
         "email_sent": "Correo enviado correctamente",
-        "password_reset_email_sent": "Correo de restablecimiento de contraseña enviado",
+        "password_reset_email_sent": "Correo de restablecimiento de contraseÃ±a enviado",
         "account_created": "Cuenta creada correctamente",
-        "signed_in_successfully": "Inicio de sesión exitoso",
+        "signed_in_successfully": "Inicio de sesiÃ³n exitoso",
         "account_verified": "Cuenta verificada correctamente",
-        "signed_out_successfully": "Sesión cerrada correctamente",
-        "password_updated": "Contraseña actualizada correctamente",
-        "google_signin_success": "Inicio de sesión con Google exitoso",
-        "operation_successful": "Operación realizada con éxito"
+        "signed_out_successfully": "SesiÃ³n cerrada correctamente",
+        "password_updated": "ContraseÃ±a actualizada correctamente",
+        "google_signin_success": "Inicio de sesiÃ³n con Google exitoso",
+        "operation_successful": "OperaciÃ³n realizada con Ã©xito"
       }
     }
   },
 
   "campaigns": {
-    "title": "Campañas de Email",
-    "create": "Crear Campaña",
-    "edit": "Editar Campaña",
-    "view": "Ver Campaña",
+    "title": "CampaÃ±as de Email",
+    "create": "Crear CampaÃ±a",
+    "edit": "Editar CampaÃ±a",
+    "view": "Ver CampaÃ±a",
     "table": {
-      "campaign": "Campaña",
+      "campaign": "CampaÃ±a",
       "status": "Estado",
       "emailsSent": "Emails Enviados",
       "openRate": "Tasa de Apertura",
       "actions": "Acciones"
     },
     "dashboard": {
-      "title": "Tus Campañas",
-      "create": "Crear Campaña",
-      "empty": "Aún no hay campañas",
-      "error": "Error al cargar campañas",
-      "search_placeholder": "Buscar campañas...",
+      "title": "Tus CampaÃ±as",
+      "create": "Crear CampaÃ±a",
+      "empty": "AÃºn no hay campaÃ±as",
+      "error": "Error al cargar campaÃ±as",
+      "search_placeholder": "Buscar campaÃ±as...",
       "filter_status": "Filtrar por estado",
       "clear_filters": "Limpiar Filtros"
     },
@@ -247,37 +248,37 @@
       "view_details": "Ver detalles",
       "edit": "Editar",
       "delete": "Eliminar",
-      "delete_title": "Eliminar campaña",
-      "delete_desc": "¿Seguro que quieres eliminar esta campaña?",
-      "delete_success": "Campaña eliminada exitosamente",
-      "delete_error": "Error al eliminar la campaña"
+      "delete_title": "Eliminar campaÃ±a",
+      "delete_desc": "Â¿Seguro que quieres eliminar esta campaÃ±a?",
+      "delete_success": "CampaÃ±a eliminada exitosamente",
+      "delete_error": "Error al eliminar la campaÃ±a"
     },
     "view": {
-      "empty": "No hay datos de campaña",
+      "empty": "No hay datos de campaÃ±a",
       "send_now": "Enviar ahora",
-      "send_success": "Campaña enviada exitosamente",
-      "send_error": "Error al enviar la campaña"
+      "send_success": "CampaÃ±a enviada exitosamente",
+      "send_error": "Error al enviar la campaÃ±a"
     },
     "insights": {
-      "title": "Insights de campaña",
-      "description": "Monitorea métricas clave de rendimiento y rastrea el éxito de la campaña.",
-      "total_campaigns": "Total de campañas",
+      "title": "Insights de campaÃ±a",
+      "description": "Monitorea mÃ©tricas clave de rendimiento y rastrea el Ã©xito de la campaÃ±a.",
+      "total_campaigns": "Total de campaÃ±as",
       "total_recipients": "Total de destinatarios",
       "emails_sent": "Emails enviados",
       "opened": "Abiertos",
-      "unique_opens": "Aperturas únicas",
+      "unique_opens": "Aperturas Ãºnicas",
       "open_rate": "Tasa de apertura",
       "click_rate": "Tasa de clics",
       "delivery_rate": "Tasa de entrega",
       "bounce_rate": "Tasa de rebote"
     },
     "details": {
-      "performance_title": "Rendimiento de campaña",
-      "performance_description": "Revisa métricas detalladas sobre la efectividad de tu campaña.",
+      "performance_title": "Rendimiento de campaÃ±a",
+      "performance_description": "Revisa mÃ©tricas detalladas sobre la efectividad de tu campaÃ±a.",
       "target_folders": "Carpetas objetivo",
-      "target_folders_description": "Ver todas las carpetas objetivo de esta campaña.",
+      "target_folders_description": "Ver todas las carpetas objetivo de esta campaÃ±a.",
       "target_leads": "Leads objetivo",
-      "target_leads_description": "Ver todos los leads específicos objetivo de esta campaña.",
+      "target_leads_description": "Ver todos los leads especÃ­ficos objetivo de esta campaÃ±a.",
       "folder_name": "Nombre de carpeta",
       "total_leads": "Total de leads",
       "created_at": "Creado el",
@@ -294,8 +295,8 @@
       "bounce_rate": "Tasa de rebote"
     },
     "info": {
-      "title": "Información de la Campaña",
-      "campaign_id": "ID de campaña",
+      "title": "InformaciÃ³n de la CampaÃ±a",
+      "campaign_id": "ID de campaÃ±a",
       "created": "Creado",
       "sent": "Enviado",
       "not_sent": "No enviado"
@@ -315,19 +316,19 @@
       "view": "Ver"
     },
     "form": {
-      "basic_info": "Información Básica",
-      "name": "Nombre de la Campaña",
-      "name_placeholder": "Ingrese el nombre de la campaña",
-      "name_required": "El nombre de la campaña es obligatorio",
+      "basic_info": "InformaciÃ³n BÃ¡sica",
+      "name": "Nombre de la CampaÃ±a",
+      "name_placeholder": "Ingrese el nombre de la campaÃ±a",
+      "name_required": "El nombre de la campaÃ±a es obligatorio",
       "subject": "Asunto del Email",
       "subject_placeholder": "Ingrese el asunto del email",
       "subject_required": "El asunto del email es obligatorio",
       "content": "Contenido del Email",
-      "content_placeholder": "Escriba el contenido de su email aquí...",
+      "content_placeholder": "Escriba el contenido de su email aquÃ­...",
       "content_required": "El contenido del email es obligatorio",
       "tracking_id": "ID de Seguimiento",
       "tracking_id_placeholder": "ID de seguimiento opcional",
-      "email_config": "Configuración del Email",
+      "email_config": "ConfiguraciÃ³n del Email",
       "from_email": "Email del Remitente",
       "from_email_placeholder": "su-email@ejemplo.com",
       "from_email_required": "El email del remitente es obligatorio",
@@ -336,18 +337,18 @@
       "from_name_placeholder": "Su Nombre o Empresa",
       "reply_to": "Responder A",
       "reply_to_placeholder": "responder@ejemplo.com",
-      "campaign_settings": "Configuración de la Campaña",
+      "campaign_settings": "ConfiguraciÃ³n de la CampaÃ±a",
       "status": "Estado",
       "status_placeholder": "Seleccione el estado",
-      "campaign_type": "Tipo de Campaña",
-      "campaign_type_placeholder": "Seleccione el tipo de campaña",
-      "campaign_type_specific": "Leads Específicos",
+      "campaign_type": "Tipo de CampaÃ±a",
+      "campaign_type_placeholder": "Seleccione el tipo de campaÃ±a",
+      "campaign_type_specific": "Leads EspecÃ­ficos",
       "campaign_type_folder": "Carpeta",
       "scheduled_at": "Fecha Programada",
-      "scheduled_at_placeholder": "Seleccione cuándo enviar",
+      "scheduled_at_placeholder": "Seleccione cuÃ¡ndo enviar",
       "targeting": "Destinatarios",
       "target_leads": "Leads Objetivo",
-      "target_leads_placeholder": "Seleccione leads específicos",
+      "target_leads_placeholder": "Seleccione leads especÃ­ficos",
       "target_leads_required": "Por favor seleccione al menos un lead",
       "target_folders": "Carpetas Objetivo",
       "target_folders_placeholder": "Seleccione carpetas",
@@ -355,35 +356,35 @@
       "tracking_options": "Opciones de Seguimiento",
       "track_opens": "Rastrear Aperturas de Email",
       "save_draft": "Guardar como Borrador",
-      "schedule": "Programar Campaña",
-      "schedule_campaign": "Programar Campaña",
+      "schedule": "Programar CampaÃ±a",
+      "schedule_campaign": "Programar CampaÃ±a",
       "select_schedule_time": "Por favor seleccione una fecha y hora",
-      "confirm_schedule": "Confirmar Programación",
+      "confirm_schedule": "Confirmar ProgramaciÃ³n",
       "select_date_time": "Seleccionar fecha y hora",
       "send_now": "Enviar Ahora",
-      "update": "Actualizar Campaña",
+      "update": "Actualizar CampaÃ±a",
       "cancel": "Cancelar",
       "loading": "Cargando...",
-      "creating": "Creando campaña...",
-      "updating": "Actualizando campaña...",
-      "success_create": "Campaña creada exitosamente",
-      "success_update": "Campaña actualizada exitosamente",
-      "success_send": "Campaña enviada exitosamente",
-      "error_create": "Error al crear la campaña",
-      "error_update": "Error al actualizar la campaña",
-      "error_send": "Error al enviar la campaña",
+      "creating": "Creando campaÃ±a...",
+      "updating": "Actualizando campaÃ±a...",
+      "success_create": "CampaÃ±a creada exitosamente",
+      "success_update": "CampaÃ±a actualizada exitosamente",
+      "success_send": "CampaÃ±a enviada exitosamente",
+      "error_create": "Error al crear la campaÃ±a",
+      "error_update": "Error al actualizar la campaÃ±a",
+      "error_send": "Error al enviar la campaÃ±a",
       "validation_error": "Por favor complete todos los campos requeridos",
       "validation": {
         "select_leads_or_folders": "Por favor seleccione al menos un lead o carpeta"
       },
-      "info_alert_title": "Crear Tu Campaña de Email",
-      "info_alert_description": "Diseña y programa campañas de email profesionales. Dirige a leads específicos o carpetas, rastrea aperturas y monitorea el rendimiento.",
-      "basic_info_description": "Configure los detalles fundamentales de su campaña, incluyendo nombre y asunto del email.",
+      "info_alert_title": "Crear Tu CampaÃ±a de Email",
+      "info_alert_description": "DiseÃ±a y programa campaÃ±as de email profesionales. Dirige a leads especÃ­ficos o carpetas, rastrea aperturas y monitorea el rendimiento.",
+      "basic_info_description": "Configure los detalles fundamentales de su campaÃ±a, incluyendo nombre y asunto del email.",
       "content_description": "Redacte su mensaje de email usando el editor de texto enriquecido. Agregue formato, enlaces y estilos.",
-      "email_config_description": "Configure los detalles del remitente. Use una dirección de email verificada para mejor entregabilidad.",
-      "campaign_settings_description": "Elija el tipo de campaña, estado y programe la hora de entrega.",
-      "targeting_description": "Seleccione los destinatarios para su campaña. Elija leads específicos o carpetas completas.",
-      "tracking_description": "Habilite el rastreo de email para monitorear el rendimiento y participación de la campaña."
+      "email_config_description": "Configure los detalles del remitente. Use una direcciÃ³n de email verificada para mejor entregabilidad.",
+      "campaign_settings_description": "Elija el tipo de campaÃ±a, estado y programe la hora de entrega.",
+      "targeting_description": "Seleccione los destinatarios para su campaÃ±a. Elija leads especÃ­ficos o carpetas completas.",
+      "tracking_description": "Habilite el rastreo de email para monitorear el rendimiento y participaciÃ³n de la campaÃ±a."
     }
   },
 
@@ -392,23 +393,23 @@
     "email": "Correo",
     "role": "Rol",
     "redirecting_title": "Redirigiendo",
-    "redirecting_signin": "Redirigiendo al inicio de sesión…",
+    "redirecting_signin": "Redirigiendo al inicio de sesiÃ³nâ€¦",
     "created": "Creado",
     "bulk_delete": "Eliminar seleccionados ({count})",
-    "yes": "Sí",
+    "yes": "SÃ­",
     "no": "No",
     "delete_all": "Eliminar todos",
-    "confirm_delete_one": "¿Eliminar este elemento?",
-    "confirm_delete_selected": "¿Eliminar {count} elemento(s) seleccionado(s)?",
-    "confirm_delete_all": "¿Eliminar todos los elementos?",
-    "confirm_delete_all_desc": "Esta acción no se puede deshacer.",
-    "confirm_verify": "¿Verificar este usuario?",
-    "confirm_unverify": "¿Quitar verificación a este usuario?",
-    "confirm_block": "¿Bloquear este usuario?",
-    "confirm_unblock": "¿Desbloquear este usuario?",
+    "confirm_delete_one": "Â¿Eliminar este elemento?",
+    "confirm_delete_selected": "Â¿Eliminar {count} elemento(s) seleccionado(s)?",
+    "confirm_delete_all": "Â¿Eliminar todos los elementos?",
+    "confirm_delete_all_desc": "Esta acciÃ³n no se puede deshacer.",
+    "confirm_verify": "Â¿Verificar este usuario?",
+    "confirm_unverify": "Â¿Quitar verificaciÃ³n a este usuario?",
+    "confirm_block": "Â¿Bloquear este usuario?",
+    "confirm_unblock": "Â¿Desbloquear este usuario?",
     "select_all": "Seleccionar todo",
-    "clear_selection": "Limpiar selección",
-    "add": "Añadir",
+    "clear_selection": "Limpiar selecciÃ³n",
+    "add": "AÃ±adir",
     "search": "Buscar",
     "reset": "Restablecer",
     "delete": "Eliminar",
@@ -434,8 +435,8 @@
     "block_failed": "Error al bloquear al usuario",
     "verify_failed": "Error al verificar al usuario",
     "range_presets": {
-      "last7": "Últimos 7 días",
-      "last30": "Últimos 30 días",
+      "last7": "Ãšltimos 7 dÃ­as",
+      "last30": "Ãšltimos 30 dÃ­as",
       "thisMonth": "Este mes"
     },
     "range_placeholder": {
@@ -445,16 +446,16 @@
   },
   "errors": {
     "global": {
-      "title": "Algo salió mal",
-      "subtitle": "Ocurrió un error inesperado. Inténtalo de nuevo.",
+      "title": "Algo saliÃ³ mal",
+      "subtitle": "OcurriÃ³ un error inesperado. IntÃ©ntalo de nuevo.",
       "try_again": "Reintentar",
       "go_home": "Ir al inicio",
       "details": "Detalles del error:"
     },
     "404": {
-      "title": "Página no encontrada",
-      "subtitle": "La página que buscas no existe o fue movida.",
-      "go_signin": "Ir a iniciar sesión",
+      "title": "PÃ¡gina no encontrada",
+      "subtitle": "La pÃ¡gina que buscas no existe o fue movida.",
+      "go_signin": "Ir a iniciar sesiÃ³n",
       "go_home": "Inicio"
     }
   },
@@ -464,7 +465,7 @@
       "title": "Emails",
       "total": "Total {total}"
     },
-    "empty": "Aún no hay emails",
+    "empty": "AÃºn no hay emails",
     "search": {
       "placeholder": "Buscar email..."
     },
@@ -478,24 +479,24 @@
       "pending": "PENDIENTE"
     },
     "confirm": {
-      "delete_selected": "¿Eliminar {count} email(s) seleccionado(s)?"
+      "delete_selected": "Â¿Eliminar {count} email(s) seleccionado(s)?"
     },
     "modal": {
-      "add_title": "Añadir Email",
+      "add_title": "AÃ±adir Email",
       "verify_title": "Verificar Email: {email}",
-      "add_button": "Añadir",
+      "add_button": "AÃ±adir",
       "verify_button": "Verificar"
     },
     "form": {
-      "email_label": "Dirección de Email",
-      "email_required": "Por favor ingresa la dirección de email",
-      "email_invalid": "Por favor ingresa un email válido",
-      "email_placeholder": "Ingresa la dirección de email",
-      "otp_label": "Ingresa el código OTP",
-      "otp_required": "Por favor ingresa el código OTP",
-      "otp_length": "El código OTP debe tener 6 dígitos",
-      "otp_numeric": "El código OTP debe contener solo números",
-      "otp_placeholder": "Ingresa el código OTP de 6 dígitos"
+      "email_label": "DirecciÃ³n de Email",
+      "email_required": "Por favor ingresa la direcciÃ³n de email",
+      "email_invalid": "Por favor ingresa un email vÃ¡lido",
+      "email_placeholder": "Ingresa la direcciÃ³n de email",
+      "otp_label": "Ingresa el cÃ³digo OTP",
+      "otp_required": "Por favor ingresa el cÃ³digo OTP",
+      "otp_length": "El cÃ³digo OTP debe tener 6 dÃ­gitos",
+      "otp_numeric": "El cÃ³digo OTP debe contener solo nÃºmeros",
+      "otp_placeholder": "Ingresa el cÃ³digo OTP de 6 dÃ­gitos"
     }
   },
 
@@ -521,16 +522,16 @@
   "support": {
     "bug": {
       "title": "Reportar un error",
-      "description": "Cuéntanos qué pasó para que podamos solucionarlo rápido.",
+      "description": "CuÃ©ntanos quÃ© pasÃ³ para que podamos solucionarlo rÃ¡pido.",
       "field": "Detalles del error",
-      "placeholder": "Ejemplo: Al hacer clic en “Guardar” aparece un error en la página de Leads...",
+      "placeholder": "Ejemplo: Al hacer clic en â€œGuardarâ€ aparece un error en la pÃ¡gina de Leads...",
       "required": "Por favor describe el error.",
       "submit": "Enviar error",
       "success": "Reporte enviado.",
       "fail": "No se pudo enviar el reporte.",
       "report_button": "Reportar un Error",
       "your_reports": "Tus Reportes",
-      "no_reports": "No hay reportes de errores aún",
+      "no_reports": "No hay reportes de errores aÃºn",
       "modal_title": "Reportar un Error"
     },
     "feedback": {
@@ -540,17 +541,17 @@
       "placeholder": "Ejemplo: Agregar filtros por rango de fechas y exportar CSV...",
       "required": "Por favor escribe tu sugerencia.",
       "submit": "Enviar sugerencia",
-      "success": "Sugerencia enviada. ¡Gracias!",
+      "success": "Sugerencia enviada. Â¡Gracias!",
       "fail": "No se pudo enviar la sugerencia."
     },
-    "max_length": "Máximo {max} caracteres."
+    "max_length": "MÃ¡ximo {max} caracteres."
   },
 
   "feedback": {
     "auto_modal": {
-      "title": "¡Nos Encantaría Conocer Tu Opinión!",
-      "description": "¡Ayúdanos a mejorar tu experiencia! Comparte tus ideas y sugerencias.",
-      "later": "Quizás Más Tarde",
+      "title": "Â¡Nos EncantarÃ­a Conocer Tu OpiniÃ³n!",
+      "description": "Â¡AyÃºdanos a mejorar tu experiencia! Comparte tus ideas y sugerencias.",
+      "later": "QuizÃ¡s MÃ¡s Tarde",
       "submit": "Enviar Comentarios"
     }
   },
@@ -562,31 +563,31 @@
     },
     "insights": {
       "title": "Insights",
-      "subtitle": "Selecciona un rango de fechas para actualizar gráficos e insights."
+      "subtitle": "Selecciona un rango de fechas para actualizar grÃ¡ficos e insights."
     },
     "widget": {
       "recent_title": "Leads",
       "scraped_title": "Leads Scrapeados",
       "total": "Total {total}"
     },
-    "empty": "Aún no hay leads",
+    "empty": "AÃºn no hay leads",
     "actions": {
       "view_all": "Ver todos",
       "download": "Descargar",
-      "add_to_leads": "Añadir a leads",
+      "add_to_leads": "AÃ±adir a leads",
       "approve_all": "Aprobar Todos",
       "upload": "Subir Archivo",
       "upload_csv_xlsx": "Subir CSV/XLSX"
     },
     "upload": {
-      "title": "Importación Masiva de Leads",
-      "description": "Sube un archivo CSV o XLSX para importar múltiples leads a la vez.",
+      "title": "ImportaciÃ³n Masiva de Leads",
+      "description": "Sube un archivo CSV o XLSX para importar mÃºltiples leads a la vez.",
       "button": "Elegir Archivo",
       "supported_formats": "Formatos soportados: CSV, XLSX, XLS",
       "drag_drop": "o arrastra y suelta",
       "processing": "Procesando archivo...",
       "success": "{count} lead(s) importado(s) correctamente",
-      "no_valid_rows": "No se encontraron filas válidas en el archivo",
+      "no_valid_rows": "No se encontraron filas vÃ¡lidas en el archivo",
       "unsupported_format": "Tipo de archivo no soportado. Por favor sube un archivo .csv o .xlsx",
       "failed": "Error al importar en lote"
     },
@@ -601,15 +602,15 @@
       "status": "Estado",
       "type": "Tipo",
       "createdAt": "Creado",
-      "phones": "Teléfonos",
+      "phones": "TelÃ©fonos",
       "source_url": "URL de origen",
       "source_rul": "RUL de origen",
       "avatar_url": "Avatar",
       "avatar_rul": "RUL de avatar",
-      "bio": "Biografía",
-      "category": "Categoría",
+      "bio": "BiografÃ­a",
+      "category": "CategorÃ­a",
       "is_verified": "Verificado",
-      "is_public": "Público",
+      "is_public": "PÃºblico",
       "follower_count": "Seguidores",
       "following_count": "Siguiendo",
       "external_urls": "URLs externas"
@@ -620,15 +621,15 @@
       "converted": "Convertido"
     },
     "confirm": {
-      "delete_one": "¿Eliminar este lead?",
-      "delete_selected": "¿Eliminar {count} lead(s) seleccionado(s)?",
-      "approve_all": "¿Aprobar todos los {count} lead(s)?"
+      "delete_one": "Â¿Eliminar este lead?",
+      "delete_selected": "Â¿Eliminar {count} lead(s) seleccionado(s)?",
+      "approve_all": "Â¿Aprobar todos los {count} lead(s)?"
     },
     "drawer": {
-      "add_title": "Añadir Lead",
+      "add_title": "AÃ±adir Lead",
       "view_title": "Detalles del Lead",
       "edit_title": "Editar Lead",
-      "placeholder": "Esto es un placeholder. Más adelante puedes poner un formulario real aquí.",
+      "placeholder": "Esto es un placeholder. MÃ¡s adelante puedes poner un formulario real aquÃ­.",
       "fields_title": "Campos (ejemplo)",
       "fields": {
         "first_name": "Nombre",
@@ -642,7 +643,7 @@
     "details": {
       "name": "Nombre",
       "email": "Emails",
-      "phones": "Números de teléfono",
+      "phones": "NÃºmeros de telÃ©fono",
       "company": "Empresa",
       "job_title": "Cargo",
       "type": "Tipo",
@@ -655,10 +656,10 @@
       "folder": "Carpeta",
       "folder_placeholder": "Selecciona una carpeta",
       "emails": "Emails",
-      "phones": "Números de teléfono",
-      "add_email": "Añadir email",
-      "add_phone": "Añadir teléfono",
-      "email_invalid": "Email inválido",
+      "phones": "NÃºmeros de telÃ©fono",
+      "add_email": "AÃ±adir email",
+      "add_phone": "AÃ±adir telÃ©fono",
+      "email_invalid": "Email invÃ¡lido",
       "email_placeholder": "email@example.com",
       "phone_placeholder": "+123456789",
       "company": "Empresa",
@@ -671,8 +672,8 @@
       "is_converted": "Convertido"
     },
     "scrape": {
-      "success": "Lead añadido correctamente.",
-      "failed": "No se pudo añadir el lead."
+      "success": "Lead aÃ±adido correctamente.",
+      "failed": "No se pudo aÃ±adir el lead."
     },
     "approve": {
       "success": "{count} lead(s) aprobado(s) correctamente.",
@@ -718,27 +719,27 @@
     "instagram_analyzer": {
       "title": "Analizador de Instagram",
       "subtitle": "Extraer seguidores o siguiendo de cualquier cuenta de Instagram",
-      "info": "La extracción puede tardar varios minutos dependiendo del número de cuentas. Los resultados aparecerán en la tabla a continuación.",
+      "info": "La extracciÃ³n puede tardar varios minutos dependiendo del nÃºmero de cuentas. Los resultados aparecerÃ¡n en la tabla a continuaciÃ³n.",
       "form": {
-        "title": "Configuración del Extractor",
+        "title": "ConfiguraciÃ³n del Extractor",
         "folder": "Seleccionar Carpeta",
         "folder_placeholder": "Elegir una carpeta",
         "folder_required": "Por favor seleccione una carpeta",
         "username": "Nombre de Usuario de Instagram",
         "username_placeholder": "p. ej., filmdirectorbrucemac",
         "username_required": "Por favor ingrese un nombre de usuario",
-        "type": "Tipo de Extracción",
+        "type": "Tipo de ExtracciÃ³n",
         "type_required": "Por favor seleccione un tipo",
         "type_followers": "Seguidores",
         "type_following": "Siguiendo",
-        "max_limit": "Límite Máximo",
-        "max_limit_required": "Por favor ingrese un límite",
-        "max_limit_range": "El límite debe estar entre 1 y 10,000",
-        "submit": "Iniciar Extracción"
+        "max_limit": "LÃ­mite MÃ¡ximo",
+        "max_limit_required": "Por favor ingrese un lÃ­mite",
+        "max_limit_range": "El lÃ­mite debe estar entre 1 y 10,000",
+        "submit": "Iniciar ExtracciÃ³n"
       },
       "results": {
-        "title": "Leads Extraídos",
-        "empty": "Complete el formulario arriba para comenzar la extracción. Los resultados aparecerán aquí."
+        "title": "Leads ExtraÃ­dos",
+        "empty": "Complete el formulario arriba para comenzar la extracciÃ³n. Los resultados aparecerÃ¡n aquÃ­."
       },
       "has_contacts": "Tiene Contactos"
     }
@@ -800,27 +801,27 @@
     "subtitle": "Supervisa el rendimiento y la actividad de leads.",
     "filters": {
       "title": "Filtros",
-      "subtitle": "Selecciona un rango de fechas para actualizar los gráficos."
+      "subtitle": "Selecciona un rango de fechas para actualizar los grÃ¡ficos."
     },
     "charts": {
-      "leads_by_type_bar": "Leads añadidos (por tipo)",
-      "weekly_leads": "Leads añadidos (últimos 7 días)",
-      "campaign_metrics": "Rendimiento de Campañas"
+      "leads_by_type_bar": "Leads aÃ±adidos (por tipo)",
+      "weekly_leads": "Leads aÃ±adidos (Ãºltimos 7 dÃ­as)",
+      "campaign_metrics": "Rendimiento de CampaÃ±as"
     },
     "tables": {
-      "recent_campaigns": "Campañas Recientes"
+      "recent_campaigns": "CampaÃ±as Recientes"
     },
     "stats": {
       "totalLeads": "Total de leads",
       "converted": "Convertidos",
       "conversionRate": "Tasa de conv.",
-      "avgPerDay": "Prom. / día",
+      "avgPerDay": "Prom. / dÃ­a",
       "subtitles": {
         "customRange": "Rango personalizado",
-        "lastDays": "Últimos {days} días",
+        "lastDays": "Ãšltimos {days} dÃ­as",
         "markedConverted": "Marcados como convertidos",
         "convertedOverTotal": "Convertidos / total",
-        "averagePerDay": "Promedio por día"
+        "averagePerDay": "Promedio por dÃ­a"
       }
     }
   },
@@ -829,7 +830,7 @@
     "tabs": {
       "general": "General",
       "profile": "Perfil",
-      "password_security": "Contraseña y seguridad",
+      "password_security": "ContraseÃ±a y seguridad",
       "support": "Reportar Error"
     },
     "general": {
@@ -838,15 +839,15 @@
     "notifications": {
       "title": "Notificaciones",
       "deactivateBrevoActivity": "Desactivar notificaciones sobre la actividad de Brevo",
-      "smsCreditEmailAlert": "Recibir un correo cuando tu crédito de SMS baje del umbral que estableciste"
+      "smsCreditEmailAlert": "Recibir un correo cuando tu crÃ©dito de SMS baje del umbral que estableciste"
     },
     "invoices": {
       "title": "Tus facturas",
-      "receiveByEmail": "¿Quieres recibir tus facturas por correo cuando renueves tu plan?"
+      "receiveByEmail": "Â¿Quieres recibir tus facturas por correo cuando renueves tu plan?"
     },
     "accountAccess": {
       "title": "Acceso a tu cuenta",
-      "allowSupportAccess": "¿Autorizas a Brevo a acceder a tu cuenta para brindar soporte?"
+      "allowSupportAccess": "Â¿Autorizas a Brevo a acceder a tu cuenta para brindar soporte?"
     },
     "actions": {
       "save": "Guardar"
@@ -854,10 +855,10 @@
     "closeAccount": {
       "title": "Cerrar tu cuenta",
       "button": "Cerrar tu cuenta definitivamente",
-      "helpText": "Todos los datos de esta cuenta se eliminarán permanentemente",
-      "confirmTitle": "¿Cerrar la cuenta?",
-      "confirmText": "Esta acción es permanente. Tu cuenta y todos los datos asociados se eliminarán de forma definitiva. ¿Estás seguro de que deseas continuar?",
-      "confirmOk": "Sí, cerrar mi cuenta",
+      "helpText": "Todos los datos de esta cuenta se eliminarÃ¡n permanentemente",
+      "confirmTitle": "Â¿Cerrar la cuenta?",
+      "confirmText": "Esta acciÃ³n es permanente. Tu cuenta y todos los datos asociados se eliminarÃ¡n de forma definitiva. Â¿EstÃ¡s seguro de que deseas continuar?",
+      "confirmOk": "SÃ­, cerrar mi cuenta",
       "confirmCancel": "Cancelar"
     },
     "errors": {
@@ -871,24 +872,24 @@
     "uploadAvatar": "Subir avatar",
     "firstName": "Nombre",
     "lastName": "Apellido",
-    "email": "Correo electrónico",
+    "email": "Correo electrÃ³nico",
     "save": "Guardar cambios",
-    "changePassword": "Cambiar contraseña",
+    "changePassword": "Cambiar contraseÃ±a",
     "errors": {
       "firstName": "El nombre es obligatorio.",
       "lastName": "El apellido es obligatorio.",
       "email": "El correo es obligatorio.",
-      "invalidEmail": "Formato de correo inválido."
+      "invalidEmail": "Formato de correo invÃ¡lido."
     }
   },
 
   "password_and_security": {
-    "title": "Contraseña y seguridad",
-    "description": "Restablece tu contraseña de forma segura solicitando una contraseña de un solo uso (OTP) enviada a tu correo electrónico registrado.",
-    "resetPassword": "Restablecer contraseña",
+    "title": "ContraseÃ±a y seguridad",
+    "description": "Restablece tu contraseÃ±a de forma segura solicitando una contraseÃ±a de un solo uso (OTP) enviada a tu correo electrÃ³nico registrado.",
+    "resetPassword": "Restablecer contraseÃ±a",
     "confirm": {
-      "title": "¿Restablecer tu contraseña?",
-      "description": "Enviaremos una contraseña de un solo uso (OTP) a tu correo electrónico registrado para restablecer tu contraseña.",
+      "title": "Â¿Restablecer tu contraseÃ±a?",
+      "description": "Enviaremos una contraseÃ±a de un solo uso (OTP) a tu correo electrÃ³nico registrado para restablecer tu contraseÃ±a.",
       "confirmButton": "Enviar OTP",
       "cancelButton": "Cancelar"
     },
@@ -896,7 +897,7 @@
       "otpSent": "OTP enviado correctamente"
     },
     "error": {
-      "otpFailed": "No se pudo enviar el OTP. Inténtalo de nuevo."
+      "otpFailed": "No se pudo enviar el OTP. IntÃ©ntalo de nuevo."
     }
   },
 
@@ -904,7 +905,7 @@
     "title": "Notificaciones",
     "empty": "No tienes notificaciones.",
     "actions": {
-      "mark_all_read": "Marcar todo como leído",
+      "mark_all_read": "Marcar todo como leÃ­do",
       "clear_all": "Borrar todo"
     },
     "badge": {
@@ -913,7 +914,7 @@
     "level": {
       "error": "error",
       "warning": "advertencia",
-      "success": "éxito",
+      "success": "Ã©xito",
       "info": "info"
     }
   },
@@ -923,7 +924,7 @@
       "total_leads": {
         "title": "Total de leads",
         "subtitle": {
-          "delta": "Comparado con ayer • {todayLabel}",
+          "delta": "Comparado con ayer â€¢ {todayLabel}",
           "all_sources": "Todas las fuentes combinadas"
         }
       },
@@ -931,14 +932,14 @@
         "title": "Convertidos",
         "subtitle": {
           "percent_of_total": "{percent}% del total",
-          "dash": "—"
+          "dash": "â€”"
         }
       },
       "deleted": {
         "title": "Eliminados",
         "subtitle": {
           "percent_of_total": "{percent}% del total",
-          "dash": "—"
+          "dash": "â€”"
         }
       },
       "by_type": {
@@ -956,17 +957,17 @@
   "scraper": {
     "card": {
       "title": "Iniciar scraping",
-      "subtitle": "Extrae leads de LinkedIn o Instagram y guárdalos en tus leads.",
+      "subtitle": "Extrae leads de LinkedIn o Instagram y guÃ¡rdalos en tus leads.",
       "manage": "Gestionar"
     },
     "start": "Iniciar",
     "linkedin": {
       "title": "LinkedIn",
-      "desc": "Extrae detalles del perfil + contactos si están disponibles."
+      "desc": "Extrae detalles del perfil + contactos si estÃ¡n disponibles."
     },
     "instagram": {
       "title": "Instagram",
-      "desc": "Extrae detalles públicos del perfil como el usuario y la bio."
+      "desc": "Extrae detalles pÃºblicos del perfil como el usuario y la bio."
     },
     "modal": {
       "linkedin": "Iniciar scraping de LinkedIn",
@@ -974,7 +975,7 @@
       "profileUrl": "URL del perfil",
       "profileUrlRequired": "La URL del perfil es obligatoria",
       "ok": "Iniciar scraping",
-      "note": "Si LinkedIn usa SignalHire, los leads pueden aparecer después de que termine el callback."
+      "note": "Si LinkedIn usa SignalHire, los leads pueden aparecer despuÃ©s de que termine el callback."
     },
     "status": {
       "running": "EN PROCESO",
@@ -982,3 +983,4 @@
     }
   }
 }
+

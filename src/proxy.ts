@@ -67,6 +67,12 @@ export async function proxy(req: NextRequest) {
   const isBlocked = Boolean(session?.data?.is_blocked ?? session?.is_blocked);
   if (isBlocked) return redirectTo(req, "/auth/signin", pathname + search);
 
+  // Check if user has completed onboarding
+  const isOnboardingCompleted = Boolean(session?.data?.is_onboarding_completed ?? session?.is_onboarding_completed);
+  if (!isOnboardingCompleted && !pathname.startsWith("/onboarding")) {
+    return redirectTo(req, "/onboarding", pathname + search);
+  }
+
   // ✅ IMPORTANT: your routes are /dashboard/a/[id] and /dashboard/u/[id]
   const userId = String(session?.data?.id ?? session?.data?._id ?? "");
   // fallback if id missing (avoid redirect loops)

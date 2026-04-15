@@ -2,7 +2,7 @@ import api from "@/api/axios";
 import { apiEndpoints } from "@/api/end-points";
 import { getAccessToken } from "@/lib/cookies";
 import { GenericResponse } from "@/types/api";
-import { UpdateProfilePayload } from "@/types/api/user";
+import { UpdateProfilePayload, OnboardingPayload } from "@/types/api/user";
 
 export type FetchUsersParams = {
   page?: number; // 1-based
@@ -137,6 +137,20 @@ export async function UploadAvatar(input: FormData): Promise<GenericResponse> {
   };
 
   const { data } = await api.put(apiEndpoints.user.uploadAvatar, input, {
+    headers,
+  });
+
+  return data;
+}
+
+/* ================= UPDATE ONBOARDING ================= */
+export async function UpdateOnboarding(input: OnboardingPayload): Promise<GenericResponse> {
+  const headers = {
+    Authorization: `Bearer ${getAccessToken()}`,
+    "Content-Type": "application/json",
+  };
+
+  const { data } = await api.put(apiEndpoints.user.updateOnboarding, input, {
     headers,
   });
 

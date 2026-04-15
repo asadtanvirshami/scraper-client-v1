@@ -15,6 +15,7 @@ import {
   Popconfirm,
   message,
   Alert,
+  Avatar,
 } from "antd";
 import {
   ReloadOutlined,
@@ -26,10 +27,12 @@ import {
   UploadOutlined,
   UsergroupAddOutlined,
   EyeOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import type { Lead } from "@/types/leads";
+import { getLeadAvatarSrc } from "@/features/leads/utils/avatar";
 import { useAppDrawer } from "@/components/layout/app-drawer/user-app-drawer";
 import TableHeaderTitle from "@/components/ui (generic)/table-header-title";
 import LeadForm from "../../form";
@@ -65,6 +68,7 @@ type Props = {
   /** ✅ Show file upload input */
   showFileUpload?: boolean;
   showModernFileUpload?: boolean;
+  showProfileAvatar?: boolean;
   /** ✅ Custom card styling for flexible height */
   cardStyle?: React.CSSProperties;
 };
@@ -85,6 +89,7 @@ const LeadsTableServer: React.FC<Props> = ({
   showFilters = true,
   showFileUpload = false,
   showModernFileUpload = false,
+  showProfileAvatar = false,
   cardStyle,
 }) => {
   const { Text } = Typography;
@@ -277,8 +282,34 @@ const LeadsTableServer: React.FC<Props> = ({
     {
       title: <FormattedMessage id="leads.table.name" defaultMessage="Name" />,
       key: "name",
-      render: (_, record) =>
-        `${record.first_name || ""} ${record.last_name || ""}`.trim() || "-",
+      render: (_, record) => {
+        const fullName =
+          `${record.first_name || ""} ${record.last_name || ""}`.trim() || "-";
+
+        if (!showProfileAvatar) return fullName;
+
+        const avatarSrc = getLeadAvatarSrc(record);
+        const subtitle = record.username ? `@${record.username}` : record.emails?.[0] || "";
+
+        return (
+          <Space size={12} align="center">
+            <Avatar
+              size={36}
+              src={avatarSrc}
+              icon={<UserOutlined />}
+              style={{ backgroundColor: "#f5f5f5", flexShrink: 0 }}
+            />
+            <div className="min-w-0">
+              <div className="font-medium leading-5">{fullName}</div>
+              {subtitle ? (
+                <Text type="secondary" className="!text-xs">
+                  {subtitle}
+                </Text>
+              ) : null}
+            </div>
+          </Space>
+        );
+      },
     },
     {
       title: <FormattedMessage id="leads.table.email" defaultMessage="Email" />,
