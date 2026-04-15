@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import {
@@ -15,7 +15,11 @@ import {
   Alert,
   Switch,
 } from "antd";
-import { InstagramOutlined, LoadingOutlined } from "@ant-design/icons";
+import {
+  InstagramOutlined,
+  LoadingOutlined,
+  TwitterOutlined,
+} from "@ant-design/icons";
 import { FormattedMessage, useIntl } from "react-intl";
 
 import { useUserInfo } from "@/helpers/use-user";
@@ -27,10 +31,35 @@ import LeadsTableServer from "../lead-table";
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-const InstagramAnalyzer: React.FC = () => {
+type AnalyzerPlatform = "instagram" | "twitter";
+
+type InstagramAnalyzerProps = {
+  platform?: AnalyzerPlatform;
+  defaultType?: "followers" | "following";
+  lockType?: boolean;
+  compact?: boolean;
+  showProfileAvatar?: boolean;
+};
+
+const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
+  platform = "instagram",
+  defaultType = "followers",
+  lockType = false,
+  compact = false,
+  showProfileAvatar = false,
+}) => {
   const intl = useIntl();
   const { id } = useUserInfo();
   const [form] = Form.useForm();
+
+  const isTwitter = platform === "twitter";
+  const PlatformIcon = isTwitter ? TwitterOutlined : InstagramOutlined;
+  const titleText = isTwitter ? "Twitter (X) Analyzer" : "Instagram Analyzer";
+  const subtitleText = isTwitter
+    ? "Scrape followers or following from any Twitter (X) account"
+    : "Scrape followers or following from any Instagram account";
+  const usernameLabel = isTwitter ? "Twitter Username" : "Instagram Username";
+  const usernamePlaceholder = isTwitter ? "e.g., elonmusk" : "e.g., filmdirectorbrucemac";
 
   const [scrapeQuery, setScrapeQuery] = useState({
     page: 1,
@@ -43,7 +72,6 @@ const InstagramAnalyzer: React.FC = () => {
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [scrapedUsername, setScrapedUsername] = useState<string | null>(null);
 
-  // Fetch folders for dropdown
   const { data: foldersResp, isLoading: foldersLoading } = useFetchFolders({
     user_id: id,
     limit: 1000,
@@ -53,7 +81,6 @@ const InstagramAnalyzer: React.FC = () => {
     (foldersResp as any)?.data ??
     []) as any[];
 
-  // Fetch leads for the selected folder
   const {
     data: leads,
     isFetching: leadsFetching,
@@ -72,10 +99,8 @@ const InstagramAnalyzer: React.FC = () => {
 
   const scrapeMutation = useScrapeFollowersOrFollowing();
 
-  // Auto-refetch leads when username or folder changes after scraping
   useEffect(() => {
     if (scrapedUsername && selectedFolderId) {
-      // Reset pagination to page 1 when filter changes
       setScrapeQuery((prev) => ({
         ...prev,
         page: 1,
@@ -86,48 +111,38 @@ const InstagramAnalyzer: React.FC = () => {
 
   const handleSubmit = async (values: any) => {
     try {
+      const username = String(values.username || "").trim().replace(/^@+/, "");
       await scrapeMutation.mutateAsync({
         user_id: id ?? "",
         folder_id: values.folder_id,
-        username: values.username,
+        username,
         type: values.type,
         max_limit: values.max_limit,
       });
 
-      // Update state to trigger refetch via useEffect (will also reset page to 1)
       setSelectedFolderId(values.folder_id);
-      setScrapedUsername(values.username);
+      setScrapedUsername(username);
     } catch (error) {
       console.error("Scraping error:", error);
     }
   };
 
   return (
-    <div className="p-4 lg:p-6">
-      {/* Header */}
+    <div className={compact ? "" : "p-4 lg:p-6"}>
       <div className="mb-4">
         <Title level={4} className="!mb-1">
-          <InstagramOutlined className="mr-2" />
-          <FormattedMessage
-            id="leads.instagram_analyzer.title"
-            defaultMessage="Instagram Analyzer"
-          />
+          <PlatformIcon className="mr-2" />
+          {titleText}
         </Title>
-        <Text type="secondary">
-          <FormattedMessage
-            id="leads.instagram_analyzer.subtitle"
-            defaultMessage="Scrape followers or following from any Instagram account"
-          />
-        </Text>
+        <Text type="secondary">{subtitleText}</Text>
       </div>
 
       <Row gutter={[16, 16]}>
-        {/* Scraper Form */}
         <Col xs={24}>
           <Card
             title={
               <Space>
-                <InstagramOutlined />
+                <PlatformIcon />
                 <FormattedMessage
                   id="leads.instagram_analyzer.form.title"
                   defaultMessage="Scraper Settings"
@@ -152,7 +167,7 @@ const InstagramAnalyzer: React.FC = () => {
               layout="vertical"
               onFinish={handleSubmit}
               initialValues={{
-                type: "followers",
+                type: defaultType,
                 max_limit: 1000,
               }}
             >
@@ -197,12 +212,7 @@ const InstagramAnalyzer: React.FC = () => {
 
                 <Col xs={24} md={12} lg={6}>
                   <Form.Item
-                    label={
-                      <FormattedMessage
-                        id="leads.instagram_analyzer.form.username"
-                        defaultMessage="Instagram Username"
-                      />
-                    }
+                    label={usernameLabel}
                     name="username"
                     rules={[
                       {
@@ -214,13 +224,7 @@ const InstagramAnalyzer: React.FC = () => {
                       },
                     ]}
                   >
-                    <Input
-                      placeholder={intl.formatMessage({
-                        id: "leads.instagram_analyzer.form.username.placeholder",
-                        defaultMessage: "e.g., filmdirectorbrucemac",
-                      })}
-                      prefix="@"
-                    />
+                    <Input placeholder={usernamePlaceholder} prefix="@" />
                   </Form.Item>
                 </Col>
 
@@ -243,7 +247,7 @@ const InstagramAnalyzer: React.FC = () => {
                       },
                     ]}
                   >
-                    <Select style={{ width: "100%" }}>
+                    <Select style={{ width: "100%" }} disabled={lockType}>
                       <Option value="followers">
                         <FormattedMessage
                           id="leads.instagram_analyzer.form.type.followers"
@@ -303,11 +307,7 @@ const InstagramAnalyzer: React.FC = () => {
                   type="primary"
                   htmlType="submit"
                   icon={
-                    scrapeMutation.isPending ? (
-                      <LoadingOutlined />
-                    ) : (
-                      <InstagramOutlined />
-                    )
+                    scrapeMutation.isPending ? <LoadingOutlined /> : <PlatformIcon />
                   }
                   loading={scrapeMutation.isPending}
                   size="large"
@@ -322,7 +322,6 @@ const InstagramAnalyzer: React.FC = () => {
           </Card>
         </Col>
 
-        {/* Results Table */}
         <Col xs={24}>
           <Card
             title={
@@ -378,6 +377,7 @@ const InstagramAnalyzer: React.FC = () => {
                 onFetch={(next) => setScrapeQuery(next as any)}
                 showFilters={true}
                 showFileUpload={false}
+                showProfileAvatar={showProfileAvatar}
               />
             )}
           </Card>

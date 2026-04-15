@@ -31,6 +31,7 @@ import { FormattedMessage } from "react-intl";
 import Spinner from "@/components/ui (generic)/spinner";
 import { useUserInfo } from "@/helpers/use-user";
 import { useFetchLeadsList } from "@/features/leads/hooks/queries";
+import { getLeadAvatarSrc } from "@/features/leads/utils/avatar";
 import LinkedInLeadView from "./components/LinkedInLeadView";
 
 const { Title, Text } = Typography;
@@ -97,12 +98,12 @@ function InfoItem({
   icon?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl p-3">
+    <div className="rounded-xl border border-slate-200/70 bg-white/70 p-4">
       <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide leading-none">
         {icon ? <span className="inline-flex shrink-0 text-sm">{icon}</span> : null}
         <span className="leading-none">{label}</span>
       </div>
-      <div className="mt-2 text-sm break-words leading-6">{value}</div>
+      <div className="mt-2.5 text-sm break-words leading-6">{value}</div>
     </div>
   );
 }
@@ -117,12 +118,12 @@ function StatTile({
   icon?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl px-4 py-3">
+    <div className="rounded-2xl border border-slate-200/70 bg-white/70 px-4 py-4">
       <div className="inline-flex items-center gap-2 text-xs uppercase tracking-wide leading-none">
         {icon ? <span className="inline-flex shrink-0 text-sm">{icon}</span> : null}
         <span className="leading-none">{label}</span>
       </div>
-      <div className="mt-2 text-2xl font-semibold leading-none">{value}</div>
+      <div className="mt-3 text-2xl font-semibold leading-none">{value}</div>
     </div>
   );
 }
@@ -171,20 +172,23 @@ export default function LeadParamsLayout({ leadId, queryType }: Props) {
           " ",
         ).trim() || "Lead";
 
+  const avatarSrc = getLeadAvatarSrc(lead);
+
   return (
-    <div className="p-4 lg:p-6 space-y-4">
+    <div className="p-4 lg:p-6 space-y-5">
       <Card
         className="overflow-hidden"
         styles={{ body: { padding: 0 } }}
       >
-        <div className="p-5">
-          <Space align="center" size={16}>
+        <div className="p-6">
+          <Space align="start" size={16} className="w-full">
             <Avatar
-              size={72}
-              src={lead.avatar_url || lead.avatar_rul}
+              size={76}
+              src={avatarSrc}
               icon={<UserOutlined />}
+              style={{ backgroundColor: "#f5f5f5", flexShrink: 0 }}
             />
-            <div>
+            <div className="min-w-0 flex-1">
               <Title level={4} className="!mb-1">
                 {displayName}
               </Title>
@@ -255,7 +259,7 @@ export default function LeadParamsLayout({ leadId, queryType }: Props) {
           </Space>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 p-4 sm:gap-3 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 px-4 pb-5 sm:gap-4 md:grid-cols-4 md:px-6">
           <StatTile
             label={<FormattedMessage id="leads.instagram_view.followers" defaultMessage="Followers" />}
             value={toNumber(lead.followers ?? lead.follower_count)}
@@ -284,7 +288,7 @@ export default function LeadParamsLayout({ leadId, queryType }: Props) {
       <Row gutter={[16, 16]}>
         <Col xs={24} lg={12}>
           <Card title={<FormattedMessage id="leads.instagram_view.profile" defaultMessage="Profile" />}>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <InfoItem label={<FormattedMessage id="leads.form.first_name" defaultMessage="First name" />} value={toDisplay(lead.first_name)} icon={<UserOutlined />} />
               <InfoItem label={<FormattedMessage id="leads.form.last_name" defaultMessage="Last name" />} value={toDisplay(lead.last_name)} icon={<UserOutlined />} />
               <InfoItem label={<FormattedMessage id="leads.instagram_view.full_name" defaultMessage="Full Name" />} value={toDisplay(lead.full_name)} icon={<IdcardOutlined />} />
@@ -296,14 +300,14 @@ export default function LeadParamsLayout({ leadId, queryType }: Props) {
               <InfoItem label={<FormattedMessage id="leads.table.category" defaultMessage="Category" />} value={toDisplay(lead.category)} icon={<InfoCircleOutlined />} />
               <InfoItem label={<FormattedMessage id="leads.instagram_view.instagram_profile_id" defaultMessage="Instagram Profile ID" />} value={toDisplay(lead.instagram_profile_id)} icon={<NumberOutlined />} />
             </div>
-            <Divider />
+            <Divider className="!my-4" />
             <InfoItem label={<FormattedMessage id="leads.table.bio" defaultMessage="Bio" />} value={toDisplay(lead.bio)} icon={<InfoCircleOutlined />} />
           </Card>
         </Col>
 
         <Col xs={24} lg={12}>
           <Card title={<FormattedMessage id="leads.instagram_view.source_visibility" defaultMessage="Source & Visibility" />}>
-            <div className="grid grid-cols-1 gap-3">
+            <div className="grid grid-cols-1 gap-4">
               <InfoItem label={<FormattedMessage id="leads.table.source_url" defaultMessage="Source URL" />} value={renderLink(lead.source_url)} icon={<GlobalOutlined />} />
               <InfoItem label={<FormattedMessage id="leads.table.source_rul" defaultMessage="Source RUL" />} value={renderLink(lead.source_rul)} icon={<GlobalOutlined />} />
               <InfoItem label={<FormattedMessage id="leads.table.avatar_url" defaultMessage="Avatar" />} value={renderLink(lead.avatar_url)} icon={<PictureOutlined />} />
@@ -321,7 +325,7 @@ export default function LeadParamsLayout({ leadId, queryType }: Props) {
         {isInstagram ? (
           <Col xs={24}>
             <Card title={<FormattedMessage id="leads.instagram_view.deep_data" defaultMessage="Instagram Deep Data" />}>
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <InfoItem label={<FormattedMessage id="leads.instagram_view.followers" defaultMessage="Followers" />} value={toNumber(lead.followers)} icon={<TeamOutlined />} />
                 <InfoItem label={<FormattedMessage id="leads.instagram_view.following" defaultMessage="Following" />} value={toNumber(lead.following)} icon={<UserOutlined />} />
                 <InfoItem label={<FormattedMessage id="leads.table.follower_count" defaultMessage="Followers" />} value={toNumber(lead.follower_count)} icon={<TeamOutlined />} />
@@ -335,18 +339,18 @@ export default function LeadParamsLayout({ leadId, queryType }: Props) {
                 <InfoItem label={<FormattedMessage id="leads.table.external_urls" defaultMessage="External URLs" />} value={toDisplay(lead.external_urls)} icon={<GlobalOutlined />} />
               </div>
 
-              <Divider />
+              <Divider className="!my-4" />
 
               <div>
                 <Text strong>
                   <FormattedMessage id="leads.instagram_view.links" defaultMessage="Links" />
                 </Text>
-                <div className="mt-2 space-y-2">
+                <div className="mt-3 space-y-3">
                   {Array.isArray(lead.links) && lead.links.length ? (
                     lead.links.map((item, index) => (
                       <div
                         key={`${item?.url || "link"}-${index}`}
-                        className="rounded-xl p-3"
+                        className="rounded-xl border border-slate-200/70 bg-white/70 p-4"
                       >
                         <div className="font-medium">{toDisplay(item?.title)}</div>
                         <div className="text-sm">{toDisplay(item?.subtitle)}</div>
