@@ -10,8 +10,9 @@ const AppLayout = ({ childrens }: { childrens: React.ReactNode }) => {
   const path = usePathname();
   const isAuthPath = path.startsWith("/auth");
   const isPlansRoute = path.startsWith("/plans");
+  const isOnboardingPath = path.startsWith("/onboarding");
 
-  if (isAuthPath || isPlansRoute) {
+  if (isAuthPath || isPlansRoute || isOnboardingPath) {
     return (
       <section className="flex justify-center h-screen items-center">
         {childrens}

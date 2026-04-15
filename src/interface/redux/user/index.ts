@@ -10,6 +10,10 @@ export interface User {
   is_update_enabled: boolean;
   is_feedback_completed: boolean;
   is_notifications_enabled: boolean;
+  is_onboarding_completed: boolean;
+  heard_about?: string;
+  business_name?: string;
+  business_website?: string;
   blocked?: boolean;
 }
 

@@ -54,6 +54,7 @@ export const apiEndpoints = {
     updateMe: "/user/me",
     deleteMe: "/user/me",
     uploadAvatar: "/user/avatar",
+    updateOnboarding: "/user/onboarding",
 
     // user
     getAllUser: (params: {

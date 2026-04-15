@@ -1,6 +1,6 @@
-import { BulkDeleteUsers, UpdateProfile, UploadAvatar } from "@/api/api_calls/user";
+import { BulkDeleteUsers, UpdateProfile, UploadAvatar, UpdateOnboarding } from "@/api/api_calls/user";
 import { GenericResponse } from "@/types/api";
-import { UpdateProfilePayload } from "@/types/api/user";
+import { UpdateProfilePayload, OnboardingPayload } from "@/types/api/user";
 import {
   keepPreviousData,
   useMutation,
@@ -100,3 +100,12 @@ export const useBulkDeleteUsers = () => {
     },
   });
 };
+
+/* ================= ONBOARDING ================= */
+export const useUpdateOnboarding = () =>
+  useMutation<GenericResponse, Error, OnboardingPayload>({
+    mutationKey: ["user", "updateOnboarding"],
+    mutationFn: async (payload) => {
+      return await UpdateOnboarding(payload);
+    },
+  });

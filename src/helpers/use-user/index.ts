@@ -21,6 +21,10 @@ const useUserInfo = () => {
     is_verified: user?.is_verified,
     is_notifications_enabled: user?.is_notifications_enabled,
     is_update_enabled: user?.is_update_enabled,
+    is_onboarding_completed: user?.is_onboarding_completed,
+    heard_about: user?.heard_about,
+    business_name: user?.business_name,
+    business_website: user?.business_website,
   };
 };
 

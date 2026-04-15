@@ -8,3 +8,10 @@ export type UpdateProfilePayload = {
   is_deleted?: boolean;
   is_verified?: boolean;
 };
+
+export type OnboardingPayload = {
+  step: 1 | 2;
+  heard_about?: "mouth/word" | "instagram" | "linkedin" | "facebook" | "github";
+  business_name?: string;
+  business_website?: string;
+};
