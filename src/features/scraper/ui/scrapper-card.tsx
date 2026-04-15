@@ -36,6 +36,7 @@ type Props = {
   defaultFolderId?: string;
   showManageButton?: boolean;
   platform?: ScrapeType;
+  hideLinkedin?: boolean;
 };
 
 const { Title, Text } = Typography;
@@ -64,6 +65,7 @@ export default function LeadsScraperCard({
   defaultFolderId,
   showManageButton = true,
   platform,
+  hideLinkedin = false,
 }: Props) {
   const intl = useIntl();
   const queryClient = useQueryClient();
@@ -269,6 +271,7 @@ export default function LeadsScraperCard({
     <>
       <Card
         className="w-full"
+        bodyStyle={{ padding: "16px" }}
         title={
           <Space>
             <FormattedMessage
@@ -288,7 +291,7 @@ export default function LeadsScraperCard({
 
         <Divider />
 
-        {platform !== "INSTAGRAM" ? (
+        {platform !== "INSTAGRAM" && !hideLinkedin ? (
           <>
             {/* LinkedIn row */}
             <div className="flex items-start justify-between gap-3">

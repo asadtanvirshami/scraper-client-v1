@@ -5,6 +5,7 @@ import { Layout, Menu } from "antd";
 import type { MenuProps } from "antd";
 import {
   ChartBarSquareIcon,
+  ChartPieIcon,
   MegaphoneIcon,
   UserGroupIcon,
   Cog6ToothIcon,
@@ -25,6 +26,7 @@ const { Sider } = Layout;
 type MenuKey =
   // workspace
   | "dashboard"
+  | "analysis"
   | "campaigns"
   | "leads"
   | "folders"
@@ -54,6 +56,7 @@ const AppSider: React.FC = () => {
   const routes: Record<MenuKey, string> = {
     // workspace
     dashboard: uid ? `/dashboard/u/${uid}` : "/dashboard",
+    analysis: "/analysis",
     campaigns: "/campaigns",
     leads: "/leads",
     folders: "/folders",
@@ -76,6 +79,14 @@ const AppSider: React.FC = () => {
       key: "dashboard",
       icon: <ChartBarSquareIcon className="h-5 w-5" />,
       label: intl.formatMessage({ id: "sidebar.dashboard" }),
+    },
+    {
+      key: "analysis",
+      icon: <ChartPieIcon className="h-5 w-5" />,
+      label: intl.formatMessage({
+        id: "sidebar.analysis",
+        defaultMessage: "Analysis",
+      }),
     },
     {
       key: "campaigns",
