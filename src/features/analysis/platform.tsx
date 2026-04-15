@@ -1,11 +1,16 @@
 ﻿"use client";
 
-import { Card, Segmented, Typography } from "antd";
-import { useMemo, useState } from "react";
+import { Typography } from "antd";
+import {
+  TeamOutlined,
+  UserAddOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
+import { useMemo } from "react";
 
 import AnalysisBreadcrumbs from "./ui/analysis-breadcrumbs";
 import OptionGrid from "./ui/option-grid";
-import LeadsScraperCard from "@/features/scraper/ui/scrapper-card";
+import AnalysisProfileExtractor from "./profile-extractor";
 import {
   ANALYSIS_PLATFORM_MAP,
   ANALYSIS_SERVICE_OPTIONS,
@@ -14,20 +19,20 @@ import {
 
 const { Text, Title } = Typography;
 
-type ExtractorMode = "individual" | "bulk";
-
 type AnalysisPlatformPageProps = {
   platform: AnalysisPlatformSlug;
 };
 
 const AnalysisPlatformPage = ({ platform }: AnalysisPlatformPageProps) => {
   const platformInfo = ANALYSIS_PLATFORM_MAP[platform];
-  const [mode, setMode] = useState<ExtractorMode>("individual");
+  const isLinkedIn = platform === "linkedin";
+  const isInstagram = platform === "instagram";
 
   const serviceItems = useMemo(
     () =>
       ANALYSIS_SERVICE_OPTIONS.map((service) => ({
         key: service.slug,
+        icon: service.slug === "followers" ? <TeamOutlined /> : <UserAddOutlined />,
         title: service.title,
         description: service.description,
         href: `/analysis/${platform}/${service.slug}`,
@@ -49,28 +54,39 @@ const AnalysisPlatformPage = ({ platform }: AnalysisPlatformPageProps) => {
         <Title level={4} className="!mb-1">
           {platformInfo.title}
         </Title>
-        <Text type="secondary">
-          Choose extractor mode and continue with the same scraping flow used in Leads.
-        </Text>
+        {!isLinkedIn ? (
+          <Text type="secondary">
+            Choose from individual or bulk extraction services and continue with the same scraping flow used in Leads.
+          </Text>
+        ) : null}
       </div>
 
-      <Card className="mb-4" bodyStyle={{ padding: 16 }}>
-        <Segmented
-          value={mode}
-          onChange={(value) => setMode(value as ExtractorMode)}
-          options={[
-            { label: "Individual extractor", value: "individual" },
-            { label: "Bulk extractor", value: "bulk" },
-          ]}
-        />
-      </Card>
+      {isLinkedIn ? (
+        <AnalysisProfileExtractor platform="linkedin" compact />
+      ) : null}
 
-      {mode === "individual" ? (
-        <LeadsScraperCard />
-      ) : (
+      {isInstagram ? (
         <>
+          <div className="mb-6">
+            <Title level={5} className="!mb-3">
+              Individual Profile Extraction
+            </Title>
+            <OptionGrid
+              items={[
+                {
+                  key: "profile",
+                  icon: <UserOutlined />,
+                  title: "Individual Profile Extraction",
+                  description:
+                    "Extract profile details for a single Instagram account and review results.",
+                  href: "/analysis/instagram/profile",
+                },
+              ]}
+            />
+          </div>
+
           <div className="mb-4">
-            <Title level={5} className="!mb-1">
+            <Title level={5} className="!mb-3">
               Bulk extractor services
             </Title>
             <Text type="secondary">
@@ -80,7 +96,7 @@ const AnalysisPlatformPage = ({ platform }: AnalysisPlatformPageProps) => {
 
           <OptionGrid items={serviceItems} />
         </>
-      )}
+      ) : null}
     </div>
   );
 };

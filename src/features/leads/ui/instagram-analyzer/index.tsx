@@ -19,6 +19,7 @@ import {
   InstagramOutlined,
   LoadingOutlined,
   TwitterOutlined,
+  LinkedinOutlined,
 } from "@ant-design/icons";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -31,7 +32,7 @@ import LeadsTableServer from "../lead-table";
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-type AnalyzerPlatform = "instagram" | "twitter";
+type AnalyzerPlatform = "instagram" | "twitter" | "linkedin";
 
 type InstagramAnalyzerProps = {
   platform?: AnalyzerPlatform;
@@ -53,13 +54,16 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
   const [form] = Form.useForm();
 
   const isTwitter = platform === "twitter";
-  const PlatformIcon = isTwitter ? TwitterOutlined : InstagramOutlined;
-  const titleText = isTwitter ? "Twitter (X) Analyzer" : "Instagram Analyzer";
-  const subtitleText = isTwitter
+  const isLinkedIn = platform === "linkedin";
+  const PlatformIcon = isTwitter ? TwitterOutlined : isLinkedIn ? LinkedinOutlined : InstagramOutlined;
+  const titleText = isLinkedIn ? "LinkedIn Analyzer" : isTwitter ? "Twitter (X) Analyzer" : "Instagram Analyzer";
+  const subtitleText = isLinkedIn
+    ? "Scrape followers or following from any LinkedIn profile"
+    : isTwitter
     ? "Scrape followers or following from any Twitter (X) account"
     : "Scrape followers or following from any Instagram account";
-  const usernameLabel = isTwitter ? "Twitter Username" : "Instagram Username";
-  const usernamePlaceholder = isTwitter ? "e.g., elonmusk" : "e.g., filmdirectorbrucemac";
+  const usernameLabel = isLinkedIn ? "LinkedIn Profile URL" : isTwitter ? "Twitter Username" : "Instagram Username";
+  const usernamePlaceholder = isLinkedIn ? "e.g., john-smith-12345 or company/acme" : isTwitter ? "e.g., elonmusk" : "e.g., filmdirectorbrucemac";
 
   const [scrapeQuery, setScrapeQuery] = useState({
     page: 1,
@@ -128,8 +132,8 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
   };
 
   return (
-    <div className={compact ? "" : "p-4 lg:p-6"}>
-      <div className="mb-4">
+    <div className={compact ? "space-y-6" : "space-y-6 p-4 lg:p-6"}>
+      <div>
         <Title level={4} className="!mb-1">
           <PlatformIcon className="mr-2" />
           {titleText}
@@ -137,7 +141,7 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
         <Text type="secondary">{subtitleText}</Text>
       </div>
 
-      <Row gutter={[16, 16]}>
+      <Row gutter={[16, 24]}>
         <Col xs={24}>
           <Card
             title={
@@ -149,29 +153,31 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
                 />
               </Space>
             }
+            bodyStyle={{ padding: 24 }}
           >
-            <Alert
-              type="info"
-              message={
-                <FormattedMessage
-                  id="leads.instagram_analyzer.info"
-                  defaultMessage="Scraping may take several minutes depending on the number of accounts. Results will appear in the table below."
-                />
-              }
-              className="mb-4"
-              showIcon
-            />
+            <div className="space-y-5">
+              <Alert
+                type="info"
+                message={
+                  <FormattedMessage
+                    id="leads.instagram_analyzer.info"
+                    defaultMessage="Scraping may take several minutes depending on the number of accounts. Results will appear in the table below."
+                  />
+                }
+                showIcon
+              />
 
-            <Form
-              form={form}
-              layout="vertical"
-              onFinish={handleSubmit}
-              initialValues={{
-                type: defaultType,
-                max_limit: 1000,
-              }}
-            >
-              <Row gutter={16}>
+              <Form
+                form={form}
+                layout="vertical"
+                onFinish={handleSubmit}
+                initialValues={{
+                  type: defaultType,
+                  max_limit: 1000,
+                }}
+                className="space-y-5"
+              >
+                <Row gutter={[24, 24]}>
                 <Col xs={24} md={12} lg={6}>
                   <Form.Item
                     label={
@@ -300,9 +306,9 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
                     />
                   </Form.Item>
                 </Col>
-              </Row>
+                </Row>
 
-              <Form.Item>
+              <Form.Item className="mb-0 mt-1">
                 <Button
                   type="primary"
                   htmlType="submit"
@@ -318,7 +324,8 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
                   />
                 </Button>
               </Form.Item>
-            </Form>
+              </Form>
+            </div>
           </Card>
         </Col>
 
@@ -332,6 +339,7 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
                 />
               </Space>
             }
+            bodyStyle={{ padding: 24 }}
             extra={
               selectedFolderId && (
                 <Space>
@@ -355,31 +363,33 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
               )
             }
           >
-            {!selectedFolderId ? (
-              <Alert
-                type="info"
-                message={
-                  <FormattedMessage
-                    id="leads.instagram_analyzer.results.empty"
-                    defaultMessage="Submit the form above to start scraping. Results will appear here."
-                  />
-                }
-                showIcon
-              />
-            ) : (
-              <LeadsTableServer
-                user_id={id ?? ""}
-                folder_id={selectedFolderId}
-                leads={leads?.data ?? []}
-                total={leads?.pagination?.total ?? 0}
-                loading={leadsFetching}
-                value={scrapeQuery}
-                onFetch={(next) => setScrapeQuery(next as any)}
-                showFilters={true}
-                showFileUpload={false}
-                showProfileAvatar={showProfileAvatar}
-              />
-            )}
+            <div className="space-y-4">
+              {!selectedFolderId ? (
+                <Alert
+                  type="info"
+                  message={
+                    <FormattedMessage
+                      id="leads.instagram_analyzer.results.empty"
+                      defaultMessage="Submit the form above to start scraping. Results will appear here."
+                    />
+                  }
+                  showIcon
+                />
+              ) : (
+                <LeadsTableServer
+                  user_id={id ?? ""}
+                  folder_id={selectedFolderId}
+                  leads={leads?.data ?? []}
+                  total={leads?.pagination?.total ?? 0}
+                  loading={leadsFetching}
+                  value={scrapeQuery}
+                  onFetch={(next) => setScrapeQuery(next as any)}
+                  showFilters={true}
+                  showFileUpload={false}
+                  showProfileAvatar={showProfileAvatar}
+                />
+              )}
+            </div>
           </Card>
         </Col>
       </Row>

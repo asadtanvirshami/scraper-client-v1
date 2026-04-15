@@ -1,4 +1,4 @@
-export type AnalysisPlatformSlug = "instagram" | "twitter";
+export type AnalysisPlatformSlug = "instagram" | "linkedin";
 
 export type AnalysisServiceSlug =
   | "followers"
@@ -25,10 +25,10 @@ export const ANALYSIS_PLATFORM_OPTIONS: AnalysisPlatformOption[] = [
       "Explore Instagram account and content data with service-level analysis options.",
   },
   {
-    slug: "twitter",
-    title: "Twitter (X)",
+    slug: "linkedin",
+    title: "LinkedIn",
     description:
-      "Run the same analysis services against Twitter (X) profiles and content sources.",
+      "Run profile and follower analysis services against LinkedIn profiles and networks.",
   },
 ];
 
@@ -54,7 +54,7 @@ export const ANALYSIS_PLATFORM_MAP: Record<
   AnalysisPlatformOption
 > = {
   instagram: ANALYSIS_PLATFORM_OPTIONS[0],
-  twitter: ANALYSIS_PLATFORM_OPTIONS[1],
+  linkedin: ANALYSIS_PLATFORM_OPTIONS[1],
 };
 
 export const ANALYSIS_SERVICE_MAP: Record<
