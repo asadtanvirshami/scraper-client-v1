@@ -171,9 +171,16 @@ export default function LeadParamsLayout({ leadId, queryType }: Props) {
           /-\s|-|\s+/g,
           " ",
         ).trim() || "Lead";
-
+        console.log(lead);
+        
   const avatarSrc = getLeadAvatarSrc(lead);
-
+  const avatarInitials = displayName
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w: string) => w[0].toUpperCase())
+    .join("");
+        
   return (
     <div className="p-4 lg:p-6 space-y-5">
       <Card
@@ -185,9 +192,11 @@ export default function LeadParamsLayout({ leadId, queryType }: Props) {
             <Avatar
               size={76}
               src={avatarSrc}
-              icon={<UserOutlined />}
-              style={{ backgroundColor: "#f5f5f5", flexShrink: 0 }}
-            />
+              icon={!avatarSrc ? undefined : <UserOutlined />}
+              style={{ backgroundColor: avatarSrc ? "#f5f5f5" : "#1677ff", flexShrink: 0, color: "#fff", fontSize: 28, fontWeight: 600 }}
+            >
+              {!avatarSrc ? avatarInitials : null}
+            </Avatar>
             <div className="min-w-0 flex-1">
               <Title level={4} className="!mb-1">
                 {displayName}
@@ -284,7 +293,7 @@ export default function LeadParamsLayout({ leadId, queryType }: Props) {
           />
         </div>
       </Card>
-
+        <div className="mt-6"/>
       <Row gutter={[16, 16]}>
         <Col xs={24} lg={12}>
           <Card title={<FormattedMessage id="leads.instagram_view.profile" defaultMessage="Profile" />}>

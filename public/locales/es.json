@@ -861,6 +861,68 @@
       "confirmOk": "SÃ­, cerrar mi cuenta",
       "confirmCancel": "Cancelar"
     },
+    "smtp": {
+      "title": "Cuentas SMTP",
+      "configurationTitle": "Configuración",
+      "sectionImapTitle": "Configuración IMAP",
+      "sectionSettingsTitle": "Configuración",
+      "field": {
+        "label": "Etiqueta",
+        "labelPlaceholder": "Nombre opcional para esta cuenta SMTP",
+        "senderName": "Nombre del remitente",
+        "senderNamePlaceholder": "Ejemplo: Tu Empresa",
+        "email": "Dirección de correo",
+        "username": "Nombre de usuario",
+        "usernamePlaceholder": "Ingresa el nombre de usuario SMTP",
+        "password": "Contraseña",
+        "passwordPlaceholder": "Ingresa la contraseña SMTP",
+        "smtpHost": "Host",
+        "smtpPort": "Puerto",
+        "smtpSecure": "Usar SSL/TLS",
+        "enableInbox": "Habilitar bandeja de entrada",
+        "imapHost": "Host IMAP",
+        "imapPort": "Puerto IMAP",
+        "imapSecure": "Usar SSL/TLS",
+        "warmupEnabled": "Warmup",
+        "messagesPerDay": "Mensajes por día",
+        "signature": "Firma",
+        "signaturePlaceholder": "Agrega la firma del correo",
+        "unsubscribeUrl": "URL de cancelación de suscripción",
+        "active": "Activo"
+      },
+      "validation": {
+        "emailRequired": "La dirección de correo es obligatoria.",
+        "emailInvalid": "Ingresa una dirección de correo válida.",
+        "usernameRequired": "El nombre de usuario SMTP es obligatorio.",
+        "passwordRequired": "La contraseña SMTP es obligatoria.",
+        "smtpHostRequired": "El host SMTP es obligatorio.",
+        "smtpPortRequired": "El puerto SMTP es obligatorio."
+      },
+      "actions": {
+        "create": "Guardar cuenta SMTP",
+        "update": "Actualizar cuenta SMTP",
+        "reset": "Restablecer formulario"
+      },
+      "tableTitle": "Cuentas SMTP configuradas",
+      "table": {
+        "email": "Correo",
+        "host": "Host SMTP",
+        "status": "Estado",
+        "dailyLimit": "Límite diario",
+        "actions": "Acciones",
+        "edit": "Editar",
+        "test": "Probar",
+        "delete": "Eliminar",
+        "deleteConfirm": "¿Eliminar esta cuenta SMTP?",
+        "deleteOk": "Eliminar",
+        "deleteCancel": "Cancelar",
+        "empty": "No hay cuentas SMTP configuradas aún."
+      },
+      "createSuccess": "Cuenta SMTP creada con éxito.",
+      "updateSuccess": "Cuenta SMTP actualizada con éxito.",
+      "saveError": "No se pudo guardar la cuenta SMTP. Verifica los valores e intenta nuevamente.",
+      "testError": "La prueba de conexión SMTP falló."
+    },
     "errors": {
       "required": "Este campo es obligatorio."
     }
