@@ -466,7 +466,7 @@ const InsightsCard: React.FC<Props> = ({ stats, dailyTotal, loading }) => {
         />
       </div>
 
-      <Card
+      {/* <Card
         className="rounded-2xl"
         style={{
           borderRadius: 16,
@@ -535,7 +535,7 @@ const InsightsCard: React.FC<Props> = ({ stats, dailyTotal, loading }) => {
             ),
           }))}
         />
-      </Card>
+      </Card> */}
     </div>
   );
 };

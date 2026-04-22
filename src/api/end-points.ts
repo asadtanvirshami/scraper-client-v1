@@ -162,6 +162,16 @@ export const apiEndpoints = {
     bulkDelete: "/email/bulk-delete",
   },
 
+  smtp: {
+    list: "/smtp/accounts",
+    getOne: (id: string) => `/smtp/accounts/${id}`,
+    create: "/smtp/accounts",
+    update: (id: string) => `/smtp/accounts/${id}`,
+    delete: (id: string) => `/smtp/accounts/${id}`,
+    test: (id: string) => `/smtp/accounts/${id}/test`,
+    send: (id: string) => `/smtp/accounts/${id}/send`,
+  },
+
   /* ================= CAMPAIGNS ================= */
 
   campaigns: {

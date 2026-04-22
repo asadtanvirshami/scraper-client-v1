@@ -1,5 +1,7 @@
 import type { Lead } from "@/types/leads";
 
+const PROXY_HOST_SUFFIXES = ["fbcdn.net", "instagram.com", "cdninstagram.com"];
+
 const normalizeUrl = (value: unknown): string | null => {
   if (typeof value !== "string") return null;
   const trimmed = value.trim();
@@ -10,12 +12,12 @@ const normalizeUrl = (value: unknown): string | null => {
 
 const isHttpUrl = (value: string) => /^https?:\/\//i.test(value);
 
-const isBlockedEmbedHost = (value: string) => {
+const shouldProxyAvatarUrl = (value: string) => {
   try {
     const parsed = new URL(value);
-    return parsed.hostname.includes("fbcdn.net");
+    return PROXY_HOST_SUFFIXES.some((suffix) => parsed.hostname.endsWith(suffix));
   } catch {
-    return true;
+    return false;
   }
 };
 
@@ -25,6 +27,10 @@ export const getLeadAvatarSrc = (lead?: Partial<Lead>): string | undefined => {
   const candidate = primary || secondary;
 
   if (!candidate || !isHttpUrl(candidate)) return undefined;
-  if (isBlockedEmbedHost(candidate)) return undefined;
+
+  if (shouldProxyAvatarUrl(candidate)) {
+    return `/api/proxy-image?url=${encodeURIComponent(candidate)}`;
+  }
+
   return candidate;
 };

@@ -8,6 +8,7 @@ import { useIntl } from "react-intl";
 import SettingsPreferences from "../form/general";
 import ProfileForm from "../form/profile";
 import PasswordSecruityForm from "../form/password-security";
+import SmtpSettings from "../form/smtp";
 import SupportTabContent from "../form/support";
 
 const SettingTabs: React.FC = () => {
@@ -37,6 +38,14 @@ const SettingTabs: React.FC = () => {
         defaultMessage: "Password & Security",
       }),
       children: <PasswordSecruityForm />,
+    },
+    {
+      key: "smtp",
+      label: intl.formatMessage({
+        id: "settings.tabs.smtp",
+        defaultMessage: "SMTP Accounts",
+      }),
+      children: <SmtpSettings />,
     },
     {
       key: "support",

@@ -833,6 +833,68 @@
       "confirmOk": "Yes, close my account",
       "confirmCancel": "Cancel"
     },
+    "smtp": {
+      "title": "SMTP Accounts",
+      "configurationTitle": "Configuration",
+      "sectionImapTitle": "IMAP Settings",
+      "sectionSettingsTitle": "Settings",
+      "field": {
+        "label": "Label",
+        "labelPlaceholder": "Optional name for this SMTP account",
+        "senderName": "Sender name",
+        "senderNamePlaceholder": "Example: Your Company",
+        "email": "Email address",
+        "username": "Username",
+        "usernamePlaceholder": "Enter SMTP username",
+        "password": "Password",
+        "passwordPlaceholder": "Enter SMTP password",
+        "smtpHost": "Host",
+        "smtpPort": "Port",
+        "smtpSecure": "Use SSL/TLS",
+        "enableInbox": "Enable Inbox",
+        "imapHost": "IMAP Host",
+        "imapPort": "IMAP Port",
+        "imapSecure": "Use SSL/TLS",
+        "warmupEnabled": "Warmup",
+        "messagesPerDay": "Messages per day",
+        "signature": "Signature",
+        "signaturePlaceholder": "Add email signature",
+        "unsubscribeUrl": "Unsubscribe URL",
+        "active": "Active"
+      },
+      "validation": {
+        "emailRequired": "Email address is required.",
+        "emailInvalid": "Enter a valid email address.",
+        "usernameRequired": "SMTP username is required.",
+        "passwordRequired": "SMTP password is required.",
+        "smtpHostRequired": "SMTP host is required.",
+        "smtpPortRequired": "SMTP port is required."
+      },
+      "actions": {
+        "create": "Save SMTP Account",
+        "update": "Update SMTP Account",
+        "reset": "Reset Form"
+      },
+      "tableTitle": "Configured SMTP Accounts",
+      "table": {
+        "email": "Email",
+        "host": "SMTP Host",
+        "status": "Status",
+        "dailyLimit": "Daily Limit",
+        "actions": "Actions",
+        "edit": "Edit",
+        "test": "Test",
+        "delete": "Delete",
+        "deleteConfirm": "Delete this SMTP account?",
+        "deleteOk": "Delete",
+        "deleteCancel": "Cancel",
+        "empty": "No SMTP accounts configured yet."
+      },
+      "createSuccess": "SMTP account created successfully.",
+      "updateSuccess": "SMTP account updated successfully.",
+      "saveError": "Unable to save SMTP account. Please check the values and try again.",
+      "testError": "SMTP connection test failed."
+    },
     "errors": {
       "required": "This field is required."
     }

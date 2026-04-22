@@ -159,7 +159,7 @@ const LeadsLayout = () => {
             {/* Charts */}
             <Col xs={24} lg={12}>
               {/* NOTE: WeeklyLeadsAreaChart already renders its own Card + filters */}
-              <WeeklyLeadsAreaChart
+              {/* <WeeklyLeadsAreaChart
                 isLoading={chartsLoading}
                 labels={summary?.data?.charts?.dailyByType?.labels}
                 countsByType={{
@@ -183,12 +183,12 @@ const LeadsLayout = () => {
                   // if user sets a custom range, keep preset as-is but range wins in summaryParams
                 }}
                 showRangePicker
-              />
+              /> */}
             </Col>
 
             <Col xs={24} lg={12}>
               {/* Second chart shares same filter state but hides duplicate controls */}
-              <WeeklyLeadsAreaChart
+              {/* <WeeklyLeadsAreaChart
                 isLoading={chartsLoading}
                 labels={summary?.data?.charts?.dailyTotal?.labels}
                 counts={summary?.data?.charts?.dailyTotal?.counts}
@@ -196,7 +196,7 @@ const LeadsLayout = () => {
                 showFilters={false}
                 preset={preset}
                 range={safeRange}
-              />
+              /> */}
             </Col>
 
             {/* Table */}
