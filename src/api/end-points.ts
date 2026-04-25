@@ -162,6 +162,7 @@ export const apiEndpoints = {
     verify: "/email/verify",
     delete: "/email/delete",
     bulkDelete: "/email/bulk-delete",
+    update: "/email/update",
   },
 
   smtp: {

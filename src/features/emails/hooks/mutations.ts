@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { message } from "antd";
-import { bulkDeleteEmail, deleteEmail, createEmail, verifyEmail } from "@/api/api_calls/emails";
+import { bulkDeleteEmail, deleteEmail, createEmail, verifyEmail, updateEmail } from "@/api/api_calls/emails";
 
 export type CreateEmailParams = {
   user_id: string;
@@ -67,6 +67,21 @@ export const useBulkDeleteEmails = () => {
     },
     onError: (err: any) => {
       message.error(err?.response?.data?.message || 'Failed to delete emails');
+    },
+  });
+};
+
+export const useUpdateEmail = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (params: UpdateEmailParams) => updateEmail(params),
+    onSuccess: () => {
+      message.success('Email updated successfully');
+      queryClient.invalidateQueries({ queryKey: ['emails'] });
+    },
+    onError: (err: any) => {
+      message.error(err?.response?.data?.message || 'Failed to update email');
     },
   });
 };

@@ -85,7 +85,6 @@ const ProfileForm: React.FC = () => {
     if (selectedFile instanceof File) {
       const previewUrl = URL.createObjectURL(selectedFile);
       setAvatarPreview(previewUrl);
-      setAvatarLoading(true);
     }
   };
 
