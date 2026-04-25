@@ -38,7 +38,11 @@ import dayjs, { Dayjs } from "dayjs";
 import dynamic from "next/dynamic";
 import { useFetchFolders } from "@/features/folders/hooks/queries";
 import { useFetchLeadsList } from "@/features/leads/hooks/queries";
-import { useFetchEmails } from "@/features/emails/hooks/queries";
+import { useFetchSmtpAccounts } from "@/features/settings/hooks/smtp";
+import { useQuery } from "@tanstack/react-query";
+import { fetchEmailTemplates } from "@/api/api_calls/email-templates";
+import type { EmailTemplate } from "@/types/api/email-template";
+import { FileTextOutlined } from "@ant-design/icons";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 
@@ -91,6 +95,10 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
   const [scheduleDateTime, setScheduleDateTime] = useState<Dayjs | null>(null);
   const [content, setContent] = useState("");
 
+  // Template picker state
+  const [templateModalOpen, setTemplateModalOpen] = useState(false);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+
   /* ===============================
      Fetch Folders & Leads
   =============================== */
@@ -107,15 +115,32 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
     limit: 100,
   });
 
-  const { data: emailsData } = useFetchEmails({
-    user_id: userId ?? "",
-    page: 1,
-    limit: 100,
+  const { data: smtpAccountsData } = useFetchSmtpAccounts();
+
+  const { data: templatesData } = useQuery({
+    queryKey: ["email-templates", userId],
+    queryFn: () => fetchEmailTemplates({ user_id: userId ?? "", page: 1, limit: 100 }),
+    enabled: !!userId,
+    staleTime: 5 * 60 * 1000,
   });
 
-  const folders = foldersData?.data || [];
-  const leads = leadsData?.data || [];
-  const emails = emailsData?.data?.filter((email) => email.verified) || [];
+  // Flexibly resolve folders – backend may return { data: [...] } or { folders: [...] }
+  const folders = (
+    (foldersData as any)?.data?.folders ??
+    (foldersData as any)?.folders ??
+    (foldersData as any)?.data ??
+    []
+  ) as any[];
+  const leads = (
+    (leadsData as any)?.data?.leads ??
+    (leadsData as any)?.leads ??
+    (leadsData as any)?.data ??
+    []
+  ) as any[];
+  const smtpAccounts = (
+    (smtpAccountsData as any)?.data ?? []
+  ).filter((a: any) => a?.settings?.active !== false) as any[];
+  const emailTemplates: EmailTemplate[] = templatesData?.data || [];
 
   // Watch campaign type to conditionally show targeting fields
   const campaignType = Form.useWatch("campaign_type", form);
@@ -177,10 +202,18 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
   =============================== */
 
   const buildPayload = (values: FormValues) => {
+    // Resolve the smtp_account_id by matching from_email to the selected account
+    const matchedSmtp = smtpAccounts.find(
+      (a: any) => a.email_address === values.from_email,
+    );
+    const smtpAccountId =
+      matchedSmtp?._id ?? matchedSmtp?.id ?? null;
+
     const payload: any = {
       ...values,
       reply_to: values.from_email,
       user_id: userId,
+      smtp_account_id: smtpAccountId,
       scheduled_at: values.scheduled_at
         ? values.scheduled_at.toISOString()
         : undefined,
@@ -193,6 +226,14 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
     }
 
     return payload;
+  };
+
+  const extractErrorMessage = (err: any): string => {
+    return (
+      err?.response?.data?.message ||
+      err?.message ||
+      (isEditMode ? t("campaigns.form.error_update") : t("campaigns.form.error_create"))
+    );
   };
 
   const handleSubmit = async (values: FormValues) => {
@@ -212,12 +253,8 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
       );
 
       router.push("/campaigns");
-    } catch {
-      message.error(
-        isEditMode
-          ? t("campaigns.form.error_update")
-          : t("campaigns.form.error_create"),
-      );
+    } catch (err: any) {
+      message.error(extractErrorMessage(err), 6);
     }
   };
 
@@ -261,14 +298,29 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
 
       message.success(t("campaigns.form.send_now"));
       router.push("/campaigns");
-    } catch {
-      message.error(t("campaigns.form.error_create"));
+    } catch (err: any) {
+      message.error(extractErrorMessage(err), 6);
     }
   };
 
   /* ===============================
      Quill Config
   =============================== */
+
+  /* ===============================
+     Apply selected template
+  =============================== */
+
+  const applyTemplate = (template: EmailTemplate) => {
+    setContent(template.content);
+    form.setFieldsValue({
+      content: template.content,
+      subject: template.subject,
+    });
+    setSelectedTemplateId(template._id);
+    setTemplateModalOpen(false);
+    message.success(`Template "${template.name}" applied`);
+  };
 
   const quillModules = {
     toolbar: [
@@ -303,7 +355,25 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
           type="info"
           icon={<InfoCircleOutlined />}
           showIcon
-          style={{ marginBottom: 24, borderRadius: 8 }}
+          style={{ marginBottom: 16, borderRadius: 8 }}
+        />
+      )}
+
+      {/* SMTP warning */}
+      {!isViewMode && smtpAccounts.length === 0 && (
+        <Alert
+          type="warning"
+          showIcon
+          message="No active SMTP accounts"
+          description={
+            <span>
+              You need at least one active SMTP account to send campaigns.{" "}
+              <a href="/settings?tab=smtp" style={{ fontWeight: 600 }}>
+                Set up SMTP →
+              </a>
+            </span>
+          }
+          style={{ marginBottom: 16, borderRadius: 8 }}
         />
       )}
 
@@ -406,9 +476,22 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
             boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
           }}
         >
-          <Text type="secondary" style={{ display: "block", marginBottom: 20 }}>
-            {t("campaigns.form.content_description")}
-          </Text>
+          <div className="flex justify-between items-center" style={{ marginBottom: 20 }}>
+            <Text type="secondary">
+              {t("campaigns.form.content_description")}
+            </Text>
+            {!isViewMode && (
+              <Button
+                icon={<FileTextOutlined />}
+                onClick={() => setTemplateModalOpen(true)}
+                size="small"
+              >
+                {selectedTemplateId
+                  ? `Template: ${emailTemplates.find((t) => t._id === selectedTemplateId)?.name ?? "Selected"}`
+                  : "Select Template"}
+              </Button>
+            )}
+          </div>
           <Form.Item
             name="content"
             rules={[
@@ -485,17 +568,19 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
                       .includes(input.toLowerCase())
                   }
                   notFoundContent={
-                    emails.length === 0 ? (
+                    smtpAccounts.length === 0 ? (
                       <div style={{ padding: "8px", textAlign: "center" }}>
                         <Text type="secondary">
-                          {t("campaigns.form.no_verified_emails")}
+                          No active SMTP accounts. Add one in Settings.
                         </Text>
                       </div>
                     ) : null
                   }
-                  options={emails.map((email) => ({
-                    value: email.email,
-                    label: email.email,
+                  options={smtpAccounts.map((account) => ({
+                    value: account.email_address,
+                    label: account.label
+                      ? `${account.label} <${account.email_address}>`
+                      : account.email_address,
                   }))}
                 />
               </Form.Item>
@@ -802,6 +887,89 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
             }}
           />
         </div>
+      </Modal>
+
+      {/* ── Template Picker Modal ── */}
+      <Modal
+        open={templateModalOpen}
+        title={
+          <Space>
+            <FileTextOutlined style={{ color: "#1890ff" }} />
+            <span>Select Email Template</span>
+          </Space>
+        }
+        onCancel={() => setTemplateModalOpen(false)}
+        footer={null}
+        width={680}
+      >
+        {emailTemplates.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "32px 0" }}>
+            <Text type="secondary">
+              No templates found.{" "}
+              <a href="/email-templates" target="_blank" rel="noreferrer">
+                Create a template
+              </a>{" "}
+              to use it here.
+            </Text>
+          </div>
+        ) : (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+              gap: 12,
+              maxHeight: 460,
+              overflowY: "auto",
+              paddingRight: 4,
+            }}
+          >
+            {emailTemplates.map((tmpl) => (
+              <Card
+                key={tmpl._id}
+                hoverable
+                size="small"
+                style={{
+                  borderRadius: 10,
+                  border:
+                    selectedTemplateId === tmpl._id
+                      ? "2px solid #1890ff"
+                      : "1px solid #e5e7eb",
+                  cursor: "pointer",
+                }}
+                onClick={() => applyTemplate(tmpl)}
+              >
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>{tmpl.name}</div>
+                <Text type="secondary" style={{ fontSize: 12 }}>
+                  Subject: {tmpl.subject}
+                </Text>
+                <div style={{ marginTop: 6 }}>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      background: "#f0f5ff",
+                      color: "#1890ff",
+                      borderRadius: 4,
+                      padding: "1px 6px",
+                    }}
+                  >
+                    {tmpl.category}
+                  </span>
+                  {tmpl.usage_count > 0 && (
+                    <span
+                      style={{
+                        fontSize: 11,
+                        color: "#9ca3af",
+                        marginLeft: 8,
+                      }}
+                    >
+                      Used {tmpl.usage_count}×
+                    </span>
+                  )}
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
       </Modal>
     </div>
   );

@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { LogoutOutlined, MoonOutlined, SunOutlined } from "@ant-design/icons";
+import {
+  LogoutOutlined,
+  MoonOutlined,
+  SunOutlined,
+  SettingOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import type { MenuProps } from "antd";
-import { Avatar, Button, Dropdown, Space, Spin, Typography } from "antd";
+import { Avatar, Button, Dropdown, Tooltip, Typography, theme } from "antd";
 import { useUserInfo } from "@/helpers/use-user";
 import { useDispatch } from "react-redux";
 import { logoutUser } from "@/redux/slices/user/user-slice";
@@ -9,8 +15,27 @@ import { clearAuthCookies } from "@/lib/cookies";
 import { useRouter } from "next/navigation";
 import { persistor } from "@/redux/store";
 
+const { Text } = Typography;
+
+/** Shared style for icon-only header buttons */
+const iconBtnStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: 36,
+  height: 36,
+  borderRadius: 10,
+  border: "none",
+  background: "transparent",
+  cursor: "pointer",
+  fontSize: 17,
+  transition: "background 0.15s",
+  flexShrink: 0,
+};
+
 const ThemeModeButton: React.FC = () => {
   const [isDark, setIsDark] = useState(false);
+  const { token } = theme.useToken();
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -20,7 +45,6 @@ const ThemeModeButton: React.FC = () => {
   const handleToggleTheme = () => {
     const nextIsDark = !isDark;
     const nextTheme = nextIsDark ? "dark" : "light";
-
     setIsDark(nextIsDark);
     localStorage.setItem("theme", nextTheme);
     document.documentElement.classList.toggle("dark", nextIsDark);
@@ -28,86 +52,85 @@ const ThemeModeButton: React.FC = () => {
   };
 
   return (
-    <Button
-      type="default"
-      size="large"
-      className="!p-3 !bg-transparent !rounded-full"
-      onClick={handleToggleTheme}
-      aria-label="Toggle theme"
-    >
-      {isDark ? <SunOutlined /> : <MoonOutlined />}
-    </Button>
+    <Tooltip title={isDark ? "Switch to light mode" : "Switch to dark mode"} placement="bottom">
+      <button
+        style={{ ...iconBtnStyle, color: token.colorTextSecondary }}
+        onClick={handleToggleTheme}
+        aria-label="Toggle theme"
+        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = token.colorFillTertiary; }}
+        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+      >
+        {isDark ? <SunOutlined style={{ fontSize: 17 }} /> : <MoonOutlined style={{ fontSize: 17 }} />}
+      </button>
+    </Tooltip>
   );
 };
 
 const ProfileDropdown: React.FC = () => {
   const { user } = useUserInfo();
-  const [avatarLoading, setAvatarLoading] = useState(false);
+  const { token } = theme.useToken();
+  const router = useRouter();
 
-  useEffect(() => {
-    setAvatarLoading(Boolean(user?.avatar_url));
-  }, [user?.avatar_url]);
+  const fullName = [user?.first_name, user?.last_name].filter(Boolean).join(" ") || "Account";
 
   const items: MenuProps["items"] = [
     {
-      className: "!bg-transparent hover:!bg-transparent",
-      label: <p>{user?.first_name + " " + user?.last_name}</p>,
-      key: "0",
+      key: "info",
+      label: (
+        <div style={{ padding: "4px 0", minWidth: 180 }}>
+          <Text strong style={{ display: "block", fontSize: 14 }}>{fullName}</Text>
+          <Text type="secondary" style={{ fontSize: 12 }}>{user?.email}</Text>
+        </div>
+      ),
     },
+    { type: "divider" },
     {
-      className: "!bg-transparent hover:!bg-transparent",
-      label: <p className="muted">{user?.email}</p>,
-      key: "1",
-    },
-    {
-      type: "divider",
-    },
-    {
-      label: "3rd menu item",
-      key: "3",
+      key: "settings",
+      icon: <SettingOutlined />,
+      label: "Settings",
+      onClick: () => router.push("/settings"),
     },
   ];
+
   return (
-    <Dropdown menu={{ items }} trigger={["click"]}>
-      <a onClick={(e) => e.preventDefault()}>
-        <Space className="!w-full">
-          
-            <Avatar
-              className="!mb-1"
-              size="large"
-              src={
-                user?.avatar_url ? (
-                  <img
-                    src={user.avatar_url as string}
-                    alt="avatar"
-                    onLoad={() => setAvatarLoading(false)}
-                    onError={() => setAvatarLoading(false)}
-                  />
-                ) : undefined
-              }
-            />
-        </Space>
-      </a>
-    </Dropdown>
+    <Tooltip title="Account" placement="bottom">
+      <Dropdown menu={{ items }} trigger={["click"]} placement="bottomRight">
+        <button
+          style={{
+            ...iconBtnStyle,
+            padding: 0,
+            border: `2px solid ${token.colorBorderSecondary}`,
+            borderRadius: "50%",
+            width: 34,
+            height: 34,
+            overflow: "hidden",
+          }}
+          aria-label="Profile"
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = token.colorPrimary; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = token.colorBorderSecondary; }}
+        >
+          <Avatar
+            size={30}
+            src={user?.avatar_url ? <img src={user.avatar_url as string} alt="avatar" /> : undefined}
+            icon={<UserOutlined />}
+            style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+          />
+        </button>
+      </Dropdown>
+    </Tooltip>
   );
 };
 
 const LogoutButton: React.FC = () => {
   const dispatch = useDispatch();
   const router = useRouter();
+  const { token } = theme.useToken();
 
   const handleLogout = async () => {
     try {
-      // 1️⃣ Clear Redux state
       dispatch(logoutUser());
-
-      // 2️⃣ Purge persisted Redux state
       await persistor.purge();
-
-      // 3️⃣ Clear auth cookies
       clearAuthCookies();
-
-      // 4️⃣ Redirect to sign-in
       router.replace("/auth/signin");
     } catch (error) {
       console.error("Logout failed:", error);
@@ -115,15 +138,23 @@ const LogoutButton: React.FC = () => {
   };
 
   return (
-    <Button
-      type="default"
-      size="large"
-      className="!p-3 !bg-transparent !rounded-full"
-      onClick={handleLogout}
-      aria-label="Logout"
-    >
-      <LogoutOutlined />
-    </Button>
+    <Tooltip title="Sign out" placement="bottom">
+      <button
+        style={{ ...iconBtnStyle, color: token.colorTextSecondary }}
+        onClick={handleLogout}
+        aria-label="Logout"
+        onMouseEnter={(e) => {
+          (e.currentTarget as HTMLElement).style.background = "rgba(239,68,68,0.1)";
+          (e.currentTarget as HTMLElement).style.color = "#ef4444";
+        }}
+        onMouseLeave={(e) => {
+          (e.currentTarget as HTMLElement).style.background = "transparent";
+          (e.currentTarget as HTMLElement).style.color = token.colorTextSecondary;
+        }}
+      >
+        <LogoutOutlined style={{ fontSize: 17 }} />
+      </button>
+    </Tooltip>
   );
 };
 

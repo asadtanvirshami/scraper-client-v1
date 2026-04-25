@@ -5,6 +5,7 @@ import AppSider from "../app-sider";
 import AppContent from "../app-content";
 import AppHeader from "../app-header";
 import { usePathname } from "next/navigation";
+import SubscriptionInitializer from "./subscription-initializer";
 
 const AppLayout = ({ childrens }: { childrens: React.ReactNode }) => {
   const path = usePathname();
@@ -21,6 +22,7 @@ const AppLayout = ({ childrens }: { childrens: React.ReactNode }) => {
   }
   return (
     <Layout hasSider>
+      <SubscriptionInitializer />
       <AppSider />
       <Layout>
         <AppHeader />

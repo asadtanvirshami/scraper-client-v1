@@ -113,11 +113,11 @@ const WeeklyLeadsAreaChart: React.FC<WeeklyLeadsAreaChartProps> = ({
     ? "rgba(255, 255, 255, 0.85)"
     : "rgba(15, 23, 42, 0.85)";
 
-  const ROSE_BY_TYPE: Record<string, string> = {
-    INSTAGRAM: "#E11D48",
-    LINKEDIN: "#BE123C",
-    MANUAL: "#FB7185",
-    TOTAL: "#E11D48",
+  const COLOR_BY_TYPE: Record<string, string> = {
+    INSTAGRAM: "#8b5cf6", // violet
+    LINKEDIN:  "#6366f1", // indigo
+    MANUAL:    "#c084fc", // purple-400 (light)
+    TOTAL:     "#8b5cf6",
   };
 
   const hasTypeData =
@@ -159,22 +159,16 @@ const WeeklyLeadsAreaChart: React.FC<WeeklyLeadsAreaChartProps> = ({
     xField: "date",
     yField: "leads",
     seriesField: "type",
-    color: ({ type }: { type: string }) => ROSE_BY_TYPE[type] ?? "#E11D48",
+    color: ({ type }: { type: string }) => COLOR_BY_TYPE[type] ?? "#8b5cf6",
     smooth: true,
     autoFit: true,
     height: MAX_CHART_HEIGHT,
 
-    areaStyle: ({ type }: { type: string }) => ({
-      fillOpacity: isDarkMode ? 0.24 : 0.18,
-      shadowColor: ROSE_BY_TYPE[type] ?? "#E11D48",
-      shadowBlur: isDarkMode ? 10 : 6,
+    areaStyle: () => ({
+      fillOpacity: isDarkMode ? 0.15 : 0.10,
     }),
     line: {
-      size: 2.4,
-      style: {
-        shadowColor: "#E11D48",
-        shadowBlur: isDarkMode ? 10 : 6,
-      },
+      size: 2,
     },
     point: { size: 3, shape: "circle" },
 

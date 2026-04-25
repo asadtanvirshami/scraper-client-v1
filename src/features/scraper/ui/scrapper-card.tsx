@@ -3,19 +3,39 @@
 import { useMemo, useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 import {
+  Avatar,
   Button,
   Card,
+  Col,
   Divider,
+  Empty,
   Modal,
   Form,
   Input,
+  Row,
   Space,
+  Spin,
+  theme,
+  Tooltip,
   Typography,
   Tag,
   Select,
   message,
 } from "antd";
-import { PlayCircleOutlined } from "@ant-design/icons";
+import {
+  BankOutlined,
+  EnvironmentOutlined,
+  GlobalOutlined,
+  InstagramOutlined,
+  LinkedinOutlined,
+  MailOutlined,
+  PhoneOutlined,
+  PlayCircleOutlined,
+  TeamOutlined,
+  UserOutlined,
+  UserAddOutlined,
+} from "@ant-design/icons";
+
 import { useIntl, FormattedMessage } from "react-intl";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -40,6 +60,141 @@ type Props = {
 };
 
 const { Title, Text } = Typography;
+
+/** Individual scraped lead card */
+function ScrapedLeadCard({ lead, type }: { lead: any; type: ScrapeType }) {
+  const { token } = theme.useToken();
+  const PlatformIcon = type === "INSTAGRAM" ? InstagramOutlined : LinkedinOutlined;
+  const name = [lead.first_name, lead.last_name].filter(Boolean).join(" ") || lead.username || "Unknown";
+  const avatar = lead.profile_picture_url || lead.avatar_url || null;
+
+  return (
+    <Card
+      size="small"
+      style={{
+        borderRadius: 12,
+        border: `1px solid ${token.colorBorderSecondary}`,
+        background: token.colorBgContainer,
+      }}
+      bodyStyle={{ padding: 16 }}
+    >
+      <div className="flex flex-col gap-3">
+        {/* Header: avatar + name + platform */}
+        <div className="flex items-start gap-3">
+          <Avatar
+            size={48}
+            src={avatar}
+            icon={<UserOutlined />}
+            style={{
+              flexShrink: 0,
+              background: token.colorPrimaryBg,
+              color: token.colorPrimary,
+              border: `2px solid ${token.colorPrimaryBorder}`,
+            }}
+          />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <Text strong className="truncate" style={{ fontSize: 14 }}>
+                {name}
+              </Text>
+              <Tag
+                icon={<PlatformIcon />}
+                color={type === "INSTAGRAM" ? "magenta" : "blue"}
+                style={{ margin: 0, fontSize: 11 }}
+              >
+                {type === "INSTAGRAM" ? "Instagram" : "LinkedIn"}
+              </Tag>
+            </div>
+            {lead.username && (
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                @{lead.username}
+              </Text>
+            )}
+            {lead.job_title && (
+              <div>
+                <Text style={{ fontSize: 12 }}>{lead.job_title}</Text>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Stats: followers / following */}
+        {(lead.followers_count != null || lead.following_count != null) && (
+          <div className="flex gap-4">
+            {lead.followers_count != null && (
+              <Tooltip title="Followers">
+                <div className="flex items-center gap-1">
+                  <TeamOutlined style={{ color: token.colorPrimary, fontSize: 12 }} />
+                  <Text style={{ fontSize: 12 }}>
+                    {Number(lead.followers_count).toLocaleString()}
+                  </Text>
+                </div>
+              </Tooltip>
+            )}
+            {lead.following_count != null && (
+              <Tooltip title="Following">
+                <div className="flex items-center gap-1">
+                  <UserAddOutlined style={{ color: token.colorTextSecondary, fontSize: 12 }} />
+                  <Text style={{ fontSize: 12 }}>
+                    {Number(lead.following_count).toLocaleString()}
+                  </Text>
+                </div>
+              </Tooltip>
+            )}
+          </div>
+        )}
+
+        {/* Details */}
+        <div className="flex flex-col gap-1.5">
+          {lead.email && (
+            <div className="flex items-center gap-1.5">
+              <MailOutlined style={{ color: token.colorTextSecondary, fontSize: 12 }} />
+              <Text style={{ fontSize: 12 }} className="truncate">{lead.email}</Text>
+            </div>
+          )}
+          {lead.phone_numbers?.length > 0 && (
+            <div className="flex items-center gap-1.5">
+              <PhoneOutlined style={{ color: token.colorTextSecondary, fontSize: 12 }} />
+              <Text style={{ fontSize: 12 }}>{lead.phone_numbers[0]}</Text>
+            </div>
+          )}
+          {lead.company && (
+            <div className="flex items-center gap-1.5">
+              <BankOutlined style={{ color: token.colorTextSecondary, fontSize: 12 }} />
+              <Text style={{ fontSize: 12 }} className="truncate">{lead.company}</Text>
+            </div>
+          )}
+          {lead.location && (
+            <div className="flex items-center gap-1.5">
+              <EnvironmentOutlined style={{ color: token.colorTextSecondary, fontSize: 12 }} />
+              <Text style={{ fontSize: 12 }} className="truncate">{lead.location}</Text>
+            </div>
+          )}
+          {lead.website && (
+            <div className="flex items-center gap-1.5">
+              <GlobalOutlined style={{ color: token.colorTextSecondary, fontSize: 12 }} />
+              <a href={lead.website} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12 }} className="truncate">
+                {lead.website}
+              </a>
+            </div>
+          )}
+        </div>
+
+        {/* Bio */}
+        {lead.bio && (
+          <Text
+            type="secondary"
+            style={{ fontSize: 11, lineHeight: "1.4", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}
+          >
+            {lead.bio}
+          </Text>
+        )}
+      </div>
+    </Card>
+  );
+}
+
+
 
 function safeString(v: any) {
   return typeof v === "string" ? v : "";
@@ -480,6 +635,39 @@ export default function LeadsScraperCard({
           </div>
         ) : null}
       </Modal>
+
+      {/* Scraped results as cards */}
+      {(uiBusy || scrapedLeads.length > 0) && (
+        <div className="mt-4">
+          <div className="flex items-center justify-between mb-3">
+            <Space>
+              <Title level={5} className="!mb-0">
+                <FormattedMessage id="scraper.results.title" defaultMessage="Scraped Results" />
+              </Title>
+              {scrapedLeads.length > 0 && (
+                <Tag color="purple">{scrapedLeads.length}</Tag>
+              )}
+            </Space>
+            {uiBusy && <Spin size="small" />}
+          </div>
+
+          {uiBusy && scrapedLeads.length === 0 ? (
+            <div className="flex items-center justify-center py-8">
+              <Spin tip="Fetching results…" />
+            </div>
+          ) : scrapedLeads.length === 0 ? (
+            <Empty description="No results yet" />
+          ) : (
+            <Row gutter={[16, 16]}>
+              {scrapedLeads.map((lead: any, idx: number) => (
+                <Col key={lead._id ?? lead.id ?? idx} xs={24} sm={12} md={8} lg={6}>
+                  <ScrapedLeadCard lead={lead} type={type} />
+                </Col>
+              ))}
+            </Row>
+          )}
+        </div>
+      )}
     </>
   );
 }

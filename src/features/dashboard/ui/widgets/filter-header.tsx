@@ -33,10 +33,11 @@ type FilterHeaderProps = {
 
 const defaultHeaderWrap: React.CSSProperties = {
   display: "flex",
-  alignItems: "center",
+  alignItems: "flex-start",
   justifyContent: "space-between",
-  gap: 12,
+  gap: 16,
   flexWrap: "wrap",
+  marginBottom: 20,
 };
 
 const FilterHeader: React.FC<FilterHeaderProps> = ({
@@ -82,21 +83,21 @@ const FilterHeader: React.FC<FilterHeaderProps> = ({
   ];
 
   return (
-    <div style={{ marginBottom: 12 }}>
+    <div style={{ marginBottom: 0 }}>
       <div style={{ ...defaultHeaderWrap, ...(headerWrapStyle ?? {}) }}>
         <div>
-          <Title level={3} style={{ margin: 0, fontWeight: 700 }}>
+          <Title level={4} style={{ margin: 0, fontWeight: 700, letterSpacing: "-0.02em" }}>
             {resolvedTitle}
           </Title>
-          <Text style={{ color: token.colorTextSecondary }}>
+          <Text style={{ fontSize: 13, color: token.colorTextSecondary }}>
             {resolvedSubtitle}
           </Text>
         </div>
 
         <Space
-          size={10}
+          size={8}
           wrap
-          style={{ width: "min(100%, 680px)", justifyContent: "flex-end" }}
+          style={{ justifyContent: "flex-end" }}
         >
           <Segmented
             options={PRESETS as SegmentedOptions}
@@ -111,10 +112,7 @@ const FilterHeader: React.FC<FilterHeaderProps> = ({
             style={{ 
               width: 320, 
               maxWidth: "100%",
-              "--ant-primary-color": "#52c41a",
-              "--ant-primary-color-hover": "#73d13d",
-            } as React.CSSProperties}
-            className="green-glow-calendar"
+            }}
             allowClear
             value={range as any}
             presets={rangePickerPresets as any}
@@ -126,10 +124,6 @@ const FilterHeader: React.FC<FilterHeaderProps> = ({
               setRange(((v as any) ?? [null, null]) as any);
             }}
           />
-
-          {/* <Button type="primary" onClick={() => router.push(ctaHref)}>
-            {resolvedCtaLabel}
-          </Button> */}
         </Space>
       </div>
     </div>

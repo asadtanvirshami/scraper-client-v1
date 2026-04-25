@@ -157,7 +157,7 @@ const SmtpSettingsForm: React.FC = () => {
       } as const;
 
       if (selectedAccount) {
-        const payloadToSend = { ...payload } as typeof payload;
+        const payloadToSend = { ...payload } as Record<string, any>;
         if (!payloadToSend.password) {
           delete payloadToSend.password;
         }
@@ -317,7 +317,7 @@ const SmtpSettingsForm: React.FC = () => {
             type="link"
             icon={<SendOutlined />}
             onClick={() => handleTest(record._id)}
-            loading={testAccountMutation.isLoading}
+            loading={testAccountMutation.isPending}
           >
             {intl.formatMessage({ id: "settings.smtp.table.test", defaultMessage: "Test" })}
           </Button>
@@ -360,7 +360,7 @@ const SmtpSettingsForm: React.FC = () => {
               type="primary"
               icon={<PlusOutlined />}
               onClick={resetForm}
-              disabled={createAccountMutation.isLoading || updateAccountMutation.isLoading}
+              disabled={createAccountMutation.isPending || updateAccountMutation.isPending}
             >
               {intl.formatMessage({ id: "settings.smtp.actions.newAccount", defaultMessage: "New SMTP account" })}
             </Button>
@@ -546,13 +546,13 @@ const SmtpSettingsForm: React.FC = () => {
               <Button
                 type="primary"
                 onClick={handleSave}
-                loading={createAccountMutation.isLoading || updateAccountMutation.isLoading}
+                loading={createAccountMutation.isPending || updateAccountMutation.isPending}
               >
                 {selectedAccount
                   ? intl.formatMessage({ id: "settings.smtp.actions.update", defaultMessage: "Update SMTP Account" })
                   : intl.formatMessage({ id: "settings.smtp.actions.create", defaultMessage: "Save SMTP Account" })}
               </Button>
-              <Button onClick={resetForm} disabled={createAccountMutation.isLoading || updateAccountMutation.isLoading} icon={<RollbackOutlined />}>
+              <Button onClick={resetForm} disabled={createAccountMutation.isPending || updateAccountMutation.isPending} icon={<RollbackOutlined />}>
                 {intl.formatMessage({ id: "settings.smtp.actions.reset", defaultMessage: "Reset Form" })}
               </Button>
             </Space>

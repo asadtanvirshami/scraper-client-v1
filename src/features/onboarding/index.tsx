@@ -10,7 +10,6 @@ import { useUserInfo } from "@/helpers/use-user";
 import Step1Form from "./ui/step1-form";
 import Step2Form from "./ui/step2-form";
 
-const { Step } = Steps;
 
 const OnboardingLayout: React.FC = () => {
   const intl = useIntl();
@@ -121,11 +120,11 @@ const OnboardingLayout: React.FC = () => {
           </p>
         </div>
 
-        <Steps current={currentStep} className="mb-8">
-          {steps.map((step, index) => (
-            <Step key={index} title={step.title} />
-          ))}
-        </Steps>
+        <Steps
+          current={currentStep}
+          className="mb-8"
+          items={steps.map((step) => ({ title: step.title }))}
+        />
 
         <div className="min-h-[300px]">
           {steps[currentStep].content}

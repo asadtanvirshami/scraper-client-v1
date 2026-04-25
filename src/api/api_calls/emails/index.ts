@@ -44,3 +44,29 @@ export async function bulkDeleteEmail(
   const { data } = await api.post(apiEndpoints.emails.bulkDelete, { email_ids });
   return data;
 }
+
+export async function createEmail(params: {
+  user_id: string;
+  email: string;
+}): Promise<GenericResponse<Email>> {
+  const { data } = await api.post(apiEndpoints.emails.add, params);
+  return data;
+}
+
+export async function verifyEmail(params: {
+  otp: string;
+  email: string;
+}): Promise<GenericResponse<Email>> {
+  const { data } = await api.post(apiEndpoints.emails.verify, params);
+  return data;
+}
+
+export async function updateEmail(params: {
+  email_id: string;
+  subject?: string;
+  content?: string;
+  to?: string[];
+}): Promise<GenericResponse<Email>> {
+  const { data } = await api.put(apiEndpoints.emails.update, params);
+  return data;
+}

@@ -78,27 +78,20 @@ const DashboardKpiRow: React.FC<DashboardKpiRowProps> = ({
         { days: presetDays },
       );
 
-  // Accent base colors (fixed hex values)
+  // Soft modern accent colors
   const ACCENT: Record<Accent, { base: string }> = {
-    blue: { base: "#1677ff" },
-    green: { base: "#52c41a" },
-    purple: { base: "#722ed1" },
-    orange: { base: "#fa8c16" },
+    blue:   { base: "#6366f1" }, // indigo
+    green:  { base: "#10b981" }, // emerald
+    purple: { base: "#8b5cf6" }, // violet (brand)
+    orange: { base: "#f59e0b" }, // amber
   };
 
   const getAccentStyle = (accent: Accent) => {
     const base = ACCENT[accent].base;
-
-    // soft “modern” glow like your AdminKpis (but theme-aware)
-    const bg = `linear-gradient(135deg, ${hexToRgba(base, 0.14)} 0%, ${hexToRgba(
-      base,
-      0.08,
-    )} 100%)`;
-    const ring = hexToRgba(base, 0.14);
-    const glow = hexToRgba(base, 0.10);
+    const bg = `linear-gradient(135deg, ${hexToRgba(base, 0.12)} 0%, ${hexToRgba(base, 0.07)} 100%)`;
+    const border = hexToRgba(base, 0.18);
     const fg = base;
-
-    return { bg, ring, glow, fg };
+    return { bg, border, fg };
   };
 
   const KpiCard: React.FC<KpiCardProps> = ({
@@ -179,24 +172,23 @@ const DashboardKpiRow: React.FC<DashboardKpiRowProps> = ({
               )}
             </div>
 
-            {/* Modern icon pill (inspired by your AdminKpis) */}
+            {/* Icon badge */}
             <div
               aria-hidden
               style={{
-                width: 44,
-                height: 44,
-                borderRadius: 16,
+                width: 40,
+                height: 40,
+                borderRadius: 12,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 background: a.bg,
                 color: a.fg,
-                boxShadow: `0 0 0 6px ${a.ring}, 0 12px 28px ${a.glow}`,
-                border: `1px solid ${hexToRgba(a.fg, token.colorBgContainer === "#141414" ? 0.22 : 0.12)}`,
+                border: `1px solid ${a.border}`,
                 flexShrink: 0,
               }}
             >
-              <span style={{ fontSize: 18, lineHeight: 1, opacity: 0.92 }}>{icon}</span>
+              <span style={{ fontSize: 16, lineHeight: 1 }}>{icon}</span>
             </div>
           </div>
         </button>

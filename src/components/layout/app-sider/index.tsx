@@ -16,6 +16,7 @@ import {
   DocumentTextIcon,
   UsersIcon,
   EnvelopeIcon,
+  RectangleStackIcon,
 } from "@heroicons/react/24/outline";
 import { useIntl } from "react-intl";
 import { usePathname, useRouter } from "next/navigation";
@@ -34,6 +35,7 @@ type MenuKey =
   | "settings"
   | "notifications"
   | "emails"
+  | "email_templates"
   // admin
   | "admin_dashboard"
   | "admin_users"
@@ -64,6 +66,7 @@ const AppSider: React.FC = () => {
     billing: "/billings",
     settings: "/settings",
     emails: "/emails",
+    email_templates: "/email-templates",
 
     // admin (you can adjust paths if yours differ)
     admin_dashboard: uid ? `/dashboard/a/${uid}` : "/dashboard/a",
@@ -120,6 +123,14 @@ const AppSider: React.FC = () => {
       key: "emails",
       icon: <EnvelopeIcon className="h-5 w-5" />,
       label: intl.formatMessage({ id: "sidebar.emails" }),
+    },
+    {
+      key: "email_templates",
+      icon: <RectangleStackIcon className="h-5 w-5" />,
+      label: intl.formatMessage({
+        id: "sidebar.email_templates",
+        defaultMessage: "Email Templates",
+      }),
     },
     {
       key: "settings",
@@ -238,7 +249,7 @@ const AppSider: React.FC = () => {
               style={{
                 fontSize: 16,
                 fontWeight: 800,
-                background: "linear-gradient(90deg, #fb7185 0%, #e11d48 55%, #be123c 100%)",
+                background: "linear-gradient(90deg, #8b5cf6 0%, #a78bfa 55%, #c084fc 100%)",
                 WebkitBackgroundClip: "text",
                 backgroundClip: "text",
                 color: "transparent",

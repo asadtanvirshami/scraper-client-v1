@@ -130,11 +130,11 @@ const WeeklyLeadsBarChart: React.FC<Props> = ({
     ? "rgba(255, 255, 255, 0.85)"
     : "rgba(15, 23, 42, 0.85)";
 
-  const ROSE_BY_TYPE: Record<string, string> = {
-    INSTAGRAM: "#E11D48",
-    LINKEDIN: "#BE123C",
-    MANUAL: "#FB7185",
-    TOTAL: "#E11D48",
+  const COLOR_BY_TYPE: Record<string, string> = {
+    INSTAGRAM: "#8b5cf6", // violet
+    LINKEDIN:  "#6366f1", // indigo
+    MANUAL:    "#c084fc", // purple-400 (light)
+    TOTAL:     "#8b5cf6",
   };
 
   const hasTypeData =
@@ -175,19 +175,16 @@ const WeeklyLeadsBarChart: React.FC<Props> = ({
     xField: "date",
     yField: "leads",
     seriesField: "type",
-    color: ({ type }: { type: string }) => ROSE_BY_TYPE[type] ?? "#E11D48",
+    color: ({ type }: { type: string }) => COLOR_BY_TYPE[type] ?? "#8b5cf6",
     autoFit: true,
     height: MAX_CHART_HEIGHT,
 
     isStack: stacked && hasTypeData,
     isGroup: !stacked && hasTypeData,
 
-    columnWidthRatio: 0.56,
+    columnWidthRatio: 0.52,
     columnStyle: {
-      radius: [12, 12, 0, 0],
-      shadowColor: "#E11D48",
-      shadowBlur: isDarkMode ? 12 : 8,
-      shadowOffsetY: 2,
+      radius: [6, 6, 0, 0],
     },
     point: { size: 3, shape: "circle" },
     legend: {

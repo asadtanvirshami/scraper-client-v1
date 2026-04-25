@@ -1,6 +1,5 @@
 import api from "@/api/axios";
 import { apiEndpoints } from "@/api/end-points";
-import { getAccessToken } from "@/lib/cookies";
 import { GenericResponse } from "@/types/api";
 import { UpdateProfilePayload, OnboardingPayload } from "@/types/api/user";
 
@@ -39,12 +38,6 @@ export type UsersListPayload = {
   data: UserRow[];
 };
 
-const authHeaders = () => ({
-  headers: {
-    Authorization: `Bearer ${getAccessToken()}`,
-  },
-});
-
 /* ================= FETCH USERS ================= */
 export async function FetchUsers(
   params: FetchUsersParams = {},
@@ -73,9 +66,6 @@ export async function FetchUsers(
       sortBy,
       sortOrder,
     }),
-    {
-      ...authHeaders(),
-    },
   );
 
   return data;
@@ -86,7 +76,6 @@ export async function BlockUser(userId: string): Promise<GenericResponse> {
   const { data } = await api.post(
     apiEndpoints.user.block(userId),
     {},
-    authHeaders(),
   );
   return data;
 }
@@ -95,7 +84,6 @@ export async function BlockUser(userId: string): Promise<GenericResponse> {
 export async function DeleteUser(userId: string): Promise<GenericResponse> {
   const { data } = await api.delete(
     apiEndpoints.user.deleteById(userId),
-    authHeaders(),
   );
   return data;
 }
@@ -108,7 +96,6 @@ export async function BulkDeleteUsers(
   const { data } = await api.post(
     apiEndpoints.user.bulkDeleteUsers,
     { userIds, actorId },
-    authHeaders(),
   );
   return data;
 }
@@ -117,42 +104,18 @@ export async function BulkDeleteUsers(
 export async function UpdateProfile(
   input: UpdateProfilePayload | FormData,
 ): Promise<GenericResponse> {
-  const headers = {
-    Authorization: `Bearer ${getAccessToken()}`,
-  };
-
-  // Don't set Content-Type header for FormData - browser will set it automatically with boundary
-  const config = input instanceof FormData
-    ? { headers }
-    : { headers: { ...headers, "Content-Type": "application/json" } };
-
-  const { data } = await api.put(apiEndpoints.user.updateMe, input, config);
+  const { data } = await api.put(apiEndpoints.user.updateMe, input);
   return data;
 }
 
 /* ================= UPLOAD AVATAR ================= */
 export async function UploadAvatar(input: FormData): Promise<GenericResponse> {
-  const headers = {
-    Authorization: `Bearer ${getAccessToken()}`,
-  };
-
-  const { data } = await api.put(apiEndpoints.user.uploadAvatar, input, {
-    headers,
-  });
-
+  const { data } = await api.put(apiEndpoints.user.uploadAvatar, input);
   return data;
 }
 
 /* ================= UPDATE ONBOARDING ================= */
 export async function UpdateOnboarding(input: OnboardingPayload): Promise<GenericResponse> {
-  const headers = {
-    Authorization: `Bearer ${getAccessToken()}`,
-    "Content-Type": "application/json",
-  };
-
-  const { data } = await api.put(apiEndpoints.user.updateOnboarding, input, {
-    headers,
-  });
-
+  const { data } = await api.put(apiEndpoints.user.updateOnboarding, input);
   return data;
 }

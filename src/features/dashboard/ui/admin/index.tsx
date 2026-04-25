@@ -34,8 +34,10 @@ const PRESETS: { label: string; value: PresetKey }[] = [
 ];
 
 const pageStyle: React.CSSProperties = {
-  padding: 16,
-  minHeight: "100vh",
+  padding: "20px 20px 40px",
+  maxWidth: 1440,
+  margin: "0 auto",
+  width: "100%",
 };
 
 const AdminLayout = ({ id }: { id: string }) => {
@@ -128,11 +130,11 @@ const AdminLayout = ({ id }: { id: string }) => {
         setRange={handleRange}
       />
 
-      {/* ✅ KPIs update with filters */}
+      {/* KPIs update with filters */}
       <AdminKpis loading={loading} totals={totals} insights={insights} />
 
-      {/* ✅ Chart updates with filters */}
-      <Row gutter={[12, 12]} style={{ marginTop: 12 }}>
+      {/* Chart */}
+      <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
         <Col xs={24} lg={24}>
           <UsersCreatedBarChart
             isLoading={loading}
@@ -142,8 +144,8 @@ const AdminLayout = ({ id }: { id: string }) => {
         </Col>
       </Row>
 
-      {/* ✅ Recent users */}
-      <Row gutter={[12, 12]} style={{ marginTop: 12 }}>
+      {/* Recent users */}
+      <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
         <Col xs={24} lg={24}>
           <UsersTableServer
             data={recentUsers}
@@ -164,8 +166,8 @@ const AdminLayout = ({ id }: { id: string }) => {
         </Col>
       </Row>
 
-      {/* ✅ Recent bugs + feedbacks */}
-      <Row gutter={[12, 12]} style={{ marginTop: 12 }}>
+      {/* Recent bugs + feedbacks */}
+      <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
         <Col xs={24} lg={12}>
           <BugsTableServer
             bugs={recentBugs}

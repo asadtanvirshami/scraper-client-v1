@@ -52,8 +52,8 @@ const UsersCreatedBarChart: React.FC<Props> = ({ isLoading, labels, counts }) =>
             <BarChart data={data}>
               <defs>
                 <linearGradient id="usersGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={token.colorPrimary} />
-                  <stop offset="100%" stopColor={token.colorPrimaryHover} />
+                  <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.85} />
+                  <stop offset="100%" stopColor="#c084fc" stopOpacity={0.55} />
                 </linearGradient>
               </defs>
 

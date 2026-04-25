@@ -158,8 +158,11 @@ export const apiEndpoints = {
       limit?: number;
       subject?: string;
     }) => withPagination("/email/get", params),
+    add: "/email/add",
+    verify: "/email/verify",
     delete: "/email/delete",
     bulkDelete: "/email/bulk-delete",
+    update: "/email/update",
   },
 
   smtp: {
@@ -196,5 +199,30 @@ export const apiEndpoints = {
 
     stats: "/campaign/stats",
     analytics: (id: string) => `/campaign/analytics/${id}`,
+  },
+  /* ================= BILLING / STRIPE ================= */
+
+  billing: {
+    plans: "/billing/plans",
+    subscription: "/billing/subscription",
+    checkout: "/billing/checkout",
+    portal: "/billing/portal",
+    cancel: "/billing/cancel",
+    changePlan: "/billing/change-plan",
+    freeTrial: "/billing/free-trial",
+    syncSession: "/billing/sync-session",
+  },
+
+  /* ================= EMAIL TEMPLATES ================= */
+
+  emailTemplates: {
+    get: (params: { user_id: string; page?: number; limit?: number }) =>
+      withPagination("/email-template/get", params),
+    getOne: (template_id: string, user_id: string) =>
+      `/email-template/get-by-id?template_id=${template_id}&user_id=${user_id}`,
+    create: "/email-template/create",
+    update: "/email-template/update",
+    delete: (template_id: string, user_id: string) =>
+      `/email-template/delete?template_id=${template_id}&user_id=${user_id}`,
   },
 };
