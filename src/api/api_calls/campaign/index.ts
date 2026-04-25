@@ -16,8 +16,11 @@ export const campaignsApi = {
     return response.data;
   },
 
-  fetchCampaignStats: async () => {
-    const response = await api.get(apiEndpoints.campaigns.stats);
+  fetchCampaignStats: async (user_id?: string) => {
+    const url = user_id
+      ? `${apiEndpoints.campaigns.stats}?user_id=${user_id}`
+      : apiEndpoints.campaigns.stats;
+    const response = await api.get(url);
     return response.data;
   },
 

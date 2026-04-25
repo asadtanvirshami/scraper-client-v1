@@ -1,8 +1,9 @@
 // src/api/auth.interceptor.ts
 import type { AxiosInstance, InternalAxiosRequestConfig } from "axios";
+import { getAccessToken } from "@/lib/cookies";
 export function attachAuthInterceptor(api: AxiosInstance) {
   api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-    const token = null
+    const token = getAccessToken();
     if (token) {
       // Axios v1: headers may be AxiosHeaders (has .set) OR a plain object
       if (typeof (config.headers as any)?.set === "function") {

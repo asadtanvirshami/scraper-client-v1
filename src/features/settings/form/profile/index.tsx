@@ -37,17 +37,12 @@ const ProfileForm: React.FC = () => {
   const [form] = Form.useForm<ProfileFormValues>();
   const [avatarUrl, setAvatarUrl] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-  const [avatarLoading, setAvatarLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const { user } = useUserInfo();
 
   useEffect(() => {
     setAvatarPreview(user?.avatar_url ?? null);
   }, [user?.avatar_url]);
-
-  useEffect(() => {
-    setAvatarLoading(Boolean(avatarPreview));
-  }, [avatarPreview]);
 
   const onSave = async () => {
     try {
@@ -106,7 +101,7 @@ const ProfileForm: React.FC = () => {
           <Text strong>{intl.formatMessage({ id: "profile.avatar" })}</Text>
 
           <Space>
-            <Spin size="small" spinning={avatarLoading}>
+            <Spin size="small" spinning={isSaving}>
               <Avatar
                 size={64}
                 src={avatarPreview || user?.avatar_url || "/assets/avatar-placeholder.svg"}

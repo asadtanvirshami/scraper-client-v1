@@ -122,7 +122,8 @@ const CampaignMetricsChart: React.FC<CampaignMetricsChartProps> = ({
       itemName: { style: { fill: token.colorText } },
     },
 
-    color: ["#1890ff", "#52c41a", "#faad14", "#f5222d"],
+    // Soft modern palette — no neon
+    color: ["#8b5cf6", "#06b6d4", "#10b981", "#f59e0b"],
 
     meta: {
       date: { type: "timeCat" },

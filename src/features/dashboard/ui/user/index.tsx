@@ -33,8 +33,10 @@ const PRESETS: { label: string; value: PresetKey }[] = [
 ];
 
 const pageStyle: React.CSSProperties = {
-  padding: "20px 24px",
-  minHeight: "100vh",
+  padding: "20px 20px 40px",
+  maxWidth: 1440,
+  margin: "0 auto",
+  width: "100%",
 };
 
 const UserLayout = ({ id }: { id: string }) => {
@@ -119,7 +121,7 @@ const UserLayout = ({ id }: { id: string }) => {
         setRange={handleRange}
       />
 
-      {/* ✅ KPIs NOW update with filters */}
+      {/* KPIs */}
       <DashboardKpiRow
         loading={loading}
         totals={totals}

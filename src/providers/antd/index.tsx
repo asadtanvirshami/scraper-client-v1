@@ -43,67 +43,65 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   }, []);
 
   const palette = useMemo(() => {
-    // Rose-red accent with grayish-black neutrals
-    const ROSE = "#E11D48";
-    const ROSE_HOVER = "#BE123C";
-    const ROSE_ACTIVE = "#9F1239";
+    // Soft light-violet accent with Supabase-style neutrals
+    const PURPLE = "#8b5cf6";       // violet-500 — light, soft purple
+    const PURPLE_HOVER = "#7c3aed"; // violet-600
+    const PURPLE_ACTIVE = "#6d28d9"; // violet-700
 
     const dark = {
-      // Accent (rose-red)
-      accent: ROSE,
-      accentHover: ROSE_HOVER,
-      accentActive: ROSE_ACTIVE,
-      accentSoft: "rgba(225,29,72,0.18)",
+      // Accent (purple)
+      accent: PURPLE,
+      accentHover: PURPLE_HOVER,
+      accentActive: PURPLE_ACTIVE,
+      accentSoft: "rgba(139,92,246,0.14)",
 
-      // Neutrals (black/white)
-      bgBase: "#0b0b0d", // grayish black
-      bgContainer: "rgba(22, 22, 24, 0.74)",
-      bgElevated: "rgba(26, 26, 30, 0.90)",
+      // Supabase-style dark neutrals
+      bgBase: "#0e0e10",
+      bgContainer: "#18181b",
+      bgElevated: "#1f1f23",
 
-      textBase: "rgba(255,255,255,0.92)",
-      textSecondary: "rgba(255,255,255,0.62)",
+      textBase: "rgba(255,255,255,0.90)",
+      textSecondary: "rgba(255,255,255,0.50)",
 
-      // IMPORTANT: keep borders neutral (no blue tint)
-      border: "rgba(255,255,255,0.12)",
-      borderStrong: "rgba(255,255,255,0.18)",
+      border: "rgba(255,255,255,0.07)",
+      borderStrong: "rgba(255,255,255,0.12)",
 
-      shadow2: "0 10px 30px rgba(0,0,0,0.45)",
+      shadow2: "0 1px 4px rgba(0,0,0,0.40)",
 
-      appBg:
-        "radial-gradient(1100px 760px at 14% 8%, rgba(225,29,72,0.24), transparent 58%), radial-gradient(900px 640px at 86% 16%, rgba(127,29,29,0.18), transparent 60%), linear-gradient(180deg, #070708 0%, #141418 100%)",
+      // Clean flat dark background
+      appBg: "#0e0e10",
 
-      siderBg: "rgba(20, 20, 24, 0.64)",
-      selectedBg: "rgba(225,29,72,0.22)",
-      hoverBg: "rgba(255,255,255,0.06)",
+      siderBg: "#111113",
+      selectedBg: "rgba(139,92,246,0.12)",
+      hoverBg: "rgba(255,255,255,0.04)",
     };
 
     const light = {
-      // Accent (rose-red)
-      accent: ROSE,
-      accentHover: ROSE_HOVER,
-      accentActive: ROSE_ACTIVE,
-      accentSoft: "rgba(225,29,72,0.12)",
+      // Accent (soft violet)
+      accent: PURPLE,
+      accentHover: PURPLE_HOVER,
+      accentActive: PURPLE_ACTIVE,
+      accentSoft: "rgba(139,92,246,0.09)",
 
-      // Neutrals (white/black)
-      bgBase: "#FFFFFF",
-      bgContainer: "rgba(255,255,255,0.88)",
-      bgElevated: "rgba(255,255,255,0.96)",
+      // Supabase-style light neutrals
+      bgBase: "#ffffff",
+      bgContainer: "#ffffff",
+      bgElevated: "#ffffff",
 
-      textBase: "rgba(0,0,0,0.92)",
-      textSecondary: "rgba(0,0,0,0.60)",
+      textBase: "rgba(9,9,11,0.90)",
+      textSecondary: "rgba(9,9,11,0.52)",
 
-      // IMPORTANT: keep borders neutral (no blue tint)
-      border: "rgba(0,0,0,0.10)",
-      borderStrong: "rgba(0,0,0,0.16)",
+      border: "rgba(9,9,11,0.07)",
+      borderStrong: "rgba(9,9,11,0.12)",
 
-      shadow2: "0 10px 30px rgba(0,0,0,0.10)",
+      shadow2: "0 1px 4px rgba(0,0,0,0.06)",
 
-      appBg:
-        "radial-gradient(1100px 760px at 14% 8%, rgba(225,29,72,0.12), transparent 58%), radial-gradient(900px 640px at 86% 16%, rgba(127,29,29,0.08), transparent 60%), linear-gradient(180deg, #ffffff 0%, #f5f5f7 100%)",
+      // Clean light background (Supabase off-white)
+      appBg: "#f9f9fb",
 
-      siderBg: "rgba(0,0,0,0.03)",
-      selectedBg: "rgba(225,29,72,0.14)",
-      hoverBg: "rgba(0,0,0,0.04)",
+      siderBg: "#ffffff",
+      selectedBg: "rgba(139,92,246,0.07)",
+      hoverBg: "rgba(9,9,11,0.03)",
     };
 
     return isDark ? dark : light;
@@ -171,10 +169,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           },
 
           Button: {
-            // keep primary clean; subtle depth only
             primaryShadow: isDark
-              ? "0 10px 24px rgba(0,0,0,0.55)"
-              : "0 10px 24px rgba(0,0,0,0.12)",
+              ? "0 2px 12px rgba(139,92,246,0.35)"
+              : "0 2px 10px rgba(139,92,246,0.22)",
           },
 
           Menu: {

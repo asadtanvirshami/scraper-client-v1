@@ -16,6 +16,9 @@ import {
   message,
   Alert,
   Avatar,
+  Dropdown,
+  Modal,
+  Select,
 } from "antd";
 import {
   ReloadOutlined,
@@ -28,6 +31,8 @@ import {
   UsergroupAddOutlined,
   EyeOutlined,
   UserOutlined,
+  MoreOutlined,
+  FolderOpenOutlined,
 } from "@ant-design/icons";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -36,7 +41,8 @@ import { getLeadAvatarSrc } from "@/features/leads/utils/avatar";
 import { useAppDrawer } from "@/components/layout/app-drawer/user-app-drawer";
 import TableHeaderTitle from "@/components/ui (generic)/table-header-title";
 import LeadForm from "../../form";
-import { useDownloadAllLeads, useBulkUploadLeads } from "../../hooks/mutations";
+import { useDownloadAllLeads, useBulkUploadLeads, useUpdateLead } from "../../hooks/mutations";
+import { useFetchFolders } from "@/features/folders/hooks/queries";
 
 type ServerFilters = {
   page: number;
@@ -101,6 +107,17 @@ const LeadsTableServer: React.FC<Props> = ({
   const { openDrawer, closeDrawer } = useAppDrawer();
   const download = useDownloadAllLeads();
   const bulkUpload = useBulkUploadLeads();
+  const updateLead = useUpdateLead();
+
+  const { data: foldersResp } = useFetchFolders({ user_id, page: 1, limit: 1000 } as any);
+  const folderOptions = useMemo(() => {
+    const folders = ((foldersResp as any)?.folders ?? (foldersResp as any)?.data ?? []) as Array<{ _id?: string; id?: string; name?: string }>;
+    return folders.map((f) => ({ value: String(f._id ?? f.id ?? ""), label: f.name ?? "Untitled folder" })).filter((o) => o.value);
+  }, [foldersResp]);
+
+  const [sendToFolderLead, setSendToFolderLead] = useState<Lead | null>(null);
+  const [selectedFolderId, setSelectedFolderId] = useState<string | undefined>(undefined);
+  const [sendingToFolder, setSendingToFolder] = useState(false);
 
   const filters = value;
 
@@ -278,6 +295,23 @@ const LeadsTableServer: React.FC<Props> = ({
     router.push(`/leads/${leadId}?type=${encodeURIComponent(type)}`);
   };
 
+  const doSendToFolder = async () => {
+    if (!sendToFolderLead || !selectedFolderId) return;
+    setSendingToFolder(true);
+    try {
+      const leadId = String((sendToFolderLead as any)._id);
+      await updateLead.mutateAsync({ lead_id: leadId, folder_id: selectedFolderId } as any);
+      message.success(intl.formatMessage({ id: "leads.send_to_folder.success", defaultMessage: "Lead moved to folder" }));
+      setSendToFolderLead(null);
+      setSelectedFolderId(undefined);
+      fetchNow({});
+    } catch {
+      message.error(intl.formatMessage({ id: "leads.send_to_folder.failed", defaultMessage: "Failed to move lead" }));
+    } finally {
+      setSendingToFolder(false);
+    }
+  };
+
   const baseColumns: ColumnsType<Lead> = [
     {
       title: <FormattedMessage id="leads.table.name" defaultMessage="Name" />,
@@ -417,10 +451,10 @@ const LeadsTableServer: React.FC<Props> = ({
       title: <FormattedMessage id="commons.actions" defaultMessage="Actions" />,
       key: "actions",
       fixed: "right",
-      width: 240,
+      width: 160,
       hidden: !showFilters,
       render: (_, record) => (
-        <Space>
+        <Space size={4}>
           <Button
             size="small"
             icon={<EyeOutlined />}
@@ -428,19 +462,38 @@ const LeadsTableServer: React.FC<Props> = ({
           >
             <FormattedMessage id="commons.view" defaultMessage="View" />
           </Button>
-          <Button
-            size="small"
-            icon={<EditOutlined />}
-            onClick={() => openEditDrawer(record)}
-          />
-          <Popconfirm
-            title={intl.formatMessage({ id: "leads.confirm.delete_one" })}
-            okText={intl.formatMessage({ id: "commons.delete" })}
-            okButtonProps={{ danger: true }}
-            onConfirm={() => doDeleteOne(record)}
+          <Dropdown
+            trigger={["click"]}
+            menu={{
+              items: [
+                {
+                  key: "edit",
+                  icon: <EditOutlined />,
+                  label: <FormattedMessage id="commons.edit" defaultMessage="Edit" />,
+                  onClick: () => openEditDrawer(record),
+                },
+                {
+                  key: "send-to-folder",
+                  icon: <FolderOpenOutlined />,
+                  label: <FormattedMessage id="leads.actions.send_to_folder" defaultMessage="Send to folder" />,
+                  onClick: () => {
+                    setSelectedFolderId(undefined);
+                    setSendToFolderLead(record);
+                  },
+                },
+                { type: "divider" },
+                {
+                  key: "delete",
+                  icon: <DeleteOutlined />,
+                  danger: true,
+                  label: <FormattedMessage id="commons.delete" defaultMessage="Delete" />,
+                  onClick: () => doDeleteOne(record),
+                },
+              ],
+            }}
           >
-            <Button size="small" danger icon={<DeleteOutlined />} />
-          </Popconfirm>
+            <Button size="small" icon={<MoreOutlined />} />
+          </Dropdown>
         </Space>
       ),
     },
@@ -817,6 +870,39 @@ const LeadsTableServer: React.FC<Props> = ({
           ),
         }}
       />
+
+      {/* Send to Folder Modal */}
+      <Modal
+        open={!!sendToFolderLead}
+        title={
+          <Space>
+            <FolderOpenOutlined />
+            <FormattedMessage id="leads.send_to_folder.title" defaultMessage="Send to Folder" />
+          </Space>
+        }
+        onCancel={() => { setSendToFolderLead(null); setSelectedFolderId(undefined); }}
+        onOk={doSendToFolder}
+        okText={<FormattedMessage id="leads.send_to_folder.confirm" defaultMessage="Move to Folder" />}
+        cancelText={<FormattedMessage id="commons.cancel" defaultMessage="Cancel" />}
+        confirmLoading={sendingToFolder}
+        okButtonProps={{ disabled: !selectedFolderId }}
+      >
+        <p style={{ marginBottom: 12 }}>
+          <FormattedMessage
+            id="leads.send_to_folder.description"
+            defaultMessage="Select a folder to move this lead into."
+          />
+        </p>
+        <Select
+          style={{ width: "100%" }}
+          placeholder={intl.formatMessage({ id: "leads.send_to_folder.placeholder", defaultMessage: "Choose a folder" })}
+          options={folderOptions}
+          value={selectedFolderId}
+          onChange={setSelectedFolderId}
+          showSearch
+          optionFilterProp="label"
+        />
+      </Modal>
     </Card>
   );
 };

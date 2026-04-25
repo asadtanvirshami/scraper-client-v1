@@ -1,7 +1,7 @@
 "use client";
 
-import { Col, Row, Card, Typography, Tabs } from "antd";
-import { TableOutlined, InstagramOutlined } from "@ant-design/icons";
+import { Col, Row, Card, Typography, Button, theme } from "antd";
+import { UsergroupAddOutlined, UploadOutlined } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
 import { useMemo, useState } from "react";
 import { FormattedMessage } from "react-intl";
@@ -10,9 +10,8 @@ import { useUserInfo } from "@/helpers/use-user";
 import Spinner from "@/components/ui (generic)/spinner";
 
 import InsightsCard from "./ui/insights";
-import WeeklyLeadsAreaChart from "./ui/chart/area-chart";
 import LeadsTableServer from "./ui/lead-table";
-import InstagramAnalyzer from "./ui/instagram-analyzer";
+import BulkUploadModal from "./form/bulk-upload-modal";
 
 import { useFetchLeadsList, useFetchLeadsSummary } from "./hooks/queries";
 import {
@@ -38,9 +37,7 @@ const PRESET_DAYS: Record<PresetKey, number> = {
 
 const LeadsLayout = () => {
   const { id } = useUserInfo();
-
-  // ====== TAB STATE ======
-  const [activeTab, setActiveTab] = useState<string>("leads");
+  const { token } = theme.useToken();
 
   // ====== TABLE FILTERS (server list) ======
   const [query, setQuery] = useState({
@@ -54,31 +51,21 @@ const LeadsLayout = () => {
   // ====== CHART FILTERS (preset + optional range) ======
   const [preset, setPreset] = useState<PresetKey>("7d");
   const [range, setRange] = useState<MaybeRange>([null, null]);
+  const [bulkUploadOpen, setBulkUploadOpen] = useState(false);
 
   const safeRange: RangeValue = range ?? [null, null];
   const [from, to] = safeRange;
-
   const isCustomRange = Boolean(from && to);
 
-  // ====== SUMMARY PARAMS (wire to chart filters) ======
+  // ====== SUMMARY PARAMS ======
   const summaryParams = useMemo(() => {
     if (!id) return { user_id: "" };
-
     if (isCustomRange && from && to) {
-      return {
-        user_id: id,
-        dateFrom: from.format("YYYY-MM-DD"),
-        dateTo: to.format("YYYY-MM-DD"),
-      };
+      return { user_id: id, dateFrom: from.format("YYYY-MM-DD"), dateTo: to.format("YYYY-MM-DD") };
     }
-
-    return {
-      user_id: id,
-      days: PRESET_DAYS[preset] ?? 7,
-    };
+    return { user_id: id, days: PRESET_DAYS[preset] ?? 7 };
   }, [id, isCustomRange, from, to, preset]);
 
-  // Full-page spinner only on initial/default load
   const isDefaultView = !isCustomRange && preset === "7d";
 
   // ====== QUERIES ======
@@ -97,7 +84,6 @@ const LeadsLayout = () => {
     type: query.type,
     is_converted: query.is_converted,
   });
-  console.log(leads);
 
   // ====== MUTATIONS ======
   const createLead = useCreateLead();
@@ -106,168 +92,118 @@ const LeadsLayout = () => {
   const bulkDelete = useBulkDeleteLeads();
   const bulkUpload = useBulkUploadLeads();
 
-  // Full-page spinner ONLY on first load
   if (summaryLoading && isDefaultView) {
     return <Spinner size="large" />;
   }
 
-  // Charts/insights show fetching when filters change
   const chartsLoading = isDefaultView ? summaryLoading : summaryFetching;
+  void chartsLoading;
 
   const stats = summary?.data?.stats;
   const dailyTotal = summary?.data?.charts?.dailyTotal;
 
-  const tabItems = [
-    {
-      key: "leads",
-      label: (
-        <span>
-          <TableOutlined />
-          <FormattedMessage
-            id="leads.tabs.all_leads"
-            defaultMessage="All Leads"
-          />
-        </span>
-      ),
-      children: (
-        <div>
-          <Row gutter={[16, 16]}>
-            {/* Insights (wired to same chart filters) */}
-            <Col xs={24}>
-              <Card>
-                <div className="flex flex-col gap-1">
-                  <Title level={5} className="!mb-0">
-                    <FormattedMessage
-                      id="leads.insights.title"
-                      defaultMessage="Insights"
-                    />
-                  </Title>
-                  <Text type="secondary">
-                    <FormattedMessage
-                      id="leads.insights.subtitle"
-                      defaultMessage="Pick a date range to update charts & insights."
-                    />
-                  </Text>
-                </div>
-
-                <div className="mt-4">
-                  <InsightsCard stats={stats} dailyTotal={dailyTotal} />
-                </div>
-              </Card>
-            </Col>
-
-            {/* Charts */}
-            <Col xs={24} lg={12}>
-              {/* NOTE: WeeklyLeadsAreaChart already renders its own Card + filters */}
-              {/* <WeeklyLeadsAreaChart
-                isLoading={chartsLoading}
-                labels={summary?.data?.charts?.dailyByType?.labels}
-                countsByType={{
-                  INSTAGRAM:
-                    summary?.data?.charts?.dailyByType?.countsByType?.INSTAGRAM,
-                  LINKEDIN:
-                    summary?.data?.charts?.dailyByType?.countsByType?.LINKEDIN,
-                  MANUAL:
-                    summary?.data?.charts?.dailyByType?.countsByType?.MANUAL,
-                }}
-                // ✅ wire filters
-                showFilters
-                preset={preset}
-                onPresetChange={(p) => {
-                  setPreset(p);
-                  setRange([null, null]); // preset becomes source of truth
-                }}
-                range={safeRange}
-                onRangeChange={(r) => {
-                  setRange(r);
-                  // if user sets a custom range, keep preset as-is but range wins in summaryParams
-                }}
-                showRangePicker
-              /> */}
-            </Col>
-
-            <Col xs={24} lg={12}>
-              {/* Second chart shares same filter state but hides duplicate controls */}
-              {/* <WeeklyLeadsAreaChart
-                isLoading={chartsLoading}
-                labels={summary?.data?.charts?.dailyTotal?.labels}
-                counts={summary?.data?.charts?.dailyTotal?.counts}
-                // ✅ share same state, but no duplicate controls
-                showFilters={false}
-                preset={preset}
-                range={safeRange}
-              /> */}
-            </Col>
-
-            {/* Table */}
-            <Col xs={24}>
-              <LeadsTableServer
-                user_id={id ?? ""}
-                leads={leads?.data ?? []}
-                total={leads?.pagination?.total ?? 0}
-                loading={leadsFetching}
-                value={query}
-                onFetch={(next) => setQuery(next as any)}
-                showFileUpload={true}
-                onCreateLead={async (payload: any) => {
-                  await createLead.mutateAsync(payload as any);
-                }}
-                onUpdateLead={async (leadId: string, payload: any) => {
-                  await updateLead.mutateAsync({ lead_id: leadId, ...payload });
-                }}
-                onDeleteOne={async (lead: any) => {
-                  await deleteLead.mutateAsync((lead as any)._id);
-                }}
-                onDeleteMany={async (ids: string[]) => {
-                  await bulkDelete.mutateAsync(ids);
-                }}
-                onBulkUpload={async (payload: any) => {
-                  await bulkUpload.mutateAsync(payload);
-                }}
-              />
-            </Col>
-          </Row>
-        </div>
-      ),
-    },
-    {
-      key: "instagram-analyzer",
-      label: (
-        <span>
-          <InstagramOutlined />
-          <FormattedMessage
-            id="leads.tabs.instagram_analyzer"
-            defaultMessage="Instagram Analyzer"
-          />
-        </span>
-      ),
-      children: <InstagramAnalyzer />,
-    },
-  ];
-
   return (
-    <div className="p-4 lg:p-6">
-      {/* Header */}
-      <div className="mb-4">
-        <Title level={4} className="!mb-1">
-          <FormattedMessage id="leads.page.title" defaultMessage="Leads" />
-        </Title>
-        <Text type="secondary">
-          <FormattedMessage
-            id="leads.page.subtitle"
-            defaultMessage="Manage and track your leads."
-          />
-        </Text>
+    <div
+      style={{
+        padding: "20px 20px 40px",
+        maxWidth: 1440,
+        margin: "0 auto",
+      }}
+    >
+      {/* Page Header */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: 12,
+          marginBottom: 24,
+        }}
+      >
+        <div>
+          <Title level={4} style={{ margin: 0, fontWeight: 700, letterSpacing: "-0.02em" }}>
+            <UsergroupAddOutlined style={{ marginRight: 10, color: token.colorPrimary }} />
+            <FormattedMessage id="leads.page.title" defaultMessage="Leads" />
+          </Title>
+          <Text type="secondary" style={{ fontSize: 13 }}>
+            <FormattedMessage
+              id="leads.page.subtitle"
+              defaultMessage="Manage, track and bulk-import your leads."
+            />
+          </Text>
+        </div>
+
+        <Button
+          type="primary"
+          icon={<UploadOutlined />}
+          onClick={() => setBulkUploadOpen(true)}
+        >
+          <FormattedMessage id="leads.actions.bulk_import" defaultMessage="Bulk Import" />
+        </Button>
       </div>
 
-      <Tabs
-        activeKey={activeTab}
-        onChange={setActiveTab}
-        items={tabItems}
-        size="large"
+      <Row gutter={[16, 16]}>
+        {/* Insights */}
+        <Col xs={24}>
+          <Card>
+            <div className="flex flex-col gap-1 mb-4">
+              <Title level={5} className="!mb-0">
+                <FormattedMessage id="leads.insights.title" defaultMessage="Insights" />
+              </Title>
+              <Text type="secondary">
+                <FormattedMessage
+                  id="leads.insights.subtitle"
+                  defaultMessage="Pick a date range to update charts & insights."
+                />
+              </Text>
+            </div>
+            <InsightsCard stats={stats} dailyTotal={dailyTotal} />
+          </Card>
+        </Col>
+
+        {/* Table */}
+        <Col xs={24}>
+          <LeadsTableServer
+            user_id={id ?? ""}
+            leads={leads?.data ?? []}
+            total={leads?.pagination?.total ?? 0}
+            loading={leadsFetching}
+            value={query}
+            onFetch={(next) => setQuery(next as any)}
+            showFileUpload={false}
+            onCreateLead={async (payload: any) => {
+              await createLead.mutateAsync(payload as any);
+            }}
+            onUpdateLead={async (leadId: string, payload: any) => {
+              await updateLead.mutateAsync({ lead_id: leadId, ...payload });
+            }}
+            onDeleteOne={async (lead: any) => {
+              await deleteLead.mutateAsync((lead as any)._id);
+            }}
+            onDeleteMany={async (ids: string[]) => {
+              await bulkDelete.mutateAsync(ids);
+            }}
+            onBulkUpload={async (payload: any) => {
+              await bulkUpload.mutateAsync(payload);
+            }}
+          />
+        </Col>
+      </Row>
+
+      {/* Bulk Upload Modal */}
+      <BulkUploadModal
+        open={bulkUploadOpen}
+        onClose={() => setBulkUploadOpen(false)}
+        user_id={id ?? ""}
+        onBulkUpload={async (payload: any) => {
+          await bulkUpload.mutateAsync(payload);
+          setBulkUploadOpen(false);
+        }}
       />
     </div>
   );
 };
 
 export default LeadsLayout;
+

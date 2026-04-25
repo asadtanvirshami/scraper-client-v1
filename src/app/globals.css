@@ -1,8 +1,14 @@
 @import "tailwindcss";
 
+/* ── Brand gradient ──────────────────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Soft light-violet → mauve — buttons & accents only */
+  --brand-gradient: linear-gradient(135deg, #8b5cf6 0%, #c084fc 100%);
+  --brand-gradient-hover: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+  --brand-gradient-active: linear-gradient(135deg, #6d28d9 0%, #9333ea 100%);
+
+  --background: #f9f9fb;
+  --foreground: #09090b;
 }
 
 @theme inline {
@@ -12,11 +18,9 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.dark {
+  --background: #0e0e10;
+  --foreground: rgba(255,255,255,0.90);
 }
 
 body {
@@ -25,58 +29,29 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Disable hover background for custom dropdown content */
+/* ── Primary button: soft violet → mauve gradient ──────────────────────── */
+.ant-btn-primary {
+  background: var(--brand-gradient) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+.ant-btn-primary:not(:disabled):hover {
+  background: var(--brand-gradient-hover) !important;
+  border-color: transparent !important;
+}
+.ant-btn-primary:not(:disabled):active {
+  background: var(--brand-gradient-active) !important;
+  border-color: transparent !important;
+}
+.ant-btn-primary:disabled {
+  background: rgba(139, 92, 246, 0.20) !important;
+  border-color: transparent !important;
+  color: rgba(139, 92, 246, 0.45) !important;
+}
+
+/* ── Disable dropdown hover flicker ─────────────────────────────────────── */
 .ant-dropdown-menu-item:hover,
 .ant-dropdown-menu-submenu-title:hover {
   background-color: transparent !important;
 }
 
-/* Green glow neon calendar styling */
-.green-glow-calendar .ant-picker-calendar-date-today {
-  border-color: #52c41a !important;
-  box-shadow: 0 0 8px rgba(82, 196, 26, 0.4) !important;
-}
-
-.green-glow-calendar .ant-picker-calendar-date-selected {
-  background: linear-gradient(135deg, rgba(82, 196, 26, 0.2) 0%, rgba(82, 196, 26, 0.1) 100%) !important;
-  border-color: #52c41a !important;
-  box-shadow: 0 0 12px rgba(82, 196, 26, 0.6), inset 0 0 8px rgba(82, 196, 26, 0.2) !important;
-}
-
-.green-glow-calendar .ant-picker-calendar-date-selected:hover {
-  background: linear-gradient(135deg, rgba(82, 196, 26, 0.3) 0%, rgba(82, 196, 26, 0.15) 100%) !important;
-  box-shadow: 0 0 16px rgba(82, 196, 26, 0.8), inset 0 0 10px rgba(82, 196, 26, 0.3) !important;
-}
-
-.green-glow-calendar .ant-picker-calendar-date:hover {
-  background: rgba(82, 196, 26, 0.1) !important;
-  border-color: #52c41a !important;
-  box-shadow: 0 0 6px rgba(82, 196, 26, 0.3) !important;
-}
-
-.green-glow-calendar .ant-picker-calendar-date-range-start,
-.green-glow-calendar .ant-picker-calendar-date-range-end {
-  background: linear-gradient(135deg, rgba(82, 196, 26, 0.25) 0%, rgba(82, 196, 26, 0.12) 100%) !important;
-  border-color: #52c41a !important;
-  box-shadow: 0 0 10px rgba(82, 196, 26, 0.5) !important;
-}
-
-.green-glow-calendar .ant-picker-calendar-date-in-range {
-  background: rgba(82, 196, 26, 0.08) !important;
-  border-color: rgba(82, 196, 26, 0.3) !important;
-}
-
-/* Dark theme compatibility */
-@media (prefers-color-scheme: dark) {
-  .green-glow-calendar .ant-picker-calendar-date {
-    color: #ededed !important;
-  }
-  
-  .green-glow-calendar .ant-picker-calendar-date-today {
-    color: #52c41a !important;
-  }
-  
-  .green-glow-calendar .ant-picker-calendar-date-selected {
-    color: #ffffff !important;
-  }
-}

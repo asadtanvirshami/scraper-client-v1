@@ -5,6 +5,8 @@ import {
   TeamOutlined,
   UserAddOutlined,
   UserOutlined,
+  InstagramOutlined,
+  LinkedinOutlined,
 } from "@ant-design/icons";
 import { useMemo } from "react";
 
@@ -27,6 +29,7 @@ const AnalysisPlatformPage = ({ platform }: AnalysisPlatformPageProps) => {
   const platformInfo = ANALYSIS_PLATFORM_MAP[platform];
   const isLinkedIn = platform === "linkedin";
   const isInstagram = platform === "instagram";
+  const PlatformIcon = isLinkedIn ? LinkedinOutlined : InstagramOutlined;
 
   const serviceItems = useMemo(
     () =>
@@ -52,6 +55,7 @@ const AnalysisPlatformPage = ({ platform }: AnalysisPlatformPageProps) => {
 
       <div className="mb-4">
         <Title level={4} className="!mb-1">
+          <PlatformIcon style={{ marginRight: 8 }} />
           {platformInfo.title}
         </Title>
         {!isLinkedIn ? (

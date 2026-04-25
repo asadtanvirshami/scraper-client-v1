@@ -1,6 +1,5 @@
 import api from "@/api/axios";
 import { apiEndpoints } from "@/api/end-points";
-import { getAccessToken } from "@/lib/cookies";
 import {
   CreateSmtpAccountPayload,
   CreateSmtpAccountResponse,
@@ -13,36 +12,22 @@ import {
   UpdateSmtpAccountResponse,
 } from "@/types/api/smtp";
 
-const authHeaders = () => {
-  const token = getAccessToken();
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
-
 export async function fetchSmtpAccounts(): Promise<FetchSmtpAccountsResponse> {
-  const { data } = await api.get(apiEndpoints.smtp.list, {
-    headers: authHeaders(),
-  });
+  const { data } = await api.get(apiEndpoints.smtp.list);
   return data;
 }
 
 export async function fetchSmtpAccount(
   accountId: string,
 ): Promise<FetchSmtpAccountResponse> {
-  const { data } = await api.get(apiEndpoints.smtp.getOne(accountId), {
-    headers: authHeaders(),
-  });
+  const { data } = await api.get(apiEndpoints.smtp.getOne(accountId));
   return data;
 }
 
 export async function createSmtpAccount(
   payload: CreateSmtpAccountPayload,
 ): Promise<CreateSmtpAccountResponse> {
-  const { data } = await api.post(apiEndpoints.smtp.create, payload, {
-    headers: {
-      ...authHeaders(),
-      "Content-Type": "application/json",
-    },
-  });
+  const { data } = await api.post(apiEndpoints.smtp.create, payload);
   return data;
 }
 
@@ -53,12 +38,6 @@ export async function updateSmtpAccount(
   const { data } = await api.patch(
     apiEndpoints.smtp.update(accountId),
     payload,
-    {
-      headers: {
-        ...authHeaders(),
-        "Content-Type": "application/json",
-      },
-    },
   );
   return data;
 }
@@ -66,9 +45,7 @@ export async function updateSmtpAccount(
 export async function deleteSmtpAccount(
   accountId: string,
 ): Promise<DeleteSmtpAccountResponse> {
-  const { data } = await api.delete(apiEndpoints.smtp.delete(accountId), {
-    headers: authHeaders(),
-  });
+  const { data } = await api.delete(apiEndpoints.smtp.delete(accountId));
   return data;
 }
 
@@ -78,12 +55,6 @@ export async function testSmtpAccount(
   const { data } = await api.post(
     apiEndpoints.smtp.test(accountId),
     {},
-    {
-      headers: {
-        ...authHeaders(),
-        "Content-Type": "application/json",
-      },
-    },
   );
   return data;
 }

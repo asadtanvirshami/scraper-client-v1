@@ -5,6 +5,7 @@ import storage from "redux-persist/lib/storage";
 import userReducer from "./slices/user/user-slice";
 import dialogReducer from "./slices/dialog/dialog-slice";
 import notificationReducer from "./slices/notification/slice";
+import subscriptionReducer from "./slices/subscription/subscription-slice";
 
 // UNIQUE persist configs
 const userPersistConfig = {
@@ -12,14 +13,22 @@ const userPersistConfig = {
   storage,
 };
 
+// Persist subscription so credits are available instantly on reload
+const subscriptionPersistConfig = {
+  key: "subscription",
+  storage,
+};
+
 // Persist ONLY these slices
 const persistedUser = persistReducer(userPersistConfig, userReducer);
+const persistedSubscription = persistReducer(subscriptionPersistConfig, subscriptionReducer);
 
 // Root reducer
 const rootReducer = combineReducers({
   user: persistedUser,
   dialog: dialogReducer,
   notification: notificationReducer,
+  subscription: persistedSubscription,
 });
 
 // Store

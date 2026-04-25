@@ -88,9 +88,8 @@ const KpiCard: React.FC<KpiCardProps> = ({
   };
 
   const a = accentPalette[accent];
-  const iconGradient = `linear-gradient(135deg, ${hexToRgba(a.start, 0.24)} 0%, ${hexToRgba(a.end, 0.14)} 100%)`;
-  const iconRing = hexToRgba(a.start, 0.16);
-  const iconGlow = hexToRgba(a.end, 0.12);
+  const iconBg = `linear-gradient(135deg, ${hexToRgba(a.start, 0.12)} 0%, ${hexToRgba(a.end, 0.07)} 100%)`;
+  const iconBorder = hexToRgba(a.start, 0.18);
 
   return (
     <Card className="!max-h-[180px]">
@@ -154,15 +153,15 @@ const KpiCard: React.FC<KpiCardProps> = ({
           </div>
 
           <div
-            className="flex h-11 w-11 items-center justify-center rounded-2xl"
+            className="flex h-10 w-10 items-center justify-center rounded-xl"
             style={{
-              background: iconGradient,
+              background: iconBg,
               color: a.fg,
-              boxShadow: `0 0 0 6px ${iconRing}, 0 10px 25px ${iconGlow}`,
+              border: `1px solid ${iconBorder}`,
             }}
             aria-hidden
           >
-            <span style={{ fontSize: 18, lineHeight: 1 }}>{icon}</span>
+            <span style={{ fontSize: 16, lineHeight: 1 }}>{icon}</span>
           </div>
         </div>
       </button>
