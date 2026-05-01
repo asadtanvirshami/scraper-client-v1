@@ -14,15 +14,26 @@ import {
   Space,
   Alert,
   Switch,
+  Tag,
+  message,
 } from "antd";
 import {
   InstagramOutlined,
   LoadingOutlined,
   TwitterOutlined,
   LinkedinOutlined,
+  PauseCircleOutlined,
+  CaretRightOutlined,
+  DeleteOutlined,
 } from "@ant-design/icons";
 import { FormattedMessage, useIntl } from "react-intl";
 
+import {
+  GetScrapeFollowersJobStatus,
+  PauseScrapeFollowersJob,
+  ResumeScrapeFollowersJob,
+  DeleteScrapeFollowersJob,
+} from "@/api/api_calls/scrapper";
 import { useUserInfo } from "@/helpers/use-user";
 import { useFetchFolders } from "@/features/folders/hooks/queries";
 import { useScrapeFollowersOrFollowing } from "@/features/scraper/hooks";
@@ -31,6 +42,8 @@ import LeadsTableServer from "../lead-table";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
+const TERMINAL_JOB_STATES = new Set(["completed", "failed"]);
+const PAUSABLE_JOB_STATES = new Set(["waiting", "delayed", "prioritized"]);
 
 type AnalyzerPlatform = "instagram" | "twitter" | "linkedin";
 
@@ -75,6 +88,12 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
 
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [scrapedUsername, setScrapedUsername] = useState<string | null>(null);
+  const [activeJobId, setActiveJobId] = useState<string | null>(null);
+  const [activeJobState, setActiveJobState] = useState<string | null>(null);
+  const [activeJobPaused, setActiveJobPaused] = useState(false);
+  const [controlLoading, setControlLoading] = useState<
+    "pause" | "resume" | "delete" | null
+  >(null);
 
   const { data: foldersResp, isLoading: foldersLoading } = useFetchFolders({
     user_id: id,
@@ -96,27 +115,89 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
     search: scrapeQuery.search,
     type: "INSTAGRAM",
     folder_id: selectedFolderId || undefined,
-    scrape_status: false,
+    scrape_status: true,
     scraped_from_username: scrapedUsername || undefined,
     has_contacts: scrapeQuery.has_contacts || undefined,
   });
 
   const scrapeMutation = useScrapeFollowersOrFollowing();
 
+  const statusChip = (() => {
+    if (!activeJobId && !activeJobState) return null;
+    if (activeJobPaused) return <Tag color="orange">Paused</Tag>;
+    if (activeJobState === "active") return <Tag color="green">Active</Tag>;
+    if (activeJobState === "waiting" || activeJobState === "delayed" || activeJobState === "prioritized")
+      return <Tag color="blue">Queued</Tag>;
+    if (activeJobState === "completed") return <Tag color="default">Completed</Tag>;
+    if (activeJobState === "failed") return <Tag color="red">Failed</Tag>;
+    return null;
+  })();
+
+  const isScrapeRunning =
+    Boolean(activeJobId) &&
+    !TERMINAL_JOB_STATES.has(activeJobState || "") &&
+    !activeJobPaused;
+  const canPause =
+    Boolean(activeJobId) &&
+    !activeJobPaused &&
+    !TERMINAL_JOB_STATES.has(activeJobState || "") &&
+    controlLoading === null;
+  const canResume = Boolean(activeJobId) && activeJobPaused;
+  const canDelete = Boolean(activeJobId) && controlLoading === null;
+
   useEffect(() => {
-    if (scrapedUsername && selectedFolderId) {
-      setScrapeQuery((prev) => ({
-        ...prev,
-        page: 1,
-      }));
-      refetchLeads();
+    if (!activeJobId) {
+      return;
     }
-  }, [scrapedUsername, selectedFolderId, refetchLeads]);
+
+    let timeoutId: number | undefined;
+    let cancelled = false;
+
+    const pollJobStatus = async () => {
+      try {
+        const response = await GetScrapeFollowersJobStatus(activeJobId);
+        if (cancelled) {
+          return;
+        }
+
+        const nextState = String(response?.data?.job?.state || "").toLowerCase();
+        setActiveJobState(nextState || null);
+        setActiveJobPaused(Boolean(response?.data?.job?.control?.paused));
+        await refetchLeads();
+
+        if (TERMINAL_JOB_STATES.has(nextState)) {
+          setActiveJobId(null);
+          setActiveJobPaused(false);
+          return;
+        }
+
+        timeoutId = window.setTimeout(pollJobStatus, 3000);
+      } catch (error) {
+        if (cancelled) {
+          return;
+        }
+
+        console.error("Failed to poll scrape job status:", error);
+        setActiveJobState("failed");
+        setActiveJobId(null);
+        setActiveJobPaused(false);
+      }
+    };
+
+    pollJobStatus();
+
+    return () => {
+      cancelled = true;
+      if (timeoutId) {
+        window.clearTimeout(timeoutId);
+      }
+    };
+  }, [activeJobId, refetchLeads]);
 
   const handleSubmit = async (values: any) => {
     try {
       const username = String(values.username || "").trim().replace(/^@+/, "");
-      await scrapeMutation.mutateAsync({
+      const response = await scrapeMutation.mutateAsync({
         user_id: id ?? "",
         folder_id: values.folder_id,
         username,
@@ -126,8 +207,69 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
 
       setSelectedFolderId(values.folder_id);
       setScrapedUsername(username);
+      setScrapeQuery((prev) => ({
+        ...prev,
+        page: 1,
+      }));
+
+      const jobId = String(response?.data?.job?.id || "").trim();
+      setActiveJobState(jobId ? String(response?.data?.job?.state || "waiting").toLowerCase() : null);
+      setActiveJobPaused(Boolean(response?.data?.job?.control?.paused));
+      setActiveJobId(jobId || null);
+
+      if (!jobId) {
+        await refetchLeads();
+      }
     } catch (error) {
       console.error("Scraping error:", error);
+    }
+  };
+
+  const handlePauseJob = async () => {
+    if (!activeJobId) return;
+    try {
+      setControlLoading("pause");
+      const response = await PauseScrapeFollowersJob(activeJobId);
+      const job = response?.data?.job;
+      setActiveJobState(String(job?.state || activeJobState || "").toLowerCase() || null);
+      setActiveJobPaused(Boolean(job?.control?.paused));
+      message.success("Scraping paused");
+    } catch (error: any) {
+      message.error(error?.response?.data?.message || "Failed to pause scraping");
+    } finally {
+      setControlLoading(null);
+    }
+  };
+
+  const handleResumeJob = async () => {
+    if (!activeJobId) return;
+    try {
+      setControlLoading("resume");
+      const response = await ResumeScrapeFollowersJob(activeJobId);
+      const job = response?.data?.job;
+      setActiveJobState(String(job?.state || activeJobState || "").toLowerCase() || null);
+      setActiveJobPaused(Boolean(job?.control?.paused));
+      message.success("Scraping resumed");
+    } catch (error: any) {
+      message.error(error?.response?.data?.message || "Failed to resume scraping");
+    } finally {
+      setControlLoading(null);
+    }
+  };
+
+  const handleDeleteJob = async () => {
+    if (!activeJobId) return;
+    try {
+      setControlLoading("delete");
+      await DeleteScrapeFollowersJob(activeJobId);
+      setActiveJobId(null);
+      setActiveJobState(null);
+      setActiveJobPaused(false);
+      message.success("Scraping job deleted");
+    } catch (error: any) {
+      message.error(error?.response?.data?.message || "Failed to delete scraping job");
+    } finally {
+      setControlLoading(null);
     }
   };
 
@@ -309,20 +451,57 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
                 </Row>
 
               <Form.Item className="mb-0 mt-1">
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  icon={
-                    scrapeMutation.isPending ? <LoadingOutlined /> : <PlatformIcon />
-                  }
-                  loading={scrapeMutation.isPending}
-                  size="large"
-                >
-                  <FormattedMessage
-                    id="leads.instagram_analyzer.form.submit"
-                    defaultMessage="Start Scraping"
-                  />
-                </Button>
+                <Space size={12} wrap align="center">
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    icon={
+                      scrapeMutation.isPending || isScrapeRunning ? <LoadingOutlined /> : <PlatformIcon />
+                    }
+                    loading={scrapeMutation.isPending}
+                    disabled={Boolean(activeJobId)}
+                    size="large"
+                  >
+                    {isScrapeRunning
+                      ? "Running…"
+                      : scrapeMutation.isPending
+                      ? "Starting…"
+                      : <FormattedMessage
+                          id="leads.instagram_analyzer.form.submit"
+                          defaultMessage="Start Scraping"
+                        />}
+                  </Button>
+                  {statusChip}
+                  {activeJobId && (
+                    <Space size={10} wrap>
+                      <Button
+                        icon={<PauseCircleOutlined />}
+                        onClick={handlePauseJob}
+                        disabled={!canPause}
+                        loading={controlLoading === "pause"}
+                      >
+                        Pause
+                      </Button>
+                      <Button
+                        icon={<CaretRightOutlined />}
+                        onClick={handleResumeJob}
+                        disabled={!canResume}
+                        loading={controlLoading === "resume"}
+                      >
+                        Resume
+                      </Button>
+                      <Button
+                        danger
+                        icon={<DeleteOutlined />}
+                        onClick={handleDeleteJob}
+                        disabled={!canDelete}
+                        loading={controlLoading === "delete"}
+                      >
+                        Delete
+                      </Button>
+                    </Space>
+                  )}
+                </Space>
               </Form.Item>
               </Form>
             </div>
@@ -381,7 +560,7 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
                   folder_id={selectedFolderId}
                   leads={leads?.data ?? []}
                   total={leads?.pagination?.total ?? 0}
-                  loading={leadsFetching}
+                  loading={leadsFetching || isScrapeRunning}
                   value={scrapeQuery}
                   onFetch={(next) => setScrapeQuery(next as any)}
                   showFilters={true}

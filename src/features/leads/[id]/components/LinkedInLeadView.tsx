@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar, Card, Col, Row, Space, Tag, Typography } from "antd";
+import { Avatar, Card, Col, Row, Space, Tag, Typography, theme } from "antd";
 import {
   ApartmentOutlined,
   CommentOutlined,
@@ -49,13 +49,17 @@ function InfoItem({
   label,
   value,
   icon,
+  borderColor,
+  bgColor,
 }: {
   label: React.ReactNode;
   value: React.ReactNode;
   icon?: React.ReactNode;
+  borderColor: string;
+  bgColor: string;
 }) {
   return (
-    <div className="rounded-xl border border-slate-200/70 bg-white/70 p-4">
+    <div style={{ borderRadius: 12, border: `1px solid ${borderColor}`, background: bgColor, padding: 16 }}>
       <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide leading-none">
         {icon ? <span className="inline-flex shrink-0 text-sm">{icon}</span> : null}
         <span className="leading-none">{label}</span>
@@ -71,6 +75,9 @@ type Props = {
 };
 
 export default function LinkedInLeadView({ lead, leadId }: Props) {
+  const { token } = theme.useToken();
+  const borderColor = token.colorBorderSecondary;
+  const bgColor = token.colorFillAlter;
   const avatarSrc = getLeadAvatarSrc(lead);
 
   const displayName =
@@ -140,6 +147,8 @@ export default function LinkedInLeadView({ lead, leadId }: Props) {
                 }
                 value={toDisplay(lead.first_name)}
                 icon={<UserOutlined />}
+                borderColor={borderColor}
+                bgColor={bgColor}
               />
               <InfoItem
                 label={
@@ -150,6 +159,8 @@ export default function LinkedInLeadView({ lead, leadId }: Props) {
                 }
                 value={toDisplay(lead.last_name)}
                 icon={<UserOutlined />}
+                borderColor={borderColor}
+                bgColor={bgColor}
               />
               <InfoItem
                 label={
@@ -157,6 +168,8 @@ export default function LinkedInLeadView({ lead, leadId }: Props) {
                 }
                 value={toDisplay(lead.emails)}
                 icon={<MailOutlined />}
+                borderColor={borderColor}
+                bgColor={bgColor}
               />
               <InfoItem
                 label={
@@ -167,6 +180,8 @@ export default function LinkedInLeadView({ lead, leadId }: Props) {
                 }
                 value={toDisplay(lead.phone_numbers)}
                 icon={<PhoneOutlined />}
+                borderColor={borderColor}
+                bgColor={bgColor}
               />
               <InfoItem
                 label={
@@ -177,6 +192,8 @@ export default function LinkedInLeadView({ lead, leadId }: Props) {
                 }
                 value={toDisplay(lead.sms_number)}
                 icon={<MessageOutlined />}
+                borderColor={borderColor}
+                bgColor={bgColor}
               />
               <InfoItem
                 label={
@@ -187,6 +204,8 @@ export default function LinkedInLeadView({ lead, leadId }: Props) {
                 }
                 value={toDisplay(lead.whatsapp_number)}
                 icon={<CommentOutlined />}
+                borderColor={borderColor}
+                bgColor={bgColor}
               />
               <InfoItem
                 label={
@@ -197,6 +216,8 @@ export default function LinkedInLeadView({ lead, leadId }: Props) {
                 }
                 value={toDisplay(lead.landline_number)}
                 icon={<PhoneOutlined />}
+                borderColor={borderColor}
+                bgColor={bgColor}
               />
               <InfoItem
                 label={
@@ -207,6 +228,8 @@ export default function LinkedInLeadView({ lead, leadId }: Props) {
                 }
                 value={toDisplay(lead.company)}
                 icon={<ApartmentOutlined />}
+                borderColor={borderColor}
+                bgColor={bgColor}
               />
               <InfoItem
                 label={
@@ -217,6 +240,8 @@ export default function LinkedInLeadView({ lead, leadId }: Props) {
                 }
                 value={toDisplay(lead.job_title)}
                 icon={<ProfileOutlined />}
+                borderColor={borderColor}
+                bgColor={bgColor}
               />
               {hasValue(lead.source_url) ? (
                 <InfoItem
@@ -228,6 +253,8 @@ export default function LinkedInLeadView({ lead, leadId }: Props) {
                   }
                   value={toDisplay(lead.source_url)}
                   icon={<GlobalOutlined />}
+                  borderColor={borderColor}
+                  bgColor={bgColor}
                 />
               ) : null}
               {hasValue(lead.source_rul) ? (
@@ -240,6 +267,8 @@ export default function LinkedInLeadView({ lead, leadId }: Props) {
                   }
                   value={toDisplay(lead.source_rul)}
                   icon={<GlobalOutlined />}
+                  borderColor={borderColor}
+                  bgColor={bgColor}
                 />
               ) : null}
               {hasValue(lead.instagram_profile_id) ? (
@@ -252,6 +281,8 @@ export default function LinkedInLeadView({ lead, leadId }: Props) {
                   }
                   value={toDisplay(lead.instagram_profile_id)}
                   icon={<NumberOutlined />}
+                  borderColor={borderColor}
+                  bgColor={bgColor}
                 />
               ) : null}
               {hasValue(lead.username) ? (
@@ -264,6 +295,8 @@ export default function LinkedInLeadView({ lead, leadId }: Props) {
                   }
                   value={toDisplay(lead.username)}
                   icon={<IdcardOutlined />}
+                  borderColor={borderColor}
+                  bgColor={bgColor}
                 />
               ) : null}
               {hasValue(lead.full_name) ? (
@@ -276,6 +309,8 @@ export default function LinkedInLeadView({ lead, leadId }: Props) {
                   }
                   value={toDisplay(lead.full_name)}
                   icon={<IdcardOutlined />}
+                  borderColor={borderColor}
+                  bgColor={bgColor}
                 />
               ) : null}
               {hasValue(lead.bio) ? (
@@ -285,6 +320,8 @@ export default function LinkedInLeadView({ lead, leadId }: Props) {
                   }
                   value={toDisplay(lead.bio)}
                   icon={<InfoCircleOutlined />}
+                  borderColor={borderColor}
+                  bgColor={bgColor}
                 />
               ) : null}
               {hasValue(lead.avatar_url) ? (
@@ -297,6 +334,8 @@ export default function LinkedInLeadView({ lead, leadId }: Props) {
                   }
                   value={toDisplay(lead.avatar_url)}
                   icon={<PictureOutlined />}
+                  borderColor={borderColor}
+                  bgColor={bgColor}
                 />
               ) : null}
               {hasValue(lead.avatar_rul) ? (
@@ -309,6 +348,8 @@ export default function LinkedInLeadView({ lead, leadId }: Props) {
                   }
                   value={toDisplay(lead.avatar_rul)}
                   icon={<PictureOutlined />}
+                  borderColor={borderColor}
+                  bgColor={bgColor}
                 />
               ) : null}
               {hasValue(lead.followers) ? (
@@ -381,6 +422,8 @@ export default function LinkedInLeadView({ lead, leadId }: Props) {
                   }
                   value={toDisplay(lead.category)}
                   icon={<InfoCircleOutlined />}
+                  borderColor={borderColor}
+                  bgColor={bgColor}
                 />
               ) : null}
             </div>

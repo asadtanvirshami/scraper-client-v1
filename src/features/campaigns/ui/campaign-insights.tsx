@@ -18,9 +18,13 @@ const { Title, Text } = Typography;
 
 interface Analytics {
   sent: number;
+  delivered?: number;
   opened: number;
   unique_opens: number;
+  clicked?: number;
+  unique_clicks?: number;
   failed: number;
+  bounced?: number;
 }
 
 interface CampaignData {
@@ -54,18 +58,22 @@ const CampaignInsights: React.FC<Props> = ({ campaign, stats }) => {
     open_rate,
     click_rate,
     bounce_rate,
+    delivery_rate,
   } = campaign;
 
   const sentCount = Number(analytics?.sent || 0);
   const failedCount = Number(analytics?.failed || 0);
+  const deliveredCount = Number(analytics?.delivered ?? sentCount);
+  const bouncedCount = Number(analytics?.bounced ?? failedCount);
   const totalRecipients = Number(total_recipients || 0);
 
   const emailsSentPercent =
     totalRecipients > 0 ? (sentCount / totalRecipients) * 100 : 0;
 
-  const deliveredCount = Math.max(sentCount - failedCount, 0);
+  const totalOutcomes = deliveredCount + bouncedCount;
   const computedDeliveryRate =
-    totalRecipients > 0 ? (deliveredCount / totalRecipients) * 100 : 0;
+    Number(delivery_rate) ||
+    (totalOutcomes > 0 ? (deliveredCount / totalOutcomes) * 100 : 0);
 
   return (
     <Card

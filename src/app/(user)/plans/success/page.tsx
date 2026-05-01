@@ -37,7 +37,7 @@ export default function PlansSuccessPage() {
       queryClient.setQueryData(["subscription"], sub);
       setPlanName(sub?.plan_id?.display_name ?? "");
       setState("success");
-      setTimeout(() => router.replace("/billings"), 3000);
+      setTimeout(() => router.replace("/dashboard"), 3000);
     };
 
     const poll = async (attempt = 0) => {
@@ -110,8 +110,8 @@ export default function PlansSuccessPage() {
           title="Payment received — syncing your plan"
           subTitle="Stripe confirmed your payment. Your plan will activate shortly. Check your billing page in a moment."
           extra={[
-            <Button type="primary" key="billing" onClick={() => router.replace("/billings")}>
-              Go to Billing
+            <Button type="primary" key="billing" onClick={() => router.replace("/dashboard")}>
+              Go to Dashboard
             </Button>,
           ]}
         />
@@ -125,10 +125,10 @@ export default function PlansSuccessPage() {
         icon={<CheckCircleFilled style={{ color: "#10b981", fontSize: 72 }} />}
         status="success"
         title={planName ? `Welcome to ${planName}! 🎉` : "Plan activated! 🎉"}
-        subTitle="Your subscription is now active. Redirecting you to billing…"
+        subTitle="Your subscription is now active. Redirecting you to dashboard…"
         extra={[
-          <Button type="primary" key="billing" onClick={() => router.replace("/billings")}>
-            Go to Billing
+          <Button type="primary" key="billing" onClick={() => router.replace("/dashboard")}>
+            Go to Dashboard
           </Button>,
         ]}
       />

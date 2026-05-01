@@ -41,7 +41,7 @@ import { getLeadAvatarSrc } from "@/features/leads/utils/avatar";
 import { useAppDrawer } from "@/components/layout/app-drawer/user-app-drawer";
 import TableHeaderTitle from "@/components/ui (generic)/table-header-title";
 import LeadForm from "../../form";
-import { useDownloadAllLeads, useBulkUploadLeads, useUpdateLead } from "../../hooks/mutations";
+import { useDownloadAllLeads, useBulkUploadLeads, useUpdateLead, useBulkUpdateScrappedLeads, useDeleteLead, useBulkDeleteLeads } from "../../hooks/mutations";
 import { useFetchFolders } from "@/features/folders/hooks/queries";
 
 type ServerFilters = {
@@ -108,6 +108,9 @@ const LeadsTableServer: React.FC<Props> = ({
   const download = useDownloadAllLeads();
   const bulkUpload = useBulkUploadLeads();
   const updateLead = useUpdateLead();
+  const bulkUpdateScrappedLeads = useBulkUpdateScrappedLeads();
+  const deleteLead = useDeleteLead();
+  const bulkDeleteLeads = useBulkDeleteLeads();
 
   const { data: foldersResp } = useFetchFolders({ user_id, page: 1, limit: 1000 } as any);
   const folderOptions = useMemo(() => {
@@ -118,6 +121,19 @@ const LeadsTableServer: React.FC<Props> = ({
   const [sendToFolderLead, setSendToFolderLead] = useState<Lead | null>(null);
   const [selectedFolderId, setSelectedFolderId] = useState<string | undefined>(undefined);
   const [sendingToFolder, setSendingToFolder] = useState(false);
+  const [bulkMoveModalOpen, setBulkMoveModalOpen] = useState(false);
+
+  // Folder options filtered to exclude the folder the lead is already in
+  const filteredFolderOptions = useMemo(() => {
+    if (!sendToFolderLead) return folderOptions;
+    const currentFolderId = String(
+      (sendToFolderLead as any).folder_id?._id ??
+      (sendToFolderLead as any).folder_id ??
+      ""
+    );
+    if (!currentFolderId) return folderOptions;
+    return folderOptions.filter((o) => o.value !== currentFolderId);
+  }, [folderOptions, sendToFolderLead]);
 
   const filters = value;
 
@@ -255,8 +271,14 @@ const LeadsTableServer: React.FC<Props> = ({
   };
 
   const doDeleteOne = async (lead: Lead) => {
+    const leadId = String((lead as any)._id ?? "");
+    if (!leadId) return;
     try {
-      if (onDeleteOne) await onDeleteOne(lead);
+      if (onDeleteOne) {
+        await onDeleteOne(lead);
+      } else {
+        await deleteLead.mutateAsync(leadId);
+      }
       message.success(intl.formatMessage({ id: "commons.deleted" }));
       fetchNow({});
     } catch {
@@ -269,7 +291,11 @@ const LeadsTableServer: React.FC<Props> = ({
     if (!ids.length) return;
 
     try {
-      if (onDeleteMany) await onDeleteMany(ids);
+      if (onDeleteMany) {
+        await onDeleteMany(ids);
+      } else {
+        await bulkDeleteLeads.mutateAsync(ids);
+      }
       message.success(
         `${intl.formatMessage({ id: "commons.deleted" })} ${ids.length}`,
       );
@@ -307,6 +333,24 @@ const LeadsTableServer: React.FC<Props> = ({
       fetchNow({});
     } catch {
       message.error(intl.formatMessage({ id: "leads.send_to_folder.failed", defaultMessage: "Failed to move lead" }));
+    } finally {
+      setSendingToFolder(false);
+    }
+  };
+
+  const doBulkMoveToFolder = async () => {
+    if (!selectedFolderId || selectedRowKeys.length === 0) return;
+    setSendingToFolder(true);
+    try {
+      const leads = selectedRowKeys.map((id) => ({ _id: String(id), folder_id: selectedFolderId }));
+      await bulkUpdateScrappedLeads.mutateAsync({ leads });
+      message.success(intl.formatMessage({ id: "leads.send_to_folder.success", defaultMessage: "Lead(s) moved to folder" }));
+      setBulkMoveModalOpen(false);
+      setSelectedFolderId(undefined);
+      setSelectedRowKeys([]);
+      fetchNow({});
+    } catch {
+      message.error(intl.formatMessage({ id: "leads.send_to_folder.failed", defaultMessage: "Failed to move lead(s)" }));
     } finally {
       setSendingToFolder(false);
     }
@@ -486,8 +530,21 @@ const LeadsTableServer: React.FC<Props> = ({
                   key: "delete",
                   icon: <DeleteOutlined />,
                   danger: true,
-                  label: <FormattedMessage id="commons.delete" defaultMessage="Delete" />,
-                  onClick: () => doDeleteOne(record),
+                  label: (
+                    <Popconfirm
+                      title={intl.formatMessage({ id: "leads.confirm.delete_one", defaultMessage: "Delete this lead?" })}
+                      okText={intl.formatMessage({ id: "commons.delete", defaultMessage: "Delete" })}
+                      okButtonProps={{ danger: true }}
+                      cancelText={intl.formatMessage({ id: "commons.cancel", defaultMessage: "Cancel" })}
+                      onConfirm={(e) => { e?.stopPropagation(); doDeleteOne(record); }}
+                      onCancel={(e) => e?.stopPropagation()}
+                      onClick={(e) => e?.stopPropagation()}
+                    >
+                      <span style={{ display: "block", width: "100%" }}>
+                        <FormattedMessage id="commons.delete" defaultMessage="Delete" />
+                      </span>
+                    </Popconfirm>
+                  ),
                 },
               ],
             }}
@@ -820,6 +877,17 @@ const LeadsTableServer: React.FC<Props> = ({
               <FormattedMessage id="commons.reset" defaultMessage="Reset" />
             </Button>
 
+            <Button
+              icon={<FolderOpenOutlined />}
+              disabled={selectedRowKeys.length === 0}
+              onClick={() => { setSelectedFolderId(undefined); setBulkMoveModalOpen(true); }}
+            >
+              <FormattedMessage
+                id="leads.send_to_folder.bulk_button"
+                defaultMessage="Move to Folder"
+              />
+            </Button>
+
             <Popconfirm
               title={intl.formatMessage(
                 { id: "leads.confirm.delete_selected" },
@@ -891,6 +959,40 @@ const LeadsTableServer: React.FC<Props> = ({
           <FormattedMessage
             id="leads.send_to_folder.description"
             defaultMessage="Select a folder to move this lead into."
+          />
+        </p>
+        <Select
+          style={{ width: "100%" }}
+          placeholder={intl.formatMessage({ id: "leads.send_to_folder.placeholder", defaultMessage: "Choose a folder" })}
+          options={filteredFolderOptions}
+          value={selectedFolderId}
+          onChange={setSelectedFolderId}
+          showSearch
+          optionFilterProp="label"
+        />
+      </Modal>
+
+      {/* Bulk Move to Folder Modal */}
+      <Modal
+        open={bulkMoveModalOpen}
+        title={
+          <Space>
+            <FolderOpenOutlined />
+            <FormattedMessage id="leads.send_to_folder.bulk_title" defaultMessage="Move Selected Leads to Folder" />
+          </Space>
+        }
+        onCancel={() => { setBulkMoveModalOpen(false); setSelectedFolderId(undefined); }}
+        onOk={doBulkMoveToFolder}
+        okText={<FormattedMessage id="leads.send_to_folder.confirm" defaultMessage="Move to Folder" />}
+        cancelText={<FormattedMessage id="commons.cancel" defaultMessage="Cancel" />}
+        confirmLoading={sendingToFolder}
+        okButtonProps={{ disabled: !selectedFolderId }}
+      >
+        <p style={{ marginBottom: 12 }}>
+          <FormattedMessage
+            id="leads.send_to_folder.bulk_description"
+            defaultMessage="Select a folder to move {count} selected lead(s) into."
+            values={{ count: selectedRowKeys.length }}
           />
         </p>
         <Select

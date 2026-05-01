@@ -347,6 +347,7 @@
       "target_folders_required": "Please select at least one folder",
       "tracking_options": "Tracking Options",
       "track_opens": "Track Email Opens",
+      "track_clicks": "Track Link Clicks",
       "save_draft": "Save as Draft",
       "schedule": "Schedule Campaign",
       "schedule_campaign": "Schedule Campaign",
