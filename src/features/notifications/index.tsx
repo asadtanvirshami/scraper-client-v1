@@ -1,10 +1,10 @@
 "use client";
 
-import React from "react";
-import { Divider, Space, Spin, Tag, Typography, Button, Empty } from "antd";
+import React, { useState } from "react";
+import { Divider, Pagination, Space, Tag, Typography, Button, Empty } from "antd";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   useClearAllNotifications,
-  useNotifications,
   useMarkAllRead,
 } from "@/features/notifications/hooks/use-notification";
 import { useUserInfo } from "@/helpers/use-user";
@@ -12,10 +12,13 @@ import { useAppDispatch } from "@/redux/hook";
 import { markAllRead, clearAll } from "@/redux/slices/notification/slice";
 import { FormattedMessage } from "react-intl";
 import Spinner from "@/components/ui (generic)/spinner";
+import { fetchNotifications } from "@/api/api_calls/notifications";
 
 const { Text } = Typography;
 
-function formatTs(ts?: number) {
+const PAGE_SIZE = 10;
+
+function formatTs(ts?: string | number) {
   if (!ts) return "";
   try {
     return new Date(ts).toLocaleString();
@@ -24,32 +27,39 @@ function formatTs(ts?: number) {
   }
 }
 
-type Level = "info" | "success" | "warning" | "error";
+type Level = "info" | "success" | "warning" | "error" | "alert" | "reminder";
 
-const levelTag = (level: Level) => (
-  <Tag
-    color={
-      level === "error"
-        ? "red"
-        : level === "warning"
-          ? "gold"
-          : level === "success"
-            ? "green"
-            : "blue"
-    }
-  >
-    <FormattedMessage id={`notifications.level.${level}`} />
+const levelColor: Record<string, string> = {
+  error: "red",
+  warning: "gold",
+  success: "green",
+  alert: "orange",
+  reminder: "purple",
+  info: "blue",
+};
+
+const levelTag = (level: string) => (
+  <Tag color={levelColor[level] ?? "blue"}>
+    {level.charAt(0).toUpperCase() + level.slice(1)}
   </Tag>
 );
 
 export default function NotificationsPage() {
   const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
   const { id } = useUserInfo();
 
-  const { items, isLoading: isLoadingNotifications } = useNotifications(
-    id ?? "",
-    true,
-  );
+  const [page, setPage] = useState(1);
+
+  const { data, isLoading, isFetching } = useQuery({
+    queryKey: ["notifications", "paginated", id, page],
+    queryFn: () => fetchNotifications((page - 1) * PAGE_SIZE, PAGE_SIZE),
+    enabled: !!id,
+    staleTime: 30_000,
+  });
+
+  const notifications: any[] = data?.data?.data ?? [];
+  const totalCount: number = data?.data?.totalCount ?? 0;
 
   const clearAllNotifications = useClearAllNotifications();
   const markAllReadNotifications = useMarkAllRead();
@@ -57,35 +67,28 @@ export default function NotificationsPage() {
   const isClearing = clearAllNotifications.isPending;
   const isMarking = markAllReadNotifications.isPending;
 
-  const grouped = React.useMemo(() => {
-    const g: Record<Level, typeof items> = {
-      info: [],
-      success: [],
-      warning: [],
-      error: [],
-    };
-    for (const n of items) {
-      const level = (n.level as Level) || "info";
-      g[level].push(n);
-    }
-    return g;
-  }, [items]);
-
-  const handleClearAll = async () =>
+  const handleClearAll = async () => {
     await clearAllNotifications.mutateAsync(id as string, {
-      onSuccess: () => dispatch(clearAll()),
+      onSuccess: () => {
+        dispatch(clearAll());
+        setPage(1);
+        queryClient.invalidateQueries({ queryKey: ["notifications", "paginated"] });
+      },
     });
+  };
 
-  const handleMarkAllRead = async () =>
+  const handleMarkAllRead = async () => {
     await markAllReadNotifications.mutateAsync(id as string, {
-      onSuccess: () => dispatch(markAllRead()),
+      onSuccess: () => {
+        dispatch(markAllRead());
+        queryClient.invalidateQueries({ queryKey: ["notifications", "paginated"] });
+      },
     });
+  };
 
-  const hasUnread = items.some((n: any) => !n.is_read);
+  const hasUnread = notifications.some((n: any) => !n.is_read);
 
-  if (isLoadingNotifications) {
-    return <Spinner size="large" />;
-  }
+  if (isLoading) return <Spinner size="large" />;
 
   return (
     <div style={{ minHeight: "100vh", padding: "16px 12px 32px" }}>
@@ -100,6 +103,11 @@ export default function NotificationsPage() {
       >
         <Text strong style={{ fontSize: 16 }}>
           <FormattedMessage id="notifications.title" />
+          {totalCount > 0 && (
+            <Text type="secondary" style={{ fontSize: 13, fontWeight: 400, marginLeft: 8 }}>
+              ({totalCount})
+            </Text>
+          )}
         </Text>
 
         <Space>
@@ -113,7 +121,7 @@ export default function NotificationsPage() {
 
           <Button
             danger
-            disabled={items.length === 0 || isClearing}
+            disabled={totalCount === 0 || isClearing}
             loading={isClearing}
             onClick={handleClearAll}
           >
@@ -122,89 +130,73 @@ export default function NotificationsPage() {
         </Space>
       </div>
 
-      {!items.length && (
-        <div style={{ marginTop: 12 }}>
-          <Empty />
-          {/* <Text type="secondary">
-            <FormattedMessage id="notifications.empty" />
-          </Text> */}
-        </div>
-      )}
       {/* CONTENT */}
-
-      <div style={{ marginTop: 12 }}>
-        {(["error", "warning", "success", "info"] as const).map((level) => {
-          const arr = grouped[level];
-          if (!arr.length) return null;
-
-          return (
-            <div key={level} style={{ marginBottom: 16 }}>
+      {notifications.length === 0 && !isFetching ? (
+        <div style={{ marginTop: 24 }}>
+          <Empty />
+        </div>
+      ) : (
+        <div style={{ marginTop: 12, opacity: isFetching ? 0.6 : 1, transition: "opacity 0.2s" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {notifications.map((n: any) => (
               <div
+                key={n.id ?? n._id}
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  marginBottom: 8,
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  borderRadius: 12,
+                  padding: 12,
+                  background: "#272626",
+                  opacity: n.is_read ? 0.7 : 1,
                 }}
               >
-                {levelTag(level)}
-                <Text type="secondary">{arr.length}</Text>
-              </div>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {arr.map((n: any) => (
-                  <div
-                    key={n.id}
-                    style={{
-                      border: "1px solid rgba(0,0,0,0.08)",
-                      borderRadius: 12,
-                      padding: 12,
-                      background: "#272626",
-                      opacity: n.is_read ? 0.7 : 1,
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        gap: 10,
-                      }}
-                    >
-                      <Text strong style={{ fontSize: 13 }}>
-                        {n.title}
-                      </Text>
-
-                      {!n.is_read && (
-                        <Tag color="processing" style={{ margin: 0 }}>
-                          <FormattedMessage id="notifications.badge.new" />
-                        </Tag>
-                      )}
-                    </div>
-
-                    {n.message && (
-                      <div style={{ marginTop: 6 }}>
-                        <Text type="secondary" style={{ fontSize: 13 }}>
-                          {n.message}
-                        </Text>
-                      </div>
-                    )}
-
-                    {n.ts && (
-                      <div style={{ marginTop: 6 }}>
-                        <Text type="secondary" style={{ fontSize: 11 }}>
-                          {formatTs(n.ts)}
-                        </Text>
-                      </div>
-                    )}
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    {levelTag(n.type ?? "info")}
+                    <Text strong style={{ fontSize: 13 }}>
+                      {n.title}
+                    </Text>
                   </div>
-                ))}
-              </div>
 
-              <Divider style={{ margin: "16px 0 0" }} />
-            </div>
-          );
-        })}
-      </div>
+                  {!n.is_read && (
+                    <Tag color="processing" style={{ margin: 0, flexShrink: 0 }}>
+                      <FormattedMessage id="notifications.badge.new" />
+                    </Tag>
+                  )}
+                </div>
+
+                {n.message && (
+                  <div style={{ marginTop: 6 }}>
+                    <Text type="secondary" style={{ fontSize: 13 }}>
+                      {n.message}
+                    </Text>
+                  </div>
+                )}
+
+                {(n.created_at ?? n.ts) && (
+                  <div style={{ marginTop: 6 }}>
+                    <Text type="secondary" style={{ fontSize: 11 }}>
+                      {formatTs(n.created_at ?? n.ts)}
+                    </Text>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <Divider style={{ margin: "20px 0 16px" }} />
+
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <Pagination
+              current={page}
+              pageSize={PAGE_SIZE}
+              total={totalCount}
+              onChange={(p) => setPage(p)}
+              showSizeChanger={false}
+              showTotal={(total) => `${total} notifications`}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

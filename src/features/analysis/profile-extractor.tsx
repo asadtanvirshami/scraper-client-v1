@@ -125,7 +125,6 @@ const AnalysisProfileExtractor = ({ platform, compact = false }: ProfileExtracto
       search: tableFilters.search,
       type: leadType,
       folder_id: selectedFolderId || undefined,
-      scrape_status: false,
     };
 
     if (!hasStarted) {
