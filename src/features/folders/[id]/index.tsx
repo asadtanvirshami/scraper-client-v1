@@ -132,6 +132,7 @@ export default function FolderParamsLayout({ folderId, folderName }: Props) {
         <Col xs={24}>
           <LeadsTableServer
             folder_id={folderId}
+            user_id={id ?? ""}
             leads={leads?.data ?? []}
             total={leads?.pagination?.total ?? 0}
             loading={isFetching}

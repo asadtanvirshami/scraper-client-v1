@@ -93,11 +93,23 @@ const CampaignCard: React.FC<CampaignCardProps> = ({ data }) => {
 
   const totalRecipients = Number(data.total_recipients || 0);
   const sentCount = Number(data.analytics?.sent || 0);
+  const deliveredCount = Number(data.analytics?.delivered ?? sentCount);
+  const bouncedCount = Number(data.analytics?.bounced ?? data.analytics?.failed ?? 0);
+  const totalOutcomes = deliveredCount + bouncedCount;
   const openCount = Number(data.analytics?.unique_opens || 0);
   const openRate =
-    sentCount > 0 ? Math.round((openCount / sentCount) * 100) : 0;
+    totalRecipients > 0
+      ? Math.round((openCount / totalRecipients) * 100)
+      : deliveredCount > 0
+        ? Math.round((openCount / deliveredCount) * 100)
+        : 0;
   const deliveryRate =
-    totalRecipients > 0 ? Math.round((sentCount / totalRecipients) * 100) : 0;
+    Number(data.delivery_rate) ||
+    (totalOutcomes > 0
+      ? Math.round((deliveredCount / totalOutcomes) * 100)
+      : totalRecipients > 0
+        ? Math.round((deliveredCount / totalRecipients) * 100)
+        : 0);
 
   const isDraftOrScheduled =
     normalizedStatus === "DRAFT" || normalizedStatus === "SCHEDULED";
@@ -255,15 +267,17 @@ const CampaignCard: React.FC<CampaignCardProps> = ({ data }) => {
           </Button>
 
           <Space size={4}>
-            <Tooltip title="Edit">
-              <Button
-                size="small"
-                icon={<EditOutlined />}
-                onClick={() => router.push(`/campaigns/edit/${data._id}`)}
-                disabled={isPending}
-                style={{ borderRadius: 8, height: 32, width: 32 }}
-              />
-            </Tooltip>
+            {(normalizedStatus !== "SENT" && normalizedStatus !== "CANCELLED") && (
+              <Tooltip title="Edit">
+                <Button
+                  size="small"
+                  icon={<EditOutlined />}
+                  onClick={() => router.push(`/campaigns/edit/${data._id}`)}
+                  disabled={isPending}
+                  style={{ borderRadius: 8, height: 32, width: 32 }}
+                />
+              </Tooltip>
+            )}
             <Tooltip title="Delete">
               <Popconfirm
                 title={t("campaigns.card.delete_title")}
@@ -290,4 +304,4 @@ const CampaignCard: React.FC<CampaignCardProps> = ({ data }) => {
   );
 };
 
-export default CampaignCard;
+export default CampaignCard;

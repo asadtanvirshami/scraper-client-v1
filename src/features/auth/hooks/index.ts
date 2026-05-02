@@ -26,6 +26,7 @@ export function useVerifyOtp() {
 }
 
 export function useSignUp() {
+  const router = useRouter();
   const intl = useIntl();
 
   return useMutation({
@@ -34,6 +35,7 @@ export function useSignUp() {
     onSuccess: (data) => {
       const successKey = getSuccessMessage(data?.message);
       message.success(intl.formatMessage({ id: successKey }));
+      router.replace("/auth/signin");
       return data;
     },
     onError: (error) => {

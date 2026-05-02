@@ -69,6 +69,7 @@ interface FormValues {
   from_name?: string;
   reply_to?: string;
   track_opens: boolean;
+  track_clicks: boolean;
 }
 
 const CampaignForm: React.FC<CampaignFormProps> = ({
@@ -170,6 +171,8 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
 
     form.setFieldsValue({
       ...resolvedData,
+      track_opens: true,
+      track_clicks: true,
       target_folders: targetFolderIds,
       target_leads: targetLeadIds,
       scheduled_at: resolvedData?.scheduled_at
@@ -178,6 +181,11 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
     });
 
     setContent(resolvedData?.content || "");
+    setSelectedTemplateId(
+      typeof resolvedData?.template_id === "string"
+        ? resolvedData.template_id
+        : resolvedData?.template_id?._id || null,
+    );
   }, [initialData, form]);
 
   /* ===============================
@@ -214,6 +222,7 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
       reply_to: values.from_email,
       user_id: userId,
       smtp_account_id: smtpAccountId,
+      template_id: selectedTemplateId,
       scheduled_at: values.scheduled_at
         ? values.scheduled_at.toISOString()
         : undefined,
@@ -385,6 +394,7 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
           status: "DRAFT",
           campaign_type: "FOLDER",
           track_opens: true,
+          track_clicks: true,
         }}
       >
         {/* Basic Information Card */}
@@ -785,7 +795,14 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
             label={t("campaigns.form.track_opens")}
             valuePropName="checked"
           >
-            <Switch disabled={isViewMode} />
+            <Switch disabled />
+          </Form.Item>
+          <Form.Item
+            name="track_clicks"
+            label={t("campaigns.form.track_clicks")}
+            valuePropName="checked"
+          >
+            <Switch disabled />
           </Form.Item>
         </Card>
 

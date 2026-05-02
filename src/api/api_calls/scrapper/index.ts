@@ -54,3 +54,31 @@ export async function ScrapeFollowersOrFollowing(
   );
   return data;
 }
+
+export async function GetScrapeFollowersJobStatus(
+  jobId: string,
+): Promise<GenericResponse> {
+  const { data } = await api.get(apiEndpoints.scrapper.scrapeFollowersJob(jobId));
+  return data;
+}
+
+export async function PauseScrapeFollowersJob(
+  jobId: string,
+): Promise<GenericResponse> {
+  const { data } = await api.post(apiEndpoints.scrapper.pauseScrapeFollowersJob(jobId));
+  return data;
+}
+
+export async function ResumeScrapeFollowersJob(
+  jobId: string,
+): Promise<GenericResponse> {
+  const { data } = await api.post(apiEndpoints.scrapper.resumeScrapeFollowersJob(jobId));
+  return data;
+}
+
+export async function DeleteScrapeFollowersJob(
+  jobId: string,
+): Promise<GenericResponse> {
+  const { data } = await api.delete(apiEndpoints.scrapper.deleteScrapeFollowersJob(jobId));
+  return data;
+}

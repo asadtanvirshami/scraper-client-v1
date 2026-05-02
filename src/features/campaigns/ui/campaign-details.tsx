@@ -34,12 +34,17 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({ campaign }) => {
 
   const sentCount = Number(campaign?.analytics?.sent || 0);
   const failedCount = Number(campaign?.analytics?.failed || 0);
-  const totalRecipients = Number(campaign?.total_recipients || 0);
-  const deliveredCount = Math.max(sentCount - failedCount, 0);
-  const computedDeliveryRate =
-    totalRecipients > 0
-      ? ((deliveredCount / totalRecipients) * 100).toFixed(2)
-      : String(campaign?.delivery_rate || 0);
+  const deliveredCount = Number(campaign?.analytics?.delivered ?? sentCount);
+  const bouncedCount = Number(campaign?.analytics?.bounced ?? failedCount);
+  const totalOutcomes = deliveredCount + bouncedCount;
+  const computedDeliveryRate = Number(
+    campaign?.delivery_rate ||
+      (totalOutcomes > 0 ? (deliveredCount / totalOutcomes) * 100 : 0),
+  ).toFixed(2);
+  const computedBounceRate = Number(
+    campaign?.bounce_rate ||
+      (totalOutcomes > 0 ? (bouncedCount / totalOutcomes) * 100 : 0),
+  ).toFixed(2);
 
   /* ===============================
      KPI DATA
@@ -48,7 +53,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({ campaign }) => {
   const kpis = [
     {
       label: t("campaigns.details.bounce_rate"),
-      value: `${campaign.bounce_rate || 0}%`,
+      value: `${computedBounceRate}%`,
     },
     {
       label: t("campaigns.details.delivery_rate"),
@@ -60,9 +65,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({ campaign }) => {
     },
     {
       label: t("campaigns.details.track_opens"),
-      value: campaign.track_opens
-        ? t("campaigns.details.enabled")
-        : t("campaigns.details.disabled"),
+      value: t("campaigns.details.enabled"),
       isSwitch: true,
     },
   ];
@@ -186,7 +189,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({ campaign }) => {
                 >
                   {kpi.isSwitch ? (
                     <Tag
-                      color={campaign.track_opens ? "green" : "red"}
+                      color="green"
                       style={{ fontSize: 14 }}
                     >
                       {kpi.value}

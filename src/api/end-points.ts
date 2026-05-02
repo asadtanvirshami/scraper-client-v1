@@ -18,6 +18,14 @@ export const apiEndpoints = {
     instagram: "/scrapper/scrap-instagram",
     linkedin: "/scrapper/scrap-linkedin",
     scrapeFollowers: "/beta-insta/scrape-followers",
+    scrapeFollowersJob: (jobId: string) =>
+      `/beta-insta/scrape-followers/jobs/${jobId}`,
+    pauseScrapeFollowersJob: (jobId: string) =>
+      `/beta-insta/scrape-followers/jobs/${jobId}/pause`,
+    resumeScrapeFollowersJob: (jobId: string) =>
+      `/beta-insta/scrape-followers/jobs/${jobId}/resume`,
+    deleteScrapeFollowersJob: (jobId: string) =>
+      `/beta-insta/scrape-followers/jobs/${jobId}`,
     // callback is server-to-server, frontend doesn't call it
   },
 

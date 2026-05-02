@@ -487,7 +487,7 @@ const BillingPage: React.FC = () => {
 
   const handleSubscribe = useCallback(
     (plan: Plan) => {
-      if (plan.name === "free_trial") { startTrial.mutate(); } else { setCheckoutPlan(plan); }
+      if (plan.name === "free_trial") { startTrial.mutate(undefined, { onSuccess: () => router.replace("/dashboard") }); } else { setCheckoutPlan(plan); }
     },
     [startTrial]
   );
