@@ -362,6 +362,8 @@ export default function LinkedInLeadView({ lead, leadId }: Props) {
                   }
                   value={toNumber(lead.followers)}
                   icon={<UserOutlined />}
+                  borderColor={borderColor}
+                  bgColor={bgColor}
                 />
               ) : null}
               {hasValue(lead.following) ? (
@@ -374,6 +376,8 @@ export default function LinkedInLeadView({ lead, leadId }: Props) {
                   }
                   value={toNumber(lead.following)}
                   icon={<UserOutlined />}
+                  borderColor={borderColor}
+                  bgColor={bgColor}
                 />
               ) : null}
               {hasValue(lead.follower_count) ? (
@@ -386,6 +390,8 @@ export default function LinkedInLeadView({ lead, leadId }: Props) {
                   }
                   value={toNumber(lead.follower_count)}
                   icon={<UserOutlined />}
+                  borderColor={borderColor}
+                  bgColor={bgColor}
                 />
               ) : null}
               {hasValue(lead.following_count) ? (
@@ -398,6 +404,8 @@ export default function LinkedInLeadView({ lead, leadId }: Props) {
                   }
                   value={toNumber(lead.following_count)}
                   icon={<UserOutlined />}
+                  borderColor={borderColor}
+                  bgColor={bgColor}
                 />
               ) : null}
               {hasValue(lead.total_posts) ? (
@@ -410,6 +418,8 @@ export default function LinkedInLeadView({ lead, leadId }: Props) {
                   }
                   value={toNumber(lead.total_posts)}
                   icon={<ProfileOutlined />}
+                  borderColor={borderColor}
+                  bgColor={bgColor}
                 />
               ) : null}
               {hasValue(lead.category) ? (

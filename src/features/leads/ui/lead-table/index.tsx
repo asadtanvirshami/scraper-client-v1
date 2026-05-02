@@ -538,9 +538,8 @@ const LeadsTableServer: React.FC<Props> = ({
                       cancelText={intl.formatMessage({ id: "commons.cancel", defaultMessage: "Cancel" })}
                       onConfirm={(e) => { e?.stopPropagation(); doDeleteOne(record); }}
                       onCancel={(e) => e?.stopPropagation()}
-                      onClick={(e) => e?.stopPropagation()}
                     >
-                      <span style={{ display: "block", width: "100%" }}>
+                      <span style={{ display: "block", width: "100%" }} onClick={(e) => e?.stopPropagation()}>
                         <FormattedMessage id="commons.delete" defaultMessage="Delete" />
                       </span>
                     </Popconfirm>
