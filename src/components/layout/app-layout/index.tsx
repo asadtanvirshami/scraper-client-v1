@@ -14,11 +14,7 @@ const AppLayout = ({ childrens }: { childrens: React.ReactNode }) => {
   const isOnboardingPath = path.startsWith("/onboarding");
 
   if (isAuthPath || isPlansRoute || isOnboardingPath) {
-    return (
-      <section className="flex justify-center h-screen items-center">
-        {childrens}
-      </section>
-    );
+    return <section className="min-h-screen w-full">{childrens}</section>;
   }
   return (
     <Layout hasSider>

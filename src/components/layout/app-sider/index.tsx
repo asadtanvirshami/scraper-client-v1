@@ -15,7 +15,6 @@ import {
   BugAntIcon,
   DocumentTextIcon,
   UsersIcon,
-  EnvelopeIcon,
   RectangleStackIcon,
 } from "@heroicons/react/24/outline";
 import { useIntl } from "react-intl";
@@ -34,7 +33,6 @@ type MenuKey =
   | "billing"
   | "settings"
   | "notifications"
-  | "emails"
   | "email_templates"
   // admin
   | "admin_dashboard"
@@ -65,7 +63,6 @@ const AppSider: React.FC = () => {
     notifications: "/notifications",
     billing: "/billings",
     settings: "/settings",
-    emails: "/emails",
     email_templates: "/email-templates",
 
     // admin (you can adjust paths if yours differ)
@@ -118,11 +115,6 @@ const AppSider: React.FC = () => {
       key: "notifications",
       icon: <BellIcon className="h-5 w-5" />,
       label: intl.formatMessage({ id: "sidebar.notifications" }),
-    },
-    {
-      key: "emails",
-      icon: <EnvelopeIcon className="h-5 w-5" />,
-      label: intl.formatMessage({ id: "sidebar.emails" }),
     },
     {
       key: "email_templates",

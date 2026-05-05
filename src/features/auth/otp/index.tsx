@@ -4,8 +4,12 @@ import OTPForm from "./otp-form";
 
 const OTPLayout = () => {
   return (
-    <div>
-      <AuthCard title="auth.otp.title" children={<OTPForm />} />
+    <div className="w-full">
+      <AuthCard 
+        title="auth.otp.title" 
+        subtitle="auth.otp.description"
+        children={<OTPForm />} 
+      />
     </div>
   );
 };

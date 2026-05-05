@@ -4,9 +4,10 @@ import ForgotPassForm from "./forgot-form";
 
 const ForgotPasswordLayout = () => {
   return (
-    <div>
+    <div className="w-full">
       <AuthCard
         title="auth.reset_password.title"
+        subtitle="auth.forgot_password.description"
         children={<ForgotPassForm />}
       />
     </div>

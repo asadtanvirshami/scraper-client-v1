@@ -4,8 +4,12 @@ import SignInForm from "./signin-form";
 
 const SignInLayout = () => {
   return (
-    <div>
-      <AuthCard title="auth.sign_in.sign_in_with_email" children={<SignInForm />} />
+    <div className="w-full">
+      <AuthCard 
+        title="auth.sign_in.sign_in_with_email" 
+        subtitle="auth.sign_in.welcome_back"
+        children={<SignInForm />} 
+      />
     </div>
   );
 };
