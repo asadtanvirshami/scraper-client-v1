@@ -103,9 +103,33 @@
   },
 
   "auth": {
+    "hero": {
+      "badge": "DataHarvX workspace",
+      "title": "Turn focused work into clean growth.",
+      "description": "A calm, secure place for teams to manage lead workflows and customer signals.",
+      "stats": {
+        "access": "Access",
+        "outreach": "Sharper outreach"
+      }
+    },
+    "common": {
+      "first_name_label": "First Name",
+      "last_name_label": "Last Name",
+      "email_label": "Email Address",
+      "password_label": "Password",
+      "verification_code_label": "Verification Code",
+      "email_placeholder": "xyz@gmail.com",
+      "enter_email_placeholder": "Enter your email",
+      "password_placeholder": "xxxxxxxx",
+      "or_continue_with": "Or continue with",
+      "sign_in_action": "Sign in"
+    },
     "sign_in": {
       "sign_in_with_email": "Sign in with email",
+      "welcome_back": "Welcome back. Pick up where your pipeline left off.",
       "forgot_password": "Forgot your password?",
+      "forgot_password_short": "Forgot password?",
+      "no_account_prompt": "Don't have an account?",
       "buttonCTA": "Sign In",
       "strip_line": "or sign in with",
       "dont_have_account": "Don't have an account? Sign Up",
@@ -124,6 +148,8 @@
 
     "sign_up": {
       "sign_up_with_email": "Sign up with email",
+      "create_account_description": "Create your workspace and start building a cleaner outreach pipeline.",
+      "have_account_prompt": "Already have an account?",
       "buttonCTA": "Create Account",
       "have_account": "Already have an account? Sign In",
       "strip_line": "or sign up with",
@@ -146,8 +172,10 @@
 
     "forgot_password": {
       "title": "Forgot Password",
+      "description": "We will send a one-time password to your registered email so you can reset access securely.",
       "forgot_password": "Forgot your password?",
       "buttonCTA": "Send Reset Email",
+      "remember_password_prompt": "Remember your password?",
       "strip_line": "or sign in with",
       "success_message": "Password reset email sent.",
       "errors": {
@@ -156,8 +184,18 @@
       }
     },
 
+    "otp": {
+      "title": "Verify OTP",
+      "description": "Enter the six-digit code sent to your email to continue.",
+      "verify_button": "Verify OTP",
+      "didnt_receive_code": "Didn't receive the code?",
+      "resend_code": "Resend OTP",
+      "back_to_signin": "Back to Login"
+    },
+
     "reset_password": {
       "title": "Reset Password",
+      "description": "Create a new password to secure your account and return to your workspace.",
       "buttonCTA": "Reset Password",
       "success_message": "Password reset successfully.",
 

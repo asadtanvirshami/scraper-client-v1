@@ -111,9 +111,33 @@
   },
 
   "auth": {
+    "hero": {
+      "badge": "Espacio de trabajo DataHarvX",
+      "title": "Convierte el trabajo enfocado en crecimiento ordenado.",
+      "description": "Un espacio seguro y sereno para que los equipos gestionen flujos de leads y se\u00f1ales de clientes.",
+      "stats": {
+        "access": "Acceso",
+        "outreach": "Prospecci\u00f3n m\u00e1s precisa"
+      }
+    },
+    "common": {
+      "first_name_label": "Nombre",
+      "last_name_label": "Apellido",
+      "email_label": "Correo electr\u00f3nico",
+      "password_label": "Contrase\u00f1a",
+      "verification_code_label": "C\u00f3digo de verificaci\u00f3n",
+      "email_placeholder": "xyz@gmail.com",
+      "enter_email_placeholder": "Ingresa tu correo electr\u00f3nico",
+      "password_placeholder": "xxxxxxxx",
+      "or_continue_with": "O contin\u00faa con",
+      "sign_in_action": "Iniciar sesi\u00f3n"
+    },
     "sign_in": {
       "sign_in_with_email": "Iniciar sesiÃ³n con correo electrÃ³nico",
+      "welcome_back": "Te damos la bienvenida. Retoma el punto donde dejaste tu pipeline.",
       "forgot_password": "Â¿Olvidaste tu contraseÃ±a?",
+      "forgot_password_short": "\u00bfOlvidaste tu contrase\u00f1a?",
+      "no_account_prompt": "\u00bfNo tienes una cuenta?",
       "buttonCTA": "Iniciar sesiÃ³n",
       "dont_have_account": "Â¿No tienes una cuenta? RegÃ­strate",
       "strip_line": "o inicia sesiÃ³n con",
@@ -132,6 +156,8 @@
 
     "sign_up": {
       "sign_up_with_email": "Registrarse con correo electrÃ³nico",
+      "create_account_description": "Crea tu espacio de trabajo y empieza a construir una prospecci\u00f3n m\u00e1s ordenada.",
+      "have_account_prompt": "\u00bfYa tienes una cuenta?",
       "buttonCTA": "Crear cuenta",
       "have_account": "Â¿Ya tienes una cuenta? Inicia sesiÃ³n",
       "strip_line": "o regÃ­strate con",
@@ -154,8 +180,10 @@
 
     "forgot_password": {
       "title": "Restablecer contraseÃ±a",
+      "description": "Te enviaremos una contrase\u00f1a de un solo uso a tu correo registrado para que recuperes el acceso de forma segura.",
       "forgot_password": "Â¿Olvidaste tu contraseÃ±a?",
       "buttonCTA": "Enviar correo de restablecimiento",
+      "remember_password_prompt": "\u00bfRecuerdas tu contrase\u00f1a?",
       "strip_line": "o inicia sesiÃ³n con",
       "success_message": "Correo de restablecimiento enviado.",
       "errors": {
@@ -164,8 +192,18 @@
       }
     },
 
+    "otp": {
+      "title": "Verificar OTP",
+      "description": "Ingresa el c\u00f3digo de seis d\u00edgitos enviado a tu correo para continuar.",
+      "verify_button": "Verificar OTP",
+      "didnt_receive_code": "\u00bfNo recibiste el c\u00f3digo?",
+      "resend_code": "Reenviar OTP",
+      "back_to_signin": "Volver al inicio de sesi\u00f3n"
+    },
+
     "reset_password": {
       "title": "Restablecer contraseÃ±a",
+      "description": "Crea una nueva contrase\u00f1a para proteger tu cuenta y volver a tu espacio de trabajo.",
       "buttonCTA": "Restablecer contraseÃ±a",
       "success_message": "La contraseÃ±a se restableciÃ³ correctamente.",
 

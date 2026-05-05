@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { Button, Divider, Form, Input, Typography } from "antd";
-import { MailOutlined, LockOutlined, GoogleOutlined } from "@ant-design/icons";
+import { Button, Form, Input, Typography } from "antd";
+import { MailOutlined, LockOutlined } from "@ant-design/icons";
 import { FormattedMessage, useIntl } from "react-intl";
 import { useSignUp } from "../hooks";
 
@@ -29,52 +29,60 @@ const SignUpForm: React.FC = () => {
       size="large"
       requiredMark={false}
       onFinish={handleSubmit}
+      className="space-y-4"
     >
-      {/* First Name */}
-      <Form.Item
-        name="first_name"
-        rules={[
-          {
-            required: true,
-            message: (
-              <FormattedMessage id="auth.sign_up.errors.first_name_required" />
-            )
-          }
-        ]}
-      >
-        <Input
-          placeholder={intl.formatMessage({
-            id: "auth.sign_up.placeholders.first_name"
-          })}
-          className="rounded-xl"
-          autoComplete="given-name"
-        />
-      </Form.Item>
+      <div className="grid grid-cols-2 gap-4">
+        {/* First Name */}
+        <Form.Item
+          name="first_name"
+          label={<span className="text-sm font-medium text-gray-700 dark:text-white/82"><FormattedMessage id="auth.common.first_name_label" /></span>}
+          rules={[
+            {
+              required: true,
+              message: (
+                <FormattedMessage id="auth.sign_up.errors.first_name_required" />
+              )
+            }
+          ]}
+          className="!mb-0"
+        >
+          <Input
+            placeholder={intl.formatMessage({
+              id: "auth.sign_up.placeholders.first_name"
+            })}
+            className="!h-13 !rounded-2xl !border-gray-200 !bg-white !px-3 !text-gray-900 placeholder:!text-gray-400 hover:!border-gray-300 focus:!border-gray-400 focus:!shadow-none dark:!border-white/10 dark:!bg-[#1b1b21] dark:!text-white dark:placeholder:!text-white/26 dark:hover:!border-white/18 dark:focus:!border-white/22"
+            autoComplete="given-name"
+          />
+        </Form.Item>
 
-      {/* Last Name */}
-      <Form.Item
-        name="last_name"
-        rules={[
-          {
-            required: true,
-            message: (
-              <FormattedMessage id="auth.sign_up.errors.last_name_required" />
-            )
-          }
-        ]}
-      >
-        <Input
-          placeholder={intl.formatMessage({
-            id: "auth.sign_up.placeholders.last_name"
-          })}
-          className="rounded-xl"
-          autoComplete="family-name"
-        />
-      </Form.Item>
+        {/* Last Name */}
+        <Form.Item
+          name="last_name"
+          label={<span className="text-sm font-medium text-gray-700 dark:text-white/82"><FormattedMessage id="auth.common.last_name_label" /></span>}
+          rules={[
+            {
+              required: true,
+              message: (
+                <FormattedMessage id="auth.sign_up.errors.last_name_required" />
+              )
+            }
+          ]}
+          className="!mb-0"
+        >
+          <Input
+            placeholder={intl.formatMessage({
+              id: "auth.sign_up.placeholders.last_name"
+            })}
+            className="!h-13 !rounded-2xl !border-gray-200 !bg-white !px-3 !text-gray-900 placeholder:!text-gray-400 hover:!border-gray-300 focus:!border-gray-400 focus:!shadow-none dark:!border-white/10 dark:!bg-[#1b1b21] dark:!text-white dark:placeholder:!text-white/26 dark:hover:!border-white/18 dark:focus:!border-white/22"
+            autoComplete="family-name"
+          />
+        </Form.Item>
+      </div>
 
       {/* Email */}
       <Form.Item
         name="email"
+        label={<span className="text-sm font-medium text-gray-700 dark:text-white/82"><FormattedMessage id="auth.common.email_label" /></span>}
         rules={[
           {
             required: true,
@@ -91,11 +99,11 @@ const SignUpForm: React.FC = () => {
         ]}
       >
         <Input
-          prefix={<MailOutlined className="text-black/35" />}
+          prefix={<MailOutlined className="mr-2 text-gray-400 dark:text-white/35" />}
           placeholder={intl.formatMessage({
             id: "auth.sign_up.placeholders.email"
           })}
-          className="rounded-xl"
+          className="!h-13 !rounded-2xl !border-gray-200 !bg-white !px-3 !text-gray-900 placeholder:!text-gray-400 hover:!border-gray-300 focus:!border-gray-400 focus:!shadow-none dark:!border-white/10 dark:!bg-[#1b1b21] dark:!text-white dark:placeholder:!text-white/26 dark:hover:!border-white/18 dark:focus:!border-white/22"
           autoComplete="email"
         />
       </Form.Item>
@@ -103,6 +111,7 @@ const SignUpForm: React.FC = () => {
       {/* Password */}
       <Form.Item
         name="password"
+        label={<span className="text-sm font-medium text-gray-700 dark:text-white/82"><FormattedMessage id="auth.common.password_label" /></span>}
         rules={[
           {
             required: true,
@@ -119,36 +128,36 @@ const SignUpForm: React.FC = () => {
         ]}
       >
         <Input.Password
-          prefix={<LockOutlined className="text-black/35" />}
+          prefix={<LockOutlined className="mr-2 text-gray-400 dark:text-white/35" />}
           placeholder={intl.formatMessage({
             id: "auth.sign_up.placeholders.password"
           })}
-          className="rounded-xl"
+          className="!h-13 !rounded-2xl !border-gray-200 !bg-white !px-3 !text-gray-900 placeholder:!text-gray-400 hover:!border-gray-300 focus:!border-gray-400 focus:!shadow-none dark:!border-white/10 dark:!bg-[#1b1b21] dark:!text-white dark:placeholder:!text-white/26 dark:hover:!border-white/18 dark:focus:!border-white/22"
           autoComplete="new-password"
         />
       </Form.Item>
 
-      {/* Already have account */}
-      <div className="-mt-2 mb-4 flex justify-end">
-        <Link href="/auth/signin" className="text-[11px] ">
-          <FormattedMessage id="auth.sign_up.have_account" />
-        </Link>
-      </div>
-
       {/* Submit */}
-      <Form.Item className="!mb-4">
+      <div className="pt-2">
         <Button
           htmlType="submit"
           loading={signupMutation.isPending}
           disabled={signupMutation.isPending}
-          type="primary"
-          className="!w-full !h-11 !rounded-xl !border-0 font-medium
-                     !shadow-[0_10px_26px_rgba(0,0,0,0.25)]
-                     hover:opacity-95 "
+          block
+          className="!h-13 !rounded-2xl !border-0 !bg-[#f2f2f3] !text-[17px] !font-bold !text-[#17171b] shadow-none hover:!bg-white"
         >
           <FormattedMessage id="auth.sign_up.buttonCTA" />
         </Button>
-      </Form.Item>
+      </div>
+
+      <div className="text-center mt-6">
+        <Text className="text-sm text-gray-500 dark:text-white/58">
+          <FormattedMessage id="auth.sign_up.have_account_prompt" />{" "}
+          <Link href="/auth/signin" className="!text-gray-900 hover:!text-gray-700 dark:!text-white dark:hover:!text-white/80">
+            <FormattedMessage id="auth.common.sign_in_action" />
+          </Link>
+        </Text>
+      </div>
     </Form>
   );
 };

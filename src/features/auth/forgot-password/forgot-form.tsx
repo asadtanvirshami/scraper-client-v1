@@ -1,13 +1,14 @@
 "use client";
 
 import React from "react";
-import { Button, Divider, Form, Input, Typography } from "antd";
-import { MailOutlined, LockOutlined, GoogleOutlined } from "@ant-design/icons";
-import { FormattedMessage } from "react-intl";
+import { Button, Form, Input, Typography } from "antd";
+import { MailOutlined } from "@ant-design/icons";
+import { FormattedMessage, useIntl } from "react-intl";
 import { useForgotPassword } from "@/features/auth/hooks";
 const { Link, Text } = Typography;
 
 const ForgotPassForm: React.FC = () => {
+  const intl = useIntl();
   const forgotPassMutation = useForgotPassword();
 
   const handleSubmit = (values: { email: string }) => {
@@ -21,9 +22,11 @@ const ForgotPassForm: React.FC = () => {
       layout="vertical"
       size="large"
       requiredMark={false}
+      className="space-y-4"
     >
       <Form.Item
         name="email"
+        label={<span className="text-sm font-medium text-gray-700 dark:text-white/82"><FormattedMessage id="auth.common.email_label" /></span>}
         rules={[
           {
             required: true,
@@ -40,30 +43,31 @@ const ForgotPassForm: React.FC = () => {
         ]}
       >
         <Input
-          prefix={<MailOutlined className="text-black/35" />}
-          placeholder="xyz@gmail.com"
-          className="rounded-xl"
+          prefix={<MailOutlined className="mr-2 text-gray-400 dark:text-white/35" />}
+          placeholder={intl.formatMessage({ id: "auth.common.enter_email_placeholder" })}
+          className="!h-13 !rounded-2xl !border-gray-200 !bg-white !px-3 !text-gray-900 placeholder:!text-gray-400 hover:!border-gray-300 focus:!border-gray-400 focus:!shadow-none dark:!border-white/10 dark:!bg-[#1b1b21] dark:!text-white dark:placeholder:!text-white/26 dark:hover:!border-white/18 dark:focus:!border-white/22"
         />
       </Form.Item>
 
-      <div className="-mt-2 mb-4 flex justify-between w-full">
-        <Link href="/auth/signup" className="text-[11px]">
-          <FormattedMessage id="auth.sign_in.dont_have_account" />
-        </Link>
-      </div>
-
-      <Form.Item className="!mb-4">
+      <div className="pt-2">
         <Button
           loading={forgotPassMutation.isPending}
           htmlType="submit"
-          type="primary"
-          className="!w-full !h-11 !rounded-xl !border-0 font-medium
-                     !shadow-[0_10px_26px_rgba(0,0,0,0.25)] !font-semibold
-                     hover:opacity-95"
+          block
+          className="!h-13 !rounded-2xl !border-0 !bg-[#f2f2f3] !text-[17px] !font-bold !text-[#17171b] shadow-none hover:!bg-white"
         >
           <FormattedMessage id="auth.forgot_password.buttonCTA" />
         </Button>
-      </Form.Item>
+      </div>
+
+      <div className="text-center mt-6">
+        <Text className="text-sm text-gray-500 dark:text-white/58">
+          <FormattedMessage id="auth.forgot_password.remember_password_prompt" />{" "}
+          <Link href="/auth/signin" className="!text-gray-900 hover:!text-gray-700 dark:!text-white dark:hover:!text-white/80">
+            <FormattedMessage id="auth.common.sign_in_action" />
+          </Link>
+        </Text>
+      </div>
     </Form>
   );
 };

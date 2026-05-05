@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import React, { useRef, useState } from "react";
 import { Button, Form, Input, Typography } from "antd";
+import { FormattedMessage } from "react-intl";
 import { useOTPResend, useVerifyOtp } from "../hooks";
 
 const { Text } = Typography;
@@ -78,8 +80,8 @@ const OTPForm: React.FC<OTPFormProps> = ({
   const isComplete = otp.every((digit) => digit !== "");
 
   return (
-    <Form onFinish={handleSubmit}>
-      <div className="flex justify-center gap-3 mb-4">
+    <Form onFinish={handleSubmit} className="space-y-6">
+      <div className="flex justify-center gap-3">
         {otp.map((digit, index) => (
           <Input
             key={index}
@@ -93,35 +95,38 @@ const OTPForm: React.FC<OTPFormProps> = ({
             inputMode="numeric"
             maxLength={1}
             autoComplete="one-time-code"
-            className="!w-12 !h-12 text-center text-lg font-semibold rounded-xl"
+            className="!h-14 !w-12 !rounded-2xl !border-gray-200 !bg-white !text-center !text-xl !font-bold !text-gray-900 hover:!border-gray-300 focus:!border-gray-400 focus:!shadow-none dark:!border-white/10 dark:!bg-[#1b1b21] dark:!text-white dark:hover:!border-white/18 dark:focus:!border-white/22"
           />
         ))}
       </div>
 
-      <Button
-        htmlType="submit"
-        disabled={!isComplete}
-        loading={loading}
-        className="!w-full !h-11 !rounded-xl !bg-yellow-500 !text-white font-semibold"
-      >
-        Verify OTP
-      </Button>
-
-      <div className="mt-3 text-center">
-        <Text type="secondary" className="text-xs">
-          Enter the 6-digit code sent to your email
-        </Text>
+      <div className="pt-2">
+        <Button
+          htmlType="submit"
+          disabled={!isComplete}
+          loading={verifyMutation.isPending}
+          block
+          className="!h-13 !rounded-2xl !border-0 !bg-[#f2f2f3] !text-[17px] !font-bold !text-[#17171b] shadow-none hover:!bg-white disabled:!bg-gray-100 disabled:!text-gray-400 dark:disabled:!bg-white/15 dark:disabled:!text-white/35"
+        >
+          <FormattedMessage id="auth.otp.verify_button" />
+        </Button>
       </div>
 
-      <div className="mt-3 text-right">
-        <Button
-          onClick={handleResendOtp}
-          htmlType="button"
-          type="text"
-          className="text-xs"
-        >
-          Resend OTP
-        </Button>
+      <div className="flex flex-col items-center gap-4 mt-6">
+        <Text className="text-sm text-gray-500 dark:text-white/58">
+          <FormattedMessage id="auth.otp.didnt_receive_code" />{" "}
+          <button
+            type="button"
+            onClick={handleResendOtp}
+            className="cursor-pointer border-none bg-transparent p-0 font-semibold text-gray-900 hover:text-gray-700 dark:text-white dark:hover:text-white/80"
+          >
+            <FormattedMessage id="auth.otp.resend_code" />
+          </button>
+        </Text>
+
+        <Link href="/auth/signin" className="text-xs text-gray-400 transition-colors hover:text-gray-700 dark:text-white/45 dark:hover:text-white/80">
+          <FormattedMessage id="auth.otp.back_to_signin" />
+        </Link>
       </div>
     </Form>
   );
