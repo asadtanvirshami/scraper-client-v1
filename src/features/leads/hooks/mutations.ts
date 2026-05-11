@@ -5,6 +5,8 @@ import {
   DownloadAllLeads,
   type DownloadLeadsParams,
   type BulkUpdateScrappedLeadsPayload,
+  type DeleteLeadInput,
+  type BulkDeleteLeadsInput,
 } from "@/api/api_calls/leads";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -44,7 +46,7 @@ export const useDeleteLead = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationKey: ["leads", "delete"],
-    mutationFn: (lead_id: string) => DeleteLead(lead_id),
+    mutationFn: (input: DeleteLeadInput) => DeleteLead(input),
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: ["leads", "list"] });
       await qc.invalidateQueries({ queryKey: ["leads", "summary"] });
@@ -56,7 +58,7 @@ export const useBulkDeleteLeads = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationKey: ["leads", "bulk-delete"],
-    mutationFn: (lead_ids: string[]) => BulkDeleteLeads(lead_ids),
+    mutationFn: (input: BulkDeleteLeadsInput) => BulkDeleteLeads(input),
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: ["leads", "list"] });
       await qc.invalidateQueries({ queryKey: ["leads", "summary"] });

@@ -19,7 +19,7 @@ export type ScrapeFollowersInput = {
   folder_id: string;
   username: string;
   type: "followers" | "following";
-  max_limit: number;
+  max_limit?: number;
 };
 
 export async function ScrapeInstagram(
@@ -45,13 +45,21 @@ export async function ScrapeFollowersOrFollowing(
     targetUsername: input.username,
     withGraphQl: true,
     type: input.type,
-    maxLimit: input.max_limit,
+    // maxLimit intentionally omitted — backend uses the real profile totalCount
   };
 
   const { data } = await api.post(
     apiEndpoints.scrapper.scrapeFollowers,
     payload,
   );
+  return data;
+}
+
+export async function ListScrapeFollowersJobs(params?: {
+  page?: number;
+  limit?: number;
+}): Promise<GenericResponse> {
+  const { data } = await api.get(apiEndpoints.scrapper.scrapeFollowersjobs(params));
   return data;
 }
 

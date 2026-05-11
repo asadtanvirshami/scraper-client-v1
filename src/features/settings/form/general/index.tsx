@@ -7,6 +7,7 @@ import {
   Divider,
   Form,
   Modal,
+  Segmented,
   Space,
   Typography,
   message,
@@ -19,6 +20,7 @@ import { useDispatch } from "react-redux";
 import { persistor } from "@/redux/store";
 import { clearAuthCookies } from "@/lib/cookies";
 import { useRouter } from "next/navigation";
+import { useNavModePreference } from "@/components/layout/navigation/use-nav-mode-preference";
 
 const { Title, Text } = Typography;
 
@@ -32,6 +34,7 @@ const SettingsPreferences: React.FC = () => {
   const dispatch = useDispatch();
   const [form] = Form.useForm<FormValues>();
   const router = useRouter();
+  const [navMode, setNavMode] = useNavModePreference("sidebar");
 
   const { is_notifications_enabled, is_update_enabled, id } = useUserInfo();
   const updateProfileMutation = useUpdateProfile();
@@ -176,6 +179,45 @@ const SettingsPreferences: React.FC = () => {
               })}
             </Checkbox>
           </Form.Item>
+        </Space>
+
+        <Divider />
+
+        <Title level={5} style={{ marginBottom: 8 }}>
+          {intl.formatMessage({
+            id: "settings.navigation.title",
+            defaultMessage: "Navigation",
+          })}
+        </Title>
+
+        <Space direction="vertical" size={8}>
+          <Segmented
+            value={navMode}
+            onChange={(value) => setNavMode(value as "sidebar" | "deck")}
+            options={[
+              {
+                label: intl.formatMessage({
+                  id: "settings.navigation.sidebar",
+                  defaultMessage: "Sidebar",
+                }),
+                value: "sidebar",
+              },
+              {
+                label: intl.formatMessage({
+                  id: "settings.navigation.deck",
+                  defaultMessage: "Deck",
+                }),
+                value: "deck",
+              },
+            ]}
+          />
+          <Text type="secondary">
+            {intl.formatMessage({
+              id: "settings.navigation.helpText",
+              defaultMessage:
+                "Choose the command sidebar or floating bottom deck for this browser.",
+            })}
+          </Text>
         </Space>
 
         <Divider />

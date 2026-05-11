@@ -60,7 +60,6 @@ export default function FolderParamsLayout({ folderId, folderName }: Props) {
     limit: query.limit,
     page: query.page,
     search: query.search,
-    scrape_status: true,
     user_id: id ?? "",
     type: query.type,
     is_converted: query.is_converted,
@@ -143,13 +142,20 @@ export default function FolderParamsLayout({ folderId, folderName }: Props) {
               await createLead.mutateAsync({ ...payload, folder_id: folderId } as any);
             }}
             onUpdateLead={async (leadId, payload) => {
-              await updateLead.mutateAsync({ lead_id: leadId, ...payload } as any);
+              await updateLead.mutateAsync({
+                lead_id: leadId,
+                user_id: id ?? "",
+                ...payload,
+              } as any);
             }}
             onDeleteOne={async (lead) => {
-              await deleteLead.mutateAsync((lead as any)._id);
+              await deleteLead.mutateAsync({
+                lead_id: (lead as any)._id,
+                user_id: id ?? "",
+              });
             }}
             onDeleteMany={async (ids) => {
-              await bulkDelete.mutateAsync(ids);
+              await bulkDelete.mutateAsync({ lead_ids: ids, user_id: id ?? "" });
             }}
           />
         </Col>

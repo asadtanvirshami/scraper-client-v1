@@ -1,12 +1,9 @@
 @import "tailwindcss";
 
-/* ── Brand gradient ──────────────────────────────────────────────────────── */
 :root {
-  /* Soft light-violet → mauve — buttons & accents only */
   --brand-gradient: linear-gradient(135deg, #8b5cf6 0%, #c084fc 100%);
   --brand-gradient-hover: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
   --brand-gradient-active: linear-gradient(135deg, #6d28d9 0%, #9333ea 100%);
-
   --background: #f9f9fb;
   --foreground: #09090b;
 }
@@ -20,7 +17,7 @@
 
 .dark {
   --background: #0e0e10;
-  --foreground: rgba(255,255,255,0.90);
+  --foreground: rgba(255, 255, 255, 0.9);
 }
 
 body {
@@ -29,29 +26,29 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* ── Primary button: soft violet → mauve gradient ──────────────────────── */
 .ant-btn-primary {
   background: var(--brand-gradient) !important;
   border-color: transparent !important;
   box-shadow: none !important;
 }
+
 .ant-btn-primary:not(:disabled):hover {
   background: var(--brand-gradient-hover) !important;
   border-color: transparent !important;
 }
+
 .ant-btn-primary:not(:disabled):active {
   background: var(--brand-gradient-active) !important;
   border-color: transparent !important;
 }
+
 .ant-btn-primary:disabled {
-  background: rgba(139, 92, 246, 0.20) !important;
+  background: rgba(139, 92, 246, 0.2) !important;
   border-color: transparent !important;
   color: rgba(139, 92, 246, 0.45) !important;
 }
 
-/* ── Disable dropdown hover flicker ─────────────────────────────────────── */
 .ant-dropdown-menu-item:hover,
 .ant-dropdown-menu-submenu-title:hover {
   background-color: transparent !important;
 }
-
