@@ -15,6 +15,20 @@ export type DownloadLeadsParams = {
   is_converted?: boolean;
 };
 
+export type DeleteLeadInput =
+  | string
+  | {
+      lead_id: string;
+      user_id?: string;
+    };
+
+export type BulkDeleteLeadsInput =
+  | string[]
+  | {
+      lead_ids: string[];
+      user_id?: string;
+    };
+
 // ✅ downloads CSV as blob
 export async function DownloadAllLeads(
   input: DownloadLeadsParams,
@@ -66,6 +80,7 @@ export async function CreateLead(
 // ✅ UPDATE (your backend expects lead_id in payload)
 export type UpdateLeadPayload = Partial<Omit<CreateLeadPayload, "user_id">> & {
   lead_id: string;
+  user_id?: string;
 };
 
 export async function UpdateLead(
@@ -76,21 +91,20 @@ export async function UpdateLead(
 }
 
 // ✅ DELETE ONE (your backend expects lead_id)
-export async function DeleteLead(
-  lead_id: string,
-): Promise<GenericResponse<Lead>> {
-  // safest: send lead_id as query param
+export async function DeleteLead(input: DeleteLeadInput): Promise<GenericResponse<Lead>> {
+  const params = typeof input === "string" ? { lead_id: input } : input;
   const { data } = await api.delete(apiEndpoints.leads.delete, {
-    params: { lead_id },
+    params,
   });
   return data;
 }
 
 // ✅ BULK DELETE (your backend expects lead_ids)
 export async function BulkDeleteLeads(
-  lead_ids: string[],
+  input: BulkDeleteLeadsInput,
 ): Promise<GenericResponse<any>> {
-  const { data } = await api.post(apiEndpoints.leads.bulk_delete, { lead_ids });
+  const payload = Array.isArray(input) ? { lead_ids: input } : input;
+  const { data } = await api.post(apiEndpoints.leads.bulk_delete, payload);
   return data;
 }
 

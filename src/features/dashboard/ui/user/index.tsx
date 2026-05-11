@@ -189,7 +189,7 @@ const UserLayout = ({ id }: { id: string }) => {
         <Col xs={24} sm={24} md={24} lg={12} xl={12}>
           <LeadsTableServer
             onFetch={() => {}}
-            user_id=""
+            user_id={id}
             showFilters={false}
             total={data?.data?.recent?.leads?.length ?? 0}
             loading={isFetching}

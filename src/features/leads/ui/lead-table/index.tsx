@@ -277,7 +277,7 @@ const LeadsTableServer: React.FC<Props> = ({
       if (onDeleteOne) {
         await onDeleteOne(lead);
       } else {
-        await deleteLead.mutateAsync(leadId);
+        await deleteLead.mutateAsync({ lead_id: leadId, user_id });
       }
       message.success(intl.formatMessage({ id: "commons.deleted" }));
       fetchNow({});
@@ -294,7 +294,7 @@ const LeadsTableServer: React.FC<Props> = ({
       if (onDeleteMany) {
         await onDeleteMany(ids);
       } else {
-        await bulkDeleteLeads.mutateAsync(ids);
+        await bulkDeleteLeads.mutateAsync({ lead_ids: ids, user_id });
       }
       message.success(
         `${intl.formatMessage({ id: "commons.deleted" })} ${ids.length}`,
@@ -326,7 +326,11 @@ const LeadsTableServer: React.FC<Props> = ({
     setSendingToFolder(true);
     try {
       const leadId = String((sendToFolderLead as any)._id);
-      await updateLead.mutateAsync({ lead_id: leadId, folder_id: selectedFolderId } as any);
+      await updateLead.mutateAsync({
+        lead_id: leadId,
+        user_id,
+        folder_id: selectedFolderId,
+      } as any);
       message.success(intl.formatMessage({ id: "leads.send_to_folder.success", defaultMessage: "Lead moved to folder" }));
       setSendToFolderLead(null);
       setSelectedFolderId(undefined);
@@ -342,7 +346,11 @@ const LeadsTableServer: React.FC<Props> = ({
     if (!selectedFolderId || selectedRowKeys.length === 0) return;
     setSendingToFolder(true);
     try {
-      const leads = selectedRowKeys.map((id) => ({ _id: String(id), folder_id: selectedFolderId }));
+      const leads = selectedRowKeys.map((id) => ({
+        _id: String(id),
+        user_id,
+        folder_id: selectedFolderId,
+      }));
       await bulkUpdateScrappedLeads.mutateAsync({ leads });
       message.success(intl.formatMessage({ id: "leads.send_to_folder.success", defaultMessage: "Lead(s) moved to folder" }));
       setBulkMoveModalOpen(false);

@@ -8,6 +8,7 @@ import AppLayout from "@/components/layout/app-layout";
 import Providers from "@/providers/antd";
 import AutoFeedbackModal from "@/features/feedbacks/ui/auto-feedback-modal";
 import React, { memo } from "react";
+import "@/components/layout/app-layout/app-shell.css";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (

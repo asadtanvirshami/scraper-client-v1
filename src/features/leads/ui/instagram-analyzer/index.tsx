@@ -6,7 +6,6 @@ import {
   Form,
   Input,
   Select,
-  InputNumber,
   Button,
   Row,
   Col,
@@ -15,6 +14,9 @@ import {
   Alert,
   Switch,
   Tag,
+  Tooltip,
+  Statistic,
+  Modal,
   message,
 } from "antd";
 import {
@@ -25,6 +27,11 @@ import {
   PauseCircleOutlined,
   CaretRightOutlined,
   DeleteOutlined,
+  InfoCircleOutlined,
+  WarningOutlined,
+  TeamOutlined,
+  SafetyCertificateOutlined,
+  SaveOutlined,
 } from "@ant-design/icons";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -37,7 +44,9 @@ import {
 import { useUserInfo } from "@/helpers/use-user";
 import { useFetchFolders } from "@/features/folders/hooks/queries";
 import { useScrapeFollowersOrFollowing } from "@/features/scraper/hooks";
+import { useSubscriptionState } from "@/features/billings/hooks";
 import { useFetchLeadsList } from "../../hooks/queries";
+import { useSocket } from "@/hooks/use-socket";
 import LeadsTableServer from "../lead-table";
 
 const { Title, Text } = Typography;
@@ -86,6 +95,10 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
     type: "INSTAGRAM" as string,
   });
 
+  const [liveCount, setLiveCount] = useState<number | null>(null);
+  const [totalScraped, setTotalScraped] = useState<number | null>(null);
+  const [deepScanCount, setDeepScanCount] = useState<number | null>(null);
+  const [deepScanTotal, setDeepScanTotal] = useState<number | null>(null);
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [scrapedUsername, setScrapedUsername] = useState<string | null>(null);
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
@@ -94,6 +107,11 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
   const [controlLoading, setControlLoading] = useState<
     "pause" | "resume" | "delete" | null
   >(null);
+
+  const { subscription } = useSubscriptionState();
+  const creditsRemaining = subscription
+    ? Math.max(0, (subscription.credits_total ?? 0) - (subscription.credits_used ?? 0))
+    : null;
 
   const { data: foldersResp, isLoading: foldersLoading } = useFetchFolders({
     user_id: id,
@@ -121,6 +139,40 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
   });
 
   const scrapeMutation = useScrapeFollowersOrFollowing();
+  const socket = useSocket(id);
+
+  // ── Real-time progress from server ──────────────────────────────────────
+  useEffect(() => {
+    if (!socket) return;
+    const progressHandler = (payload: {
+      saved_count: number;
+      total_scraped: number;
+      total_on_profile: number | null;
+      deep_scan_count: number;
+      deep_scan_total: number;
+      folder_id: string | null;
+    }) => {
+      setLiveCount(payload.saved_count);
+      setTotalScraped(payload.total_scraped);
+      if (payload.deep_scan_count != null) setDeepScanCount(payload.deep_scan_count);
+      if (payload.deep_scan_total != null) setDeepScanTotal(payload.deep_scan_total);
+      refetchLeads();
+    };
+    const deepscanHandler = (payload: {
+      deep_scan_count: number;
+      deep_scan_total: number;
+      username: string;
+    }) => {
+      setDeepScanCount(payload.deep_scan_count);
+      setDeepScanTotal(payload.deep_scan_total);
+    };
+    socket.on("scrape:progress", progressHandler);
+    socket.on("scrape:deepscan", deepscanHandler);
+    return () => {
+      socket.off("scrape:progress", progressHandler);
+      socket.off("scrape:deepscan", deepscanHandler);
+    };
+  }, [socket, refetchLeads]);
 
   const statusChip = (() => {
     if (!activeJobId && !activeJobState) return null;
@@ -195,6 +247,32 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
   }, [activeJobId, refetchLeads]);
 
   const handleSubmit = async (values: any) => {
+    // ── Credits gate ─────────────────────────────────────────────────────────
+    if (creditsRemaining !== null && creditsRemaining < 1) {
+      Modal.error({
+        title: "Insufficient Credits",
+        content:
+          "You have 0 credits remaining. Please upgrade your plan to continue scraping.",
+        okText: "Go to Billing",
+        onOk: () => { window.location.href = "/billings"; },
+      });
+      return;
+    }
+
+    if (creditsRemaining !== null && creditsRemaining < 50) {
+      const confirmed = await new Promise<boolean>((resolve) => {
+        Modal.confirm({
+          title: "Low Credits Warning",
+          content: `You only have ${creditsRemaining.toLocaleString()} credit(s) remaining. The scrape may stop early if credits run out. Continue?`,
+          okText: "Continue",
+          cancelText: "Cancel",
+          onOk: () => resolve(true),
+          onCancel: () => resolve(false),
+        });
+      });
+      if (!confirmed) return;
+    }
+
     try {
       const username = String(values.username || "").trim().replace(/^@+/, "");
       const response = await scrapeMutation.mutateAsync({
@@ -202,11 +280,15 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
         folder_id: values.folder_id,
         username,
         type: values.type,
-        max_limit: values.max_limit,
+        // max_limit not sent — backend uses real profile totalCount from DOM
       });
 
       setSelectedFolderId(values.folder_id);
       setScrapedUsername(username);
+      setLiveCount(null); // reset live counters for new scrape
+      setTotalScraped(null);
+      setDeepScanCount(null);
+      setDeepScanTotal(null);
       setScrapeQuery((prev) => ({
         ...prev,
         page: 1,
@@ -309,13 +391,31 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
                 showIcon
               />
 
+              {creditsRemaining !== null && creditsRemaining < 50 && (
+                <Alert
+                  type={creditsRemaining < 1 ? "error" : "warning"}
+                  showIcon
+                  message={
+                    creditsRemaining < 1
+                      ? "You have no credits left. Upgrade your plan to start scraping."
+                      : `Low credits: ${creditsRemaining.toLocaleString()} remaining. The scrape may stop early if credits run out.`
+                  }
+                  action={
+                    creditsRemaining < 1 ? (
+                      <Button size="small" href="/billings" type="primary" danger>
+                        Upgrade Plan
+                      </Button>
+                    ) : undefined
+                  }
+                />
+              )}
+
               <Form
                 form={form}
                 layout="vertical"
                 onFinish={handleSubmit}
                 initialValues={{
                   type: defaultType,
-                  max_limit: 1000,
                 }}
                 className="space-y-5"
               >
@@ -411,44 +511,29 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
                     </Select>
                   </Form.Item>
                 </Col>
-
-                <Col xs={24} md={12} lg={6}>
-                  <Form.Item
-                    label={
-                      <FormattedMessage
-                        id="leads.instagram_analyzer.form.max_limit"
-                        defaultMessage="Max Limit"
-                      />
-                    }
-                    name="max_limit"
-                    rules={[
-                      {
-                        required: true,
-                        message: intl.formatMessage({
-                          id: "leads.instagram_analyzer.form.max_limit.required",
-                          defaultMessage: "Please enter a limit",
-                        }),
-                      },
-                      {
-                        type: "number",
-                        min: 1,
-                        max: 10000,
-                        message: intl.formatMessage({
-                          id: "leads.instagram_analyzer.form.max_limit.range",
-                          defaultMessage: "Limit must be between 1 and 10,000",
-                        }),
-                      },
-                    ]}
-                  >
-                    <InputNumber
-                      style={{ width: "100%" }}
-                      min={1}
-                      max={10000}
-                      placeholder="3000"
-                    />
-                  </Form.Item>
-                </Col>
                 </Row>
+
+              {/* Keep-window-open banner — shown as soon as a job is active */}
+              {activeJobId && (
+                <Alert
+                  type="warning"
+                  icon={<WarningOutlined />}
+                  showIcon
+                  message={
+                    <span>
+                      <strong>Scraping is running in the background.</strong>{" "}
+                      Closing this window won&apos;t stop the scrape, but{" "}
+                      <strong>keep this tab open</strong> to see results appear
+                      in the table in real time.
+                      {liveCount !== null && (
+                        <span className="ml-2">
+                          <Tag color="green">{liveCount.toLocaleString()} saved so far</Tag>
+                        </span>
+                      )}
+                    </span>
+                  }
+                />
+              )}
 
               <Form.Item className="mb-0 mt-1">
                 <Space size={12} wrap align="center">
@@ -507,6 +592,63 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
             </div>
           </Card>
         </Col>
+
+        {/* ── Real-time scrape stats ── */}
+        {(totalScraped !== null || deepScanCount !== null || liveCount !== null) && (
+          <Col xs={24}>
+            <Row gutter={[16, 16]}>
+              <Col xs={24} sm={8}>
+                <Card bodyStyle={{ padding: "16px 20px" }} bordered>
+                  <Statistic
+                    title={
+                      <Space size={6}>
+                        <TeamOutlined style={{ color: "#1677ff" }} />
+                        <span>Total Scraped</span>
+                      </Space>
+                    }
+                    value={totalScraped ?? 0}
+                    valueStyle={{ color: "#1677ff", fontWeight: 700 }}
+                  />
+                </Card>
+              </Col>
+              <Col xs={24} sm={8}>
+                <Card bodyStyle={{ padding: "16px 20px" }} bordered>
+                  <Statistic
+                    title={
+                      <Space size={6}>
+                        <SaveOutlined style={{ color: "#52c41a" }} />
+                        <span>Saved to DB</span>
+                      </Space>
+                    }
+                    value={liveCount ?? 0}
+                    valueStyle={{ color: "#52c41a", fontWeight: 700 }}
+                  />
+                </Card>
+              </Col>
+              <Col xs={24} sm={8}>
+                <Card bodyStyle={{ padding: "16px 20px" }} bordered>
+                  <Statistic
+                    title={
+                      <Space size={6}>
+                        <SafetyCertificateOutlined style={{ color: "#722ed1" }} />
+                        <span>
+                          Deep Scan Completed
+                          {deepScanTotal !== null && deepScanTotal > 0 && (
+                            <span style={{ fontWeight: 400, color: "#8c8c8c", marginLeft: 4 }}>
+                              / {deepScanTotal.toLocaleString()}
+                            </span>
+                          )}
+                        </span>
+                      </Space>
+                    }
+                    value={deepScanCount ?? 0}
+                    valueStyle={{ color: "#722ed1", fontWeight: 700 }}
+                  />
+                </Card>
+              </Col>
+            </Row>
+          </Col>
+        )}
 
         <Col xs={24}>
           <Card

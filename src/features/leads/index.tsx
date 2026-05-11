@@ -80,7 +80,6 @@ const LeadsLayout = () => {
     limit: query.limit,
     page: query.page,
     search: query.search,
-    scrape_status: true,
     type: query.type,
     is_converted: query.is_converted,
   });
@@ -176,13 +175,20 @@ const LeadsLayout = () => {
               await createLead.mutateAsync(payload as any);
             }}
             onUpdateLead={async (leadId: string, payload: any) => {
-              await updateLead.mutateAsync({ lead_id: leadId, ...payload });
+              await updateLead.mutateAsync({
+                lead_id: leadId,
+                user_id: id ?? "",
+                ...payload,
+              });
             }}
             onDeleteOne={async (lead: any) => {
-              await deleteLead.mutateAsync((lead as any)._id);
+              await deleteLead.mutateAsync({
+                lead_id: (lead as any)._id,
+                user_id: id ?? "",
+              });
             }}
             onDeleteMany={async (ids: string[]) => {
-              await bulkDelete.mutateAsync(ids);
+              await bulkDelete.mutateAsync({ lead_ids: ids, user_id: id ?? "" });
             }}
             onBulkUpload={async (payload: any) => {
               await bulkUpload.mutateAsync(payload);

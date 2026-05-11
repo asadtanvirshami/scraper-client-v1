@@ -18,6 +18,13 @@ export const apiEndpoints = {
     instagram: "/scrapper/scrap-instagram",
     linkedin: "/scrapper/scrap-linkedin",
     scrapeFollowers: "/beta-insta/scrape-followers",
+    scrapeFollowersjobs: (params?: { page?: number; limit?: number }) => {
+      const q = new URLSearchParams();
+      if (params?.page) q.set("page", String(params.page));
+      if (params?.limit) q.set("limit", String(params.limit));
+      const qs = q.toString();
+      return `/beta-insta/scrape-followers/jobs${qs ? `?${qs}` : ""}`;
+    },
     scrapeFollowersJob: (jobId: string) =>
       `/beta-insta/scrape-followers/jobs/${jobId}`,
     pauseScrapeFollowersJob: (jobId: string) =>
@@ -107,10 +114,15 @@ export const apiEndpoints = {
     list: (params: {
       offset?: number;
       limit?: number;
+      page?: number;
       search?: string;
       type?: "INSTAGRAM" | "LINKEDIN" | "MANUAL";
       folder_id?: string;
       is_converted?: boolean;
+      user_id?: string;
+      scrape_status?: boolean;
+      scraped_from_username?: string;
+      has_contacts?: boolean;
     }) => withPagination("/lead/get", params),
 
     summary: (params?: {
