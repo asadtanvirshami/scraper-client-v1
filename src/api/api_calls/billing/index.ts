@@ -8,6 +8,11 @@ import type {
   CheckoutResponse,
   PortalResponse,
   ChangePlanResponse,
+  BillingInterval,
+  AdminSubscriptionsResponse,
+  AdminChargesResponse,
+  AdminPromoCodesResponse,
+  CreatePromoCodePayload,
 } from "@/types/api/billing";
 
 /** Fetch all active plans (public) */
@@ -28,6 +33,7 @@ export async function createCheckoutSession(payload: {
   success_url: string;
   cancel_url: string;
   coupon_code?: string;
+  interval?: BillingInterval;
 }): Promise<CheckoutResponse> {
   const { data } = await api.post(apiEndpoints.billing.checkout, payload);
   return data;
@@ -48,8 +54,8 @@ export async function cancelSubscription(): Promise<SubscriptionResponse> {
 }
 
 /** Change plan (upgrade or downgrade) */
-export async function changePlan(plan_name: string): Promise<ChangePlanResponse> {
-  const { data } = await api.post(apiEndpoints.billing.changePlan, { plan_name });
+export async function changePlan(plan_name: string, interval?: BillingInterval): Promise<ChangePlanResponse> {
+  const { data } = await api.post(apiEndpoints.billing.changePlan, { plan_name, interval });
   return data;
 }
 
@@ -64,3 +70,61 @@ export async function syncCheckoutSession(session_id: string): Promise<Subscript
   const { data } = await api.post(apiEndpoints.billing.syncSession, { session_id });
   return data;
 }
+
+// ─── Admin billing API calls ──────────────────────────────────────────────────
+
+export async function adminFetchSubscriptions(params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: string;
+}): Promise<AdminSubscriptionsResponse> {
+  const { data } = await api.get(apiEndpoints.adminBilling.subscriptions, { params });
+  return data;
+}
+
+export async function adminCancelSubscription(userId: string): Promise<{ success: boolean; message: string }> {
+  const { data } = await api.post(apiEndpoints.adminBilling.cancelSubscription(userId));
+  return data;
+}
+
+export async function adminFetchCharges(params?: {
+  customer_id?: string;
+  limit?: number;
+  starting_after?: string;
+}): Promise<AdminChargesResponse> {
+  const { data } = await api.get(apiEndpoints.adminBilling.charges, { params });
+  return data;
+}
+
+export async function adminIssueRefund(payload: {
+  charge_id: string;
+  amount?: number;
+  reason?: string;
+}): Promise<{ success: boolean; message: string; data: unknown }> {
+  const { data } = await api.post(apiEndpoints.adminBilling.refund, payload);
+  return data;
+}
+
+export async function adminFetchPromoCodes(params?: {
+  active?: boolean;
+  limit?: number;
+}): Promise<AdminPromoCodesResponse> {
+  const { data } = await api.get(apiEndpoints.adminBilling.promoCodes, { params });
+  return data;
+}
+
+export async function adminCreatePromoCode(
+  payload: CreatePromoCodePayload
+): Promise<{ success: boolean; message: string; data: unknown }> {
+  const { data } = await api.post(apiEndpoints.adminBilling.promoCodes, payload);
+  return data;
+}
+
+export async function adminDeactivatePromoCode(
+  promoCodeId: string
+): Promise<{ success: boolean; message: string }> {
+  const { data } = await api.patch(apiEndpoints.adminBilling.deactivatePromoCode(promoCodeId));
+  return data;
+}
+

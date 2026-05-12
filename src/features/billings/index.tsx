@@ -11,6 +11,7 @@ import {
   Modal,
   Progress,
   Row,
+  Segmented,
   Skeleton,
   Space,
   Tag,
@@ -48,69 +49,72 @@ import {
   useStartFreeTrial,
 } from "./hooks";
 import { setSubscription } from "@/redux/slices/subscription/subscription-slice";
-import type { Plan, Subscription } from "@/types/api/billing";
+import type { BillingInterval, Plan, Subscription } from "@/types/api/billing";
 import { useUserInfo } from "@/helpers/use-user";
 
 const { Title, Text, Paragraph } = Typography;
 
+// ─── Constants ─────────────────────────────────────────────────────────────────
+
 const PLAN_ORDER: Record<string, number> = { free_trial: 0, basic: 1, standard: 2, premium: 3 };
 
 const PLAN_GRADIENT: Record<string, string> = {
-  free_trial: "linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)",
-  basic: "linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)",
-  standard: "linear-gradient(135deg, #059669 0%, #34d399 100%)",
-  premium: "linear-gradient(135deg, #d97706 0%, #fbbf24 100%)",
+  free_trial:  "linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)",
+  basic:     "linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)",
+  standard:  "linear-gradient(135deg, #059669 0%, #34d399 100%)",
+  premium:   "linear-gradient(135deg, #d97706 0%, #fbbf24 100%)",
 };
 
 const PLAN_COLOR: Record<string, string> = {
-  free_trial: "#7c3aed",
-  basic: "#0284c7",
-  standard: "#059669",
-  premium: "#d97706",
+  free_trial:  "#7c3aed",
+  basic:     "#0284c7",
+  standard:  "#059669",
+  premium:   "#d97706",
 };
 
 const PLAN_ICONS: Record<string, React.ReactNode> = {
-  free_trial: <GiftOutlined />,
-  basic: <ThunderboltFilled />,
-  standard: <RocketOutlined />,
-  premium: <CrownFilled />,
+  free_trial:  <GiftOutlined />,
+  basic:     <ThunderboltFilled />,
+  standard:  <RocketOutlined />,
+  premium:   <CrownFilled />,
 };
 
 const PLAN_BADGE: Record<string, string | null> = {
-  free_trial: "14 DAYS FREE",
-  basic: null,
-  standard: "POPULAR",
-  premium: "BEST VALUE",
+  free_trial:  "14 DAYS FREE",
+  basic:     null,
+  standard:  "MOST POPULAR",
+  premium:   "MORE VALUE",
 };
 
-const formatCents = (cents: number | undefined | null) => {
-  if (!cents || isNaN(cents) || cents === 0) return "$0";
-  return `$${(cents / 100).toFixed(0)}`;
+/** Format EUR cents to display string: €97 */
+const formatEUR = (cents: number | undefined | null) => {
+  if (!cents || isNaN(cents) || cents === 0) return "€0";
+  return `€${(cents / 100).toFixed(0)}`;
 };
 
 const STATUS_TAG_COLOR: Record<string, string> = {
-  trialing: "purple",
-  active: "success",
-  past_due: "warning",
-  canceled: "error",
-  paused: "default",
-  incomplete: "warning",
+  trialing:           "purple",
+  active:             "success",
+  past_due:           "warning",
+  canceled:           "error",
+  paused:             "default",
+  incomplete:         "warning",
   incomplete_expired: "error",
-  unpaid: "error",
+  unpaid:             "error",
 };
 
 const STATUS_LABEL: Record<string, string> = {
-  trialing: "Free Trial",
-  active: "Active",
-  past_due: "Past Due",
-  canceled: "Canceled",
-  paused: "Paused",
-  incomplete: "Incomplete",
+  trialing:           "Free Trial",
+  active:             "Active",
+  past_due:           "Past Due",
+  canceled:           "Canceled",
+  paused:             "Paused",
+  incomplete:         "Incomplete",
   incomplete_expired: "Expired",
-  unpaid: "Unpaid",
+  unpaid:             "Unpaid",
 };
 
-// ─── Credits Bar ──────────────────────────────────────────────────────────────
+// ─── Credits Bar ───────────────────────────────────────────────────────────────
 
 const CreditsBar: React.FC<{ subscription: Subscription }> = ({ subscription }) => {
   const { token } = theme.useToken();
@@ -118,16 +122,10 @@ const CreditsBar: React.FC<{ subscription: Subscription }> = ({ subscription }) 
   const remaining = Math.max(0, credits_total - credits_used);
   const pct = credits_total > 0 ? Math.min(100, (credits_used / credits_total) * 100) : 0;
   const strokeColor = pct >= 90 ? token.colorError : pct >= 70 ? token.colorWarning : token.colorSuccess;
+  const isUnlimited = credits_total >= 9_999_999;
 
   return (
-    <div
-      style={{
-        padding: "14px 16px",
-        borderRadius: 10,
-        background: token.colorFillAlter,
-        border: `1px solid ${token.colorBorderSecondary}`,
-      }}
-    >
+    <div style={{ padding: "14px 16px", borderRadius: 10, background: token.colorFillAlter, border: `1px solid ${token.colorBorderSecondary}` }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
         <Space size={6}>
           <DatabaseOutlined style={{ color: token.colorPrimary }} />
@@ -137,29 +135,27 @@ const CreditsBar: React.FC<{ subscription: Subscription }> = ({ subscription }) 
           <InfoCircleOutlined style={{ color: token.colorTextTertiary, cursor: "pointer" }} />
         </Tooltip>
       </div>
-      <Progress
-        percent={Math.round(pct)}
-        strokeColor={strokeColor}
-        trailColor={token.colorFillSecondary}
-        showInfo={false}
-        style={{ marginBottom: 6 }}
-      />
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <Text style={{ fontSize: 12, color: token.colorTextSecondary }}>
-          {credits_used.toLocaleString()} used of {credits_total.toLocaleString()}
-        </Text>
-        <Space size={6}>
-          {pct >= 90 && (
-            <Tag color="error" style={{ fontSize: 11, margin: 0 }}>Running low</Tag>
-          )}
-          <Text style={{ fontSize: 12, color: token.colorTextSecondary }}>{remaining.toLocaleString()} left</Text>
-        </Space>
-      </div>
+      {isUnlimited ? (
+        <Text style={{ color: token.colorSuccess, fontWeight: 600 }}>∞ Unlimited credits</Text>
+      ) : (
+        <>
+          <Progress percent={Math.round(pct)} strokeColor={strokeColor} trailColor={token.colorFillSecondary} showInfo={false} style={{ marginBottom: 6 }} />
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <Text style={{ fontSize: 12, color: token.colorTextSecondary }}>
+              {credits_used.toLocaleString()} used of {credits_total.toLocaleString()}
+            </Text>
+            <Space size={6}>
+              {pct >= 90 && <Tag color="error" style={{ fontSize: 11, margin: 0 }}>Running low</Tag>}
+              <Text style={{ fontSize: 12, color: token.colorTextSecondary }}>{remaining.toLocaleString()} left</Text>
+            </Space>
+          </div>
+        </>
+      )}
     </div>
   );
 };
 
-// ─── Subscription Panel ───────────────────────────────────────────────────────
+// ─── Subscription Panel ────────────────────────────────────────────────────────
 
 const SubscriptionPanel: React.FC<{
   subscription: Subscription | undefined;
@@ -174,12 +170,10 @@ const SubscriptionPanel: React.FC<{
   const { token } = theme.useToken();
   const planColor = PLAN_COLOR[currentPlan?.name ?? ""] ?? token.colorPrimary;
   const planGradient = PLAN_GRADIENT[currentPlan?.name ?? ""] ?? `linear-gradient(135deg, ${planColor} 0%, ${planColor}99 100%)`;
+  const isUnlimited = (currentPlan?.credits_per_cycle ?? 0) >= 9_999_999;
 
   return (
-    <Card
-      style={{ borderRadius: 16, border: `1px solid ${token.colorBorderSecondary}`, overflow: "hidden", background: token.colorBgContainer }}
-      bodyStyle={{ padding: 0 }}
-    >
+    <Card style={{ borderRadius: 16, border: `1px solid ${token.colorBorderSecondary}`, overflow: "hidden", background: token.colorBgContainer }} bodyStyle={{ padding: 0 }}>
       <div style={{ background: planGradient, padding: "20px 24px", position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", top: -20, right: -20, width: 100, height: 100, borderRadius: "50%", background: "rgba(255,255,255,0.08)" }} />
         <div style={{ position: "absolute", bottom: -30, right: 20, width: 70, height: 70, borderRadius: "50%", background: "rgba(255,255,255,0.05)" }} />
@@ -190,16 +184,13 @@ const SubscriptionPanel: React.FC<{
           </div>
           <div style={{ textAlign: "right" }}>
             {subscription?.status && (
-              <Tag
-                color={subscription.status === "active" || subscription.status === "trialing" ? "success" : "error"}
-                style={{ borderRadius: 20, fontWeight: 600, border: "none" }}
-              >
+              <Tag color={subscription.status === "active" || subscription.status === "trialing" ? "success" : "error"} style={{ borderRadius: 20, fontWeight: 600, border: "none" }}>
                 {STATUS_LABEL[subscription.status] ?? subscription.status}
               </Tag>
             )}
             {currentPlan?.price_cents && currentPlan.price_cents > 0 && (
               <div style={{ color: "#fff", marginTop: 6 }}>
-                <span style={{ fontSize: 22, fontWeight: 700 }}>{formatCents(currentPlan.price_cents)}</span>
+                <span style={{ fontSize: 22, fontWeight: 700 }}>{formatEUR(currentPlan.price_cents)}</span>
                 <span style={{ fontSize: 12, opacity: 0.75 }}>/mo</span>
               </div>
             )}
@@ -222,35 +213,23 @@ const SubscriptionPanel: React.FC<{
             {isTrial && subscription.trial_end && (
               <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                 <WarningOutlined style={{ color: token.colorWarning, fontSize: 14 }} />
-                <Text style={{ color: token.colorWarning, fontSize: 13 }}>
-                  Trial ends {format(new Date(subscription.trial_end), "MMM d, yyyy")}
-                </Text>
+                <Text style={{ color: token.colorWarning, fontSize: 13 }}>Trial ends {format(new Date(subscription.trial_end), "MMM d, yyyy")}</Text>
               </div>
             )}
 
             {isCancelPending && subscription.current_period_end && (
               <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                 <CloseCircleOutlined style={{ color: token.colorError, fontSize: 14 }} />
-                <Text style={{ color: token.colorError, fontSize: 13 }}>
-                  Cancels {format(new Date(subscription.current_period_end), "MMM d, yyyy")}
-                </Text>
+                <Text style={{ color: token.colorError, fontSize: 13 }}>Cancels {format(new Date(subscription.current_period_end), "MMM d, yyyy")}</Text>
               </div>
             )}
 
-            <div
-              style={{
-                display: "flex",
-                gap: 12,
-                padding: "14px 0",
-                borderTop: `1px solid ${token.colorBorderSecondary}`,
-                borderBottom: `1px solid ${token.colorBorderSecondary}`,
-              }}
-            >
+            <div style={{ display: "flex", gap: 12, padding: "14px 0", borderTop: `1px solid ${token.colorBorderSecondary}`, borderBottom: `1px solid ${token.colorBorderSecondary}` }}>
               <div style={{ flex: 1, textAlign: "center" }}>
                 <Text style={{ fontSize: 18, fontWeight: 700, color: token.colorText, display: "block" }}>
-                  {currentPlan?.max_smtp_domains === -1 ? "∞" : currentPlan?.max_smtp_domains ?? "—"}
+                  {isUnlimited ? "∞" : (currentPlan?.max_smtp_domains === -1 ? "∞" : currentPlan?.max_smtp_domains ?? "—")}
                 </Text>
-                <Text style={{ fontSize: 11, color: token.colorTextTertiary }}>SMTP Domains</Text>
+                <Text style={{ fontSize: 11, color: token.colorTextTertiary }}>Email Accounts</Text>
               </div>
               <div style={{ width: 1, background: token.colorBorderSecondary }} />
               <div style={{ flex: 1, textAlign: "center" }}>
@@ -262,7 +241,7 @@ const SubscriptionPanel: React.FC<{
               <div style={{ width: 1, background: token.colorBorderSecondary }} />
               <div style={{ flex: 1, textAlign: "center" }}>
                 <Text style={{ fontSize: 18, fontWeight: 700, color: token.colorText, display: "block" }}>
-                  {currentPlan?.credits_per_cycle != null
+                  {isUnlimited ? "∞" : currentPlan?.credits_per_cycle != null
                     ? currentPlan.credits_per_cycle >= 1000
                       ? `${(currentPlan.credits_per_cycle / 1000).toFixed(0)}k`
                       : currentPlan.credits_per_cycle
@@ -299,10 +278,11 @@ const SubscriptionPanel: React.FC<{
   );
 };
 
-// ─── Plan Card ────────────────────────────────────────────────────────────────
+// ─── Plan Card ─────────────────────────────────────────────────────────────────
 
 const PlanCard: React.FC<{
   plan: Plan;
+  interval: BillingInterval;
   isCurrentPlan: boolean;
   currentPlanName?: string;
   isTrial: boolean;
@@ -314,7 +294,7 @@ const PlanCard: React.FC<{
   onCancelSubscription: () => void;
   isSubscribeLoading: boolean;
   isCancelLoading: boolean;
-}> = ({ plan, isCurrentPlan, currentPlanName, isTrial, hasStripeSubscription, hasAnySubscription, onUpgrade, onDowngrade, onSubscribe, onCancelSubscription, isSubscribeLoading, isCancelLoading }) => {
+}> = ({ plan, interval, isCurrentPlan, currentPlanName, isTrial, hasStripeSubscription, hasAnySubscription, onUpgrade, onDowngrade, onSubscribe, onCancelSubscription, isSubscribeLoading, isCancelLoading }) => {
   const { token } = theme.useToken();
   const currentOrder = PLAN_ORDER[currentPlanName ?? ""] ?? -1;
   const planOrder = PLAN_ORDER[plan.name] ?? 0;
@@ -323,8 +303,17 @@ const PlanCard: React.FC<{
   const accentColor = PLAN_COLOR[plan.name] ?? token.colorPrimary;
   const gradient = PLAN_GRADIENT[plan.name] ?? `linear-gradient(135deg, ${accentColor} 0%, ${accentColor}99 100%)`;
   const isFreeTrial = plan.name === "free_trial";
-  const isStandard = plan.name === "standard";
+  const isEnterprise = plan.name === "enterprise";
   const badge = PLAN_BADGE[plan.name];
+  const isUnlimited = plan.name === "unlimited";
+
+  // Pricing logic
+  const monthlyPrice = plan.price_cents;
+  const annualTotal = plan.price_cents_annual;
+  const annualMonthly = annualTotal > 0 ? Math.round(annualTotal / 12) : Math.round(monthlyPrice * 12 * 0.9);
+  const savings = monthlyPrice * 12 - annualTotal;
+  const showAnnual = interval === "year" && !isFreeTrial && annualTotal > 0;
+  const displayPrice = showAnnual ? annualMonthly : monthlyPrice;
 
   const renderAction = () => {
     if (isFreeTrial) {
@@ -367,7 +356,7 @@ const PlanCard: React.FC<{
         borderRadius: 16,
         border: isCurrentPlan
           ? `2px solid ${accentColor}`
-          : isStandard
+          : isEnterprise
             ? `2px solid ${accentColor}40`
             : `1px solid ${token.colorBorderSecondary}`,
         position: "relative",
@@ -376,7 +365,7 @@ const PlanCard: React.FC<{
         transition: "box-shadow 0.2s",
         boxShadow: isCurrentPlan
           ? `0 0 0 1px ${accentColor}30, 0 4px 24px ${accentColor}20`
-          : isStandard
+          : isEnterprise
             ? `0 4px 24px ${accentColor}15`
             : "none",
         background: token.colorBgContainer,
@@ -399,6 +388,7 @@ const PlanCard: React.FC<{
       )}
 
       <div style={{ padding: "20px 20px 24px", paddingTop: isCurrentPlan ? 34 : 20 }}>
+        {/* Plan name + icon */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
           <div style={{ width: 36, height: 36, borderRadius: 10, background: gradient, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 16, flexShrink: 0 }}>
             {PLAN_ICONS[plan.name]}
@@ -409,41 +399,68 @@ const PlanCard: React.FC<{
           </div>
         </div>
 
-        <div style={{ marginBottom: 16 }}>
+        {/* Pricing */}
+        <div style={{ marginBottom: 4 }}>
           <span style={{ fontSize: 36, fontWeight: 800, color: accentColor, lineHeight: 1 }}>
-            {isFreeTrial ? "Free" : formatCents(plan.price_cents)}
+            {isFreeTrial ? "Free" : formatEUR(displayPrice)}
           </span>
-          {!isFreeTrial && plan.price_cents && plan.price_cents > 0 && (
+          {!isFreeTrial && displayPrice > 0 && (
             <span style={{ fontSize: 14, color: token.colorTextSecondary }}> /mo</span>
           )}
         </div>
 
+        {/* Annual savings badge */}
+        {showAnnual && savings > 0 && (
+          <div style={{ marginBottom: 12 }}>
+            <Text style={{ fontSize: 12, color: token.colorTextTertiary, textDecoration: "line-through" }}>
+              {formatEUR(monthlyPrice)}/mo
+            </Text>
+            <Tag color="success" style={{ marginLeft: 8, fontSize: 11, fontWeight: 700 }}>
+              Save {formatEUR(savings)}/yr
+            </Tag>
+          </div>
+        )}
+        {!showAnnual && !isFreeTrial && (
+          <div style={{ marginBottom: 12 }}>
+            <Text style={{ fontSize: 12, color: token.colorTextTertiary }}>
+              Billed monthly
+            </Text>
+          </div>
+        )}
+        {showAnnual && savings > 0 && (
+          <div style={{ marginBottom: 12 }}>
+            <Text style={{ fontSize: 12, color: token.colorTextSecondary }}>
+              Billed {formatEUR(annualTotal)}/year
+            </Text>
+          </div>
+        )}
+
         <Divider style={{ margin: "0 0 16px", borderColor: token.colorBorderSecondary }} />
 
-        <Space direction="vertical" size={8} style={{ width: "100%", marginBottom: 20 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <CheckCircleFilled style={{ color: token.colorSuccess, fontSize: 14 }} />
-            <Text style={{ fontSize: 13, color: token.colorText }}><strong>{(plan.credits_per_cycle ?? 0).toLocaleString()}</strong> credits/cycle</Text>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <CheckCircleFilled style={{ color: token.colorSuccess, fontSize: 14 }} />
-            <Text style={{ fontSize: 13, color: token.colorText }}>
-              {plan.max_smtp_domains === -1 ? "Unlimited" : plan.max_smtp_domains} SMTP domain{plan.max_smtp_domains !== 1 ? "s" : ""}
-            </Text>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <CheckCircleFilled style={{ color: token.colorSuccess, fontSize: 14 }} />
-            <Text style={{ fontSize: 13, color: token.colorText }}>
-              {plan.max_campaigns === -1 ? "Unlimited" : `Up to ${plan.max_campaigns}`} campaign{plan.max_campaigns !== 1 ? "s" : ""}
-            </Text>
-          </div>
-          {(plan.features ?? []).slice(0, 3).map((f: string, i: number) => (
+        {/* Core features */}
+        <Space direction="vertical" size={8} style={{ width: "100%", marginBottom: 16 }}>
+          {plan.features.map((f: string, i: number) => (
             <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <CheckCircleFilled style={{ color: token.colorSuccess, fontSize: 14 }} />
+              <CheckCircleFilled style={{ color: token.colorSuccess, fontSize: 14, flexShrink: 0 }} />
               <Text style={{ fontSize: 13, color: token.colorText }}>{f}</Text>
             </div>
           ))}
         </Space>
+
+        {/* Extra features */}
+        {(plan.features_extra ?? []).length > 0 && (
+          <>
+            <Divider style={{ margin: "0 0 12px", borderColor: token.colorBorderSecondary }} dashed />
+            <Space direction="vertical" size={6} style={{ width: "100%", marginBottom: 20 }}>
+              {(plan.features_extra ?? []).map((f: string, i: number) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <CheckCircleFilled style={{ color: accentColor, fontSize: 13, flexShrink: 0 }} />
+                  <Text style={{ fontSize: 12, color: token.colorTextSecondary }}>{f}</Text>
+                </div>
+              ))}
+            </Space>
+          </>
+        )}
 
         {renderAction()}
       </div>
@@ -451,7 +468,7 @@ const PlanCard: React.FC<{
   );
 };
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
+// ─── Main Page ─────────────────────────────────────────────────────────────────
 
 const BillingPage: React.FC = () => {
   useUserInfo();
@@ -470,6 +487,7 @@ const BillingPage: React.FC = () => {
   const changePlanMut = useChangePlan();
   const startTrial = useStartFreeTrial();
 
+  const [interval, setInterval] = useState<BillingInterval>("month");
   const [couponCode, setCouponCode] = useState("");
   const [checkoutPlan, setCheckoutPlan] = useState<Plan | null>(null);
   const [confirmCancel, setConfirmCancel] = useState(false);
@@ -487,18 +505,25 @@ const BillingPage: React.FC = () => {
 
   const handleSubscribe = useCallback(
     (plan: Plan) => {
-      if (plan.name === "free_trial") { startTrial.mutate(undefined, { onSuccess: () => router.replace("/dashboard") }); } else { setCheckoutPlan(plan); }
+      if (plan.name === "free_trial") { startTrial.mutate(undefined, { onSuccess: () => router.replace("/dashboard") }); }
+      else { setCheckoutPlan(plan); }
     },
-    [startTrial]
+    [startTrial, router]
   );
 
   const handleConfirmCheckout = useCallback(() => {
     if (!checkoutPlan) return;
     createCheckout.mutate(
-      { plan_name: checkoutPlan.name, success_url: `${appBaseUrl}/plans/success?session_id={CHECKOUT_SESSION_ID}`, cancel_url: `${appBaseUrl}/plans/cancel`, coupon_code: couponCode.trim() || undefined },
+      {
+        plan_name: checkoutPlan.name,
+        success_url: `${appBaseUrl}/plans/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${appBaseUrl}/plans/cancel`,
+        coupon_code: couponCode.trim() || undefined,
+        interval,
+      },
       { onSuccess: () => { setCheckoutPlan(null); setCouponCode(""); } }
     );
-  }, [checkoutPlan, couponCode, createCheckout, appBaseUrl]);
+  }, [checkoutPlan, couponCode, interval, createCheckout, appBaseUrl]);
 
   const handleUpgrade = useCallback(
     (plan: Plan) => hasStripeSubscription ? setConfirmChange({ plan, type: "upgrade" }) : handleSubscribe(plan),
@@ -509,14 +534,17 @@ const BillingPage: React.FC = () => {
 
   const handleConfirmChangePlan = useCallback(() => {
     if (!confirmChange) return;
-    changePlanMut.mutate(confirmChange.plan.name, {
-      onSuccess: (res) => {
-        dispatch(setSubscription(res.data));
-        queryClient.invalidateQueries({ queryKey: ["subscription"] });
-        setConfirmChange(null);
-      },
-    });
-  }, [confirmChange, changePlanMut, dispatch, queryClient]);
+    changePlanMut.mutate(
+      { planName: confirmChange.plan.name, interval },
+      {
+        onSuccess: (res) => {
+          dispatch(setSubscription(res.data));
+          queryClient.invalidateQueries({ queryKey: ["subscription"] });
+          setConfirmChange(null);
+        },
+      }
+    );
+  }, [confirmChange, interval, changePlanMut, dispatch, queryClient]);
 
   const handleCancelSubscription = useCallback(() => {
     cancelSub.mutate(undefined, {
@@ -536,9 +564,19 @@ const BillingPage: React.FC = () => {
     .filter((p) => p.name === "free_trial" || (p.price_cents != null && !isNaN(p.price_cents)))
     .sort((a, b) => (PLAN_ORDER[a.name] ?? 99) - (PLAN_ORDER[b.name] ?? 99));
 
+  // Annual price for checkout modal
+  const checkoutPrice = checkoutPlan
+    ? interval === "year" && checkoutPlan.price_cents_annual
+      ? checkoutPlan.price_cents_annual
+      : checkoutPlan.price_cents
+    : 0;
+  const checkoutSavings = checkoutPlan
+    ? checkoutPlan.price_cents * 12 - (checkoutPlan.price_cents_annual || 0)
+    : 0;
+
   return (
     <div style={{ padding: "24px", maxWidth: 1280, margin: "0 auto" }}>
-      {/* Page Header */}
+      {/* Header */}
       <div style={{ marginBottom: 28 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
           <div>
@@ -559,15 +597,9 @@ const BillingPage: React.FC = () => {
       <Space direction="vertical" style={{ width: "100%", marginBottom: 24 }} size={12}>
         {!isAccessGranted && !isLoading && (
           <Alert
-            type="error"
-            showIcon
-            icon={<ExclamationCircleOutlined />}
+            type="error" showIcon icon={<ExclamationCircleOutlined />}
             message={<span><strong>Subscription inactive</strong> — Scraping and campaign features are locked.</span>}
-            action={
-              <Button size="small" type="primary" danger onClick={() => handleSubscribe(plans.find((p) => p.name === "basic") as Plan)}>
-                Subscribe
-              </Button>
-            }
+            action={<Button size="small" type="primary" danger onClick={() => handleSubscribe(plans.find((p) => p.name === "starter") as Plan)}>Subscribe</Button>}
             style={{ borderRadius: 10 }}
           />
         )}
@@ -604,15 +636,41 @@ const BillingPage: React.FC = () => {
             />
           </Col>
           <Col xs={24} lg={16}>
-            <div style={{ marginBottom: 16 }}>
-              <Text strong style={{ fontSize: 16, color: token.colorText }}>Choose a Plan</Text>
-              <Text style={{ color: token.colorTextSecondary, marginLeft: 8, fontSize: 13 }}>All plans include a 14-day free trial</Text>
+            {/* Plan heading + billing toggle */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
+              <div>
+                <Text strong style={{ fontSize: 16, color: token.colorText }}>Choose a Plan</Text>
+                <Text style={{ color: token.colorTextSecondary, marginLeft: 8, fontSize: 13 }}>All plans include a 14-day free trial</Text>
+              </div>
+
+              {/* Monthly / Annual toggle */}
+              <Space size={8} align="center">
+                <Segmented
+                  value={interval}
+                  onChange={(v) => setInterval(v as BillingInterval)}
+                  options={[
+                    { label: "Monthly", value: "month" },
+                    {
+                      label: (
+                        <Space size={4}>
+                          <span>Annual</span>
+                          <Tag color="success" style={{ margin: 0, fontSize: 10, fontWeight: 700, lineHeight: "16px" }}>-10%</Tag>
+                        </Space>
+                      ),
+                      value: "year",
+                    },
+                  ]}
+                  style={{ borderRadius: 8 }}
+                />
+              </Space>
             </div>
+
             <Row gutter={[16, 16]}>
               {displayPlans.map((plan) => (
                 <Col xs={24} sm={12} md={displayPlans.length > 3 ? 12 : 8} key={plan._id}>
                   <PlanCard
                     plan={plan}
+                    interval={interval}
                     isCurrentPlan={currentPlan?.name === plan.name}
                     currentPlanName={currentPlan?.name}
                     isTrial={isTrial}
@@ -659,13 +717,23 @@ const BillingPage: React.FC = () => {
               <Text strong>{checkoutPlan?.display_name}</Text>
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+              <Text style={{ color: token.colorTextSecondary }}>Billing</Text>
+              <Text strong>{interval === "year" ? "Annual (10% off)" : "Monthly"}</Text>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
               <Text style={{ color: token.colorTextSecondary }}>Price</Text>
-              <Text strong style={{ color: PLAN_COLOR[checkoutPlan?.name ?? ""] }}>{formatCents(checkoutPlan?.price_cents ?? 0)}/mo</Text>
+              <Text strong style={{ color: PLAN_COLOR[checkoutPlan?.name ?? ""] }}>
+                {interval === "year" && checkoutPlan?.price_cents_annual
+                  ? `${formatEUR(checkoutPlan.price_cents_annual)}/yr`
+                  : `${formatEUR(checkoutPlan?.price_cents ?? 0)}/mo`}
+              </Text>
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <Text style={{ color: token.colorTextSecondary }}>Credits</Text>
-              <Text strong>{(checkoutPlan?.credits_per_cycle ?? 0).toLocaleString()} / billing cycle</Text>
-            </div>
+            {interval === "year" && checkoutSavings > 0 && (
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <Text style={{ color: token.colorTextSecondary }}>You save</Text>
+                <Text strong style={{ color: token.colorSuccess }}>{formatEUR(checkoutSavings)}/year</Text>
+              </div>
+            )}
           </div>
           <div>
             <Text strong style={{ display: "block", marginBottom: 8, color: token.colorText }}>Coupon code (optional)</Text>

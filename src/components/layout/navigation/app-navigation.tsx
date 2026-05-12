@@ -2,6 +2,7 @@
 
 import React, { useMemo } from "react";
 import {
+  BanknotesIcon,
   BellIcon,
   BugAntIcon,
   ChartBarSquareIcon,
@@ -15,6 +16,7 @@ import {
   RectangleStackIcon,
   UserGroupIcon,
   UsersIcon,
+  CircleStackIcon,
 } from "@heroicons/react/24/outline";
 import { useIntl } from "react-intl";
 import { usePathname, useRouter } from "next/navigation";
@@ -37,7 +39,9 @@ export type MenuKey =
   | "admin_bugs"
   | "admin_feedbacks"
   | "admin_notifications"
-  | "admin_reports";
+  | "admin_reports"
+  | "admin_account_pool"
+  | "admin_billing_management";
 
 export type AppNavLeaf = {
   type: "item";
@@ -105,6 +109,8 @@ export function useAppNavigation() {
       admin_feedbacks: "/feedback",
       admin_notifications: "/notifications",
       admin_reports: "/reports",
+      admin_account_pool: "/admin/account-pool",
+      admin_billing_management: "/admin/billing-management",
     };
 
     if (isAdmin) {
@@ -198,6 +204,26 @@ export function useAppNavigation() {
               label: intl.formatMessage({
                 id: "sidebar.admin.reports",
                 defaultMessage: "Reports",
+              }),
+            },
+            {
+              type: "item",
+              key: "admin_account_pool",
+              href: routes.admin_account_pool,
+              icon: createIcon(CircleStackIcon),
+              label: intl.formatMessage({
+                id: "sidebar.admin.account_pool",
+                defaultMessage: "Account Pooling",
+              }),
+            },
+            {
+              type: "item",
+              key: "admin_billing_management",
+              href: routes.admin_billing_management,
+              icon: createIcon(BanknotesIcon),
+              label: intl.formatMessage({
+                id: "sidebar.admin.billing_management",
+                defaultMessage: "Billing Management",
               }),
             },
           ],
