@@ -9,6 +9,7 @@ import {
   BulkDeleteFolders,
   CreateFolderPayload,
   UpdateFolderPayload,
+  BulkDeleteFoldersPayload,
 } from "@/api/api_calls/folders";
 
 /* =========================
@@ -64,9 +65,12 @@ export const useBulkDeleteFolders = () => {
 
   return useMutation({
     mutationKey: ["folders", "bulk-delete"],
-    mutationFn: (folder_ids: string[]) => BulkDeleteFolders(folder_ids),
+    mutationFn: (input: string[] | BulkDeleteFoldersPayload) =>
+      BulkDeleteFolders(input),
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: ["folders", "list"] });
+      await qc.invalidateQueries({ queryKey: ["leads", "list"] });
+      await qc.invalidateQueries({ queryKey: ["leads", "summary"] });
     },
   });
 };

@@ -3,9 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { useUserInfo } from "@/helpers/use-user";
 
-const INITIAL_DELAY = 2 * 60 * 1000; // 2 minutes
-const SNOOZE_DELAY = 5 * 60 * 1000; // 5 minutes
-const STORAGE_KEY = "feedback_modal_snoozed";
+const INITIAL_DELAY = 60 * 1000; // 1 minute after the signed-in user is loaded
+const STORAGE_KEY_PREFIX = "feedback_modal_shown";
 
 interface UseFeedbackModalTimerReturn {
   shouldShowModal: boolean;
@@ -18,9 +17,8 @@ interface UseFeedbackModalTimerReturn {
  * Custom hook that manages automatic feedback modal timing
  *
  * Features:
- * - Opens after 2 minutes if user.is_feedback_completed is false
- * - If canceled, reopens after 5 minutes
- * - Persists snooze state across page refreshes
+ * - Opens once per browser sign-in session if user.is_feedback_completed is false
+ * - Waits 1 minute so the dashboard and page components can finish rendering
  *
  * @returns {UseFeedbackModalTimerReturn} Modal control functions and state
  */
@@ -34,54 +32,48 @@ export const useFeedbackModalTimer = (): UseFeedbackModalTimerReturn => {
       return;
     }
 
-    // Check if modal was previously snoozed
-    const snoozedUntil = localStorage.getItem(STORAGE_KEY);
-    const now = Date.now();
-
-    let delay = INITIAL_DELAY;
-
-    if (snoozedUntil) {
-      const snoozedTime = parseInt(snoozedUntil, 10);
-      if (now < snoozedTime) {
-        // Still in snooze period, wait for remaining time
-        delay = snoozedTime - now;
-      } else {
-        // Snooze period expired, clear it
-        localStorage.removeItem(STORAGE_KEY);
-      }
+    const storageKey = `${STORAGE_KEY_PREFIX}_${user_id}`;
+    if (sessionStorage.getItem(storageKey) === "true") {
+      return;
     }
 
     const timer = setTimeout(() => {
+      sessionStorage.setItem(storageKey, "true");
       setShouldShowModal(true);
-    }, delay);
+    }, INITIAL_DELAY);
 
     return () => clearTimeout(timer);
   }, [user_id, is_feedback_completed]);
 
   /**
-   * Snooze the modal for 5 minutes
+   * Close the modal for this sign-in session.
    */
   const snoozeModal = useCallback(() => {
-    const snoozeUntil = Date.now() + SNOOZE_DELAY;
-    localStorage.setItem(STORAGE_KEY, snoozeUntil.toString());
+    if (user_id) {
+      sessionStorage.setItem(`${STORAGE_KEY_PREFIX}_${user_id}`, "true");
+    }
     setShouldShowModal(false);
-  }, []);
+  }, [user_id]);
 
   /**
-   * Clear snooze state (e.g., after successful feedback submission)
+   * Close the modal after successful feedback submission.
    */
   const clearSnooze = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY);
+    if (user_id) {
+      sessionStorage.setItem(`${STORAGE_KEY_PREFIX}_${user_id}`, "true");
+    }
     setShouldShowModal(false);
-  }, []);
+  }, [user_id]);
 
   /**
    * Reset the timer to initial state
    */
   const resetTimer = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY);
+    if (user_id) {
+      sessionStorage.removeItem(`${STORAGE_KEY_PREFIX}_${user_id}`);
+    }
     setShouldShowModal(false);
-  }, []);
+  }, [user_id]);
 
   return {
     shouldShowModal,

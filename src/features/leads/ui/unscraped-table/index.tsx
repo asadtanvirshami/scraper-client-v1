@@ -92,6 +92,7 @@ const UnscrappedLeadsTable: React.FC<Props> = ({
 
   const filters = value;
   const fixedType = platform;
+  const canDownloadLeads = !loading && total > 0;
 
   // ✅ draft search input (NO server call until click button)
   const [searchDraft, setSearchDraft] = useState(filters.search ?? "");
@@ -136,6 +137,8 @@ const UnscrappedLeadsTable: React.FC<Props> = ({
 
   // ✅ download all (CSV)
   const downloadAll = () => {
+    if (!canDownloadLeads) return;
+
     download.mutate({
       user_id,
       search: filters.search,
@@ -641,16 +644,18 @@ const UnscrappedLeadsTable: React.FC<Props> = ({
             />
           </Text>
 
-          <Button
-            icon={<DownloadOutlined />}
-            onClick={downloadAll}
-            loading={download.isPending}
-          >
-            <FormattedMessage
-              id="leads.actions.download"
-              defaultMessage="Download"
-            />
-          </Button>
+          {canDownloadLeads && (
+            <Button
+              icon={<DownloadOutlined />}
+              onClick={downloadAll}
+              loading={download.isPending}
+            >
+              <FormattedMessage
+                id="leads.actions.download"
+                defaultMessage="Download"
+              />
+            </Button>
+          )}
 
           <Button
             type="primary"

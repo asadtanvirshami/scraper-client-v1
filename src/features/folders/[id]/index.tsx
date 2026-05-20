@@ -79,6 +79,10 @@ export default function FolderParamsLayout({ folderId, folderName }: Props) {
   const folder = foldersList.find((f) => (f as any)?._id === folderId) as any | undefined;
 
   const displayName = folderName ?? folder?.name ?? `Folder`;
+  const tableFilters = {
+    ...query,
+    folder_id: folderId,
+  };
 
   return (
     <div className="p-4 lg:p-6">
@@ -135,9 +139,17 @@ export default function FolderParamsLayout({ folderId, folderName }: Props) {
             leads={leads?.data ?? []}
             total={leads?.pagination?.total ?? 0}
             loading={isFetching}
-            value={query}
+            value={tableFilters}
             showFileUpload={false}
-            onFetch={(next) => setQuery(next as any)}
+            onFetch={(next) =>
+              setQuery({
+                page: next.page,
+                limit: next.limit,
+                search: next.search ?? "",
+                type: next.type ?? "",
+                is_converted: next.is_converted,
+              })
+            }
             onCreateLead={async (payload: any) => {
               await createLead.mutateAsync({ ...payload, folder_id: folderId } as any);
             }}

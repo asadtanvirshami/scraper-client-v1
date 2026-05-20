@@ -34,6 +34,7 @@ import {
 } from "@/api/api_calls/scrapper";
 import { FetchAllLeadsList } from "@/api/api_calls/leads";
 import { useUserInfo } from "@/helpers/use-user";
+import { useSocket } from "@/hooks/use-socket";
 
 const { Title, Text } = Typography;
 
@@ -257,6 +258,30 @@ export default function ScrapeJobsManager() {
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState<Record<string, string>>({});
   const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const socket = useSocket(userId);
+
+  // live per-job profile counts keyed as "targetUsername:type"
+  const [liveJobCounts, setLiveJobCounts] = useState<
+    Record<string, { completed: number; total: number }>
+  >({});
+
+  useEffect(() => {
+    if (!socket) return;
+    const handler = (payload: {
+      target_username: string;
+      type: string;
+      completed: number;
+      total: number;
+    }) => {
+      const key = `${payload.target_username}:${payload.type}`;
+      setLiveJobCounts((prev) => ({
+        ...prev,
+        [key]: { completed: payload.completed, total: payload.total },
+      }));
+    };
+    socket.on("scrape:follower_count", handler);
+    return () => { socket.off("scrape:follower_count", handler); };
+  }, [socket]);
 
   const fetchJobs = useCallback(async (p = page, silent = false) => {
     if (!userId) return;
@@ -359,6 +384,22 @@ export default function ScrapeJobsManager() {
       width: 100,
       render: (_, r) => {
         const count = r.result?.inserted_count ?? r.result?.saved_count ?? null;
+        const liveKey = `${r.data?.targetUsername}:${r.data?.type}`;
+        const live = liveJobCounts[liveKey];
+        if (live) {
+          return (
+            <Tooltip title={`${live.completed} / ${live.total} profiles fetched`}>
+              <Text strong style={{ color: "#fa8c16" }}>
+                {live.completed.toLocaleString()}
+                {live.total > 0 && (
+                  <Text type="secondary" style={{ fontSize: 11, marginLeft: 2 }}>
+                    /{live.total}
+                  </Text>
+                )}
+              </Text>
+            </Tooltip>
+          );
+        }
         return count !== null ? (
           <Text strong style={{ color: "#52c41a" }}>{count.toLocaleString()}</Text>
         ) : (

@@ -32,6 +32,7 @@ import {
   TeamOutlined,
   SafetyCertificateOutlined,
   SaveOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -99,6 +100,8 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
   const [totalScraped, setTotalScraped] = useState<number | null>(null);
   const [deepScanCount, setDeepScanCount] = useState<number | null>(null);
   const [deepScanTotal, setDeepScanTotal] = useState<number | null>(null);
+  const [profilesFetched, setProfilesFetched] = useState<number | null>(null);
+  const [profilesTotal, setProfilesTotal] = useState<number | null>(null);
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [scrapedUsername, setScrapedUsername] = useState<string | null>(null);
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
@@ -166,13 +169,38 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
       setDeepScanCount(payload.deep_scan_count);
       setDeepScanTotal(payload.deep_scan_total);
     };
+    const followerCountHandler = (payload: {
+      completed: number;
+      total: number;
+    }) => {
+      setProfilesFetched(payload.completed);
+      setProfilesTotal(payload.total);
+    };
+    const enrichedCountHandler = (payload: {
+      job_id: string | null;
+      enriched_profile_count: number;
+    }) => {
+      const eventJobId = String(payload?.job_id || "").trim();
+      if (!eventJobId || !activeJobId || eventJobId !== activeJobId) {
+        return;
+      }
+
+      const increment = Number(payload?.enriched_profile_count) || 0;
+      if (increment <= 0) return;
+
+      setProfilesFetched((prev) => (prev ?? 0) + increment);
+    };
     socket.on("scrape:progress", progressHandler);
     socket.on("scrape:deepscan", deepscanHandler);
+    socket.on("scrape:follower_count", followerCountHandler);
+    socket.on("scrape:enriched_profile_count", enrichedCountHandler);
     return () => {
       socket.off("scrape:progress", progressHandler);
       socket.off("scrape:deepscan", deepscanHandler);
+      socket.off("scrape:follower_count", followerCountHandler);
+      socket.off("scrape:enriched_profile_count", enrichedCountHandler);
     };
-  }, [socket, refetchLeads]);
+  }, [socket, refetchLeads, activeJobId]);
 
   const statusChip = (() => {
     if (!activeJobId && !activeJobState) return null;
@@ -289,6 +317,8 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
       setTotalScraped(null);
       setDeepScanCount(null);
       setDeepScanTotal(null);
+      setProfilesFetched(0);
+      setProfilesTotal(null);
       setScrapeQuery((prev) => ({
         ...prev,
         page: 1,
@@ -594,10 +624,33 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
         </Col>
 
         {/* ── Real-time scrape stats ── */}
-        {(totalScraped !== null || deepScanCount !== null || liveCount !== null) && (
+        {(totalScraped !== null || deepScanCount !== null || liveCount !== null || profilesFetched !== null) && (
           <Col xs={24}>
             <Row gutter={[16, 16]}>
-              <Col xs={24} sm={8}>
+              {profilesFetched !== null && (
+                <Col xs={24} sm={6}>
+                  <Card bodyStyle={{ padding: "16px 20px" }} bordered>
+                    <Statistic
+                      title={
+                        <Space size={6}>
+                          <UserOutlined style={{ color: "#fa8c16" }} />
+                          <span>
+                            Profiles Fetched
+                            {profilesTotal !== null && profilesTotal > 0 && (
+                              <span style={{ fontWeight: 400, color: "#8c8c8c", marginLeft: 4 }}>
+                                / {profilesTotal.toLocaleString()}
+                              </span>
+                            )}
+                          </span>
+                        </Space>
+                      }
+                      value={profilesFetched}
+                      valueStyle={{ color: "#fa8c16", fontWeight: 700 }}
+                    />
+                  </Card>
+                </Col>
+              )}
+              <Col xs={24} sm={profilesFetched !== null ? 6 : 8}>
                 <Card bodyStyle={{ padding: "16px 20px" }} bordered>
                   <Statistic
                     title={
@@ -611,7 +664,7 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
                   />
                 </Card>
               </Col>
-              <Col xs={24} sm={8}>
+              <Col xs={24} sm={profilesFetched !== null ? 6 : 8}>
                 <Card bodyStyle={{ padding: "16px 20px" }} bordered>
                   <Statistic
                     title={
@@ -625,7 +678,7 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
                   />
                 </Card>
               </Col>
-              <Col xs={24} sm={8}>
+              <Col xs={24} sm={profilesFetched !== null ? 6 : 8}>
                 <Card bodyStyle={{ padding: "16px 20px" }} bordered>
                   <Statistic
                     title={

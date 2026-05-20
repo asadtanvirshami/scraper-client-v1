@@ -12,8 +12,8 @@ const ForgotPassForm: React.FC = () => {
   const forgotPassMutation = useForgotPassword();
 
   const handleSubmit = (values: { email: string }) => {
-    forgotPassMutation.mutateAsync(values);
-    forgotPassMutation.isSuccess && localStorage.setItem("email", values.email);
+    const email = values.email.trim().toLowerCase();
+    forgotPassMutation.mutateAsync({ email });
   };
 
   return (
