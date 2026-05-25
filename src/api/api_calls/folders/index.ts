@@ -15,6 +15,11 @@ export type UpdateFolderPayload = {
   name: string;
 };
 
+export type BulkDeleteFoldersPayload = {
+  folder_ids: string[];
+  move_to_folder_id?: string;
+};
+
 /* =========================
    Queries
 ========================= */
@@ -48,19 +53,21 @@ export async function UpdateFolder(
 
 export async function DeleteFolder(
   folder_id: string,
+  move_to_folder_id?: string,
 ): Promise<GenericResponse> {
-  const { data } = await api.delete(
-    apiEndpoints.folders.delete(folder_id),
-  );
+  const { data } = await api.delete(apiEndpoints.folders.delete(folder_id), {
+    data: move_to_folder_id ? { move_to_folder_id } : undefined,
+  });
   return data;
 }
 
 export async function BulkDeleteFolders(
-  folder_ids: string[],
+  input: string[] | BulkDeleteFoldersPayload,
 ): Promise<GenericResponse> {
+  const payload = Array.isArray(input) ? { folder_ids: input } : input;
   const { data } = await api.post(
     apiEndpoints.folders.bulkDelete,
-    { folder_ids },
+    payload,
   );
   return data;
 }

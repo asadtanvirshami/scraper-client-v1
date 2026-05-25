@@ -11,7 +11,8 @@ import {
   Modal,
   Form,
   message,
-  Popconfirm,
+  Select,
+  Alert,
 } from "antd";
 import type { ColumnsType, TablePaginationConfig } from "antd/es/table";
 import {
@@ -31,6 +32,7 @@ const { Text } = Typography;
 
 const FolderTable: React.FC<FolderTableProps> = ({
   data = [],
+  folderOptions = data,
   showFilters = true,
   loading = false,
   pageSize = 10,
@@ -89,9 +91,21 @@ const FolderTable: React.FC<FolderTableProps> = ({
     );
   }, [data, isServerMode, searchDraft]);
 
+  // ✅ helper for consistent id
+  const getFolderId = (record: Folder) =>
+    String((record as any)?._id ?? (record as any)?.id ?? "");
+
+  const getLeadCount = (folder: Folder) =>
+    Number(
+      (folder as any)?.lead_count ??
+        (folder as any)?.leads_count ??
+        (folder as any)?.total_leads ??
+        0,
+    ) || 0;
+
   const currentPageRowKeys = useMemo(() => {
     return (filteredData || [])
-      .map((f) => (f as any)?._id ?? (f as any)?.id ?? (f as any)?.name)
+      .map((f) => getFolderId(f) || (f as any)?.name)
       .filter(Boolean)
       .map(String);
   }, [filteredData]);
@@ -102,6 +116,10 @@ const FolderTable: React.FC<FolderTableProps> = ({
 
   const [createOpen, setCreateOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteMode, setDeleteMode] = useState<"delete" | "move">("delete");
+  const [moveToFolderId, setMoveToFolderId] = useState<string | undefined>();
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
   const [editing, setEditing] = useState<Folder | null>(null);
 
   const [createForm] = Form.useForm<{ name: string }>();
@@ -121,6 +139,40 @@ const FolderTable: React.FC<FolderTableProps> = ({
   const closeEdit = () => {
     setEditOpen(false);
     setEditing(null);
+  };
+
+  const selectedFolders = useMemo(() => {
+    const selectedIds = new Set((selectedRowKeys || []).map(String));
+    return (data || []).filter((folder) => selectedIds.has(getFolderId(folder)));
+  }, [data, selectedRowKeys]);
+
+  const selectedLeadCount = useMemo(
+    () => selectedFolders.reduce((sum, folder) => sum + getLeadCount(folder), 0),
+    [selectedFolders],
+  );
+
+  const moveFolderOptions = useMemo(() => {
+    const selectedIds = new Set((selectedRowKeys || []).map(String));
+    return (folderOptions || [])
+      .map((folder) => ({
+        value: getFolderId(folder),
+        label: folder.name,
+      }))
+      .filter((option) => option.value && !selectedIds.has(option.value));
+  }, [folderOptions, selectedRowKeys]);
+
+  const openDeleteConfirm = () => {
+    if (!selectedRowKeys.length || !onDeleteAll) return;
+    setDeleteMode("delete");
+    setMoveToFolderId(undefined);
+    setDeleteOpen(true);
+  };
+
+  const closeDeleteConfirm = () => {
+    if (deleteSubmitting) return;
+    setDeleteOpen(false);
+    setDeleteMode("delete");
+    setMoveToFolderId(undefined);
   };
 
   const submitCreate = async () => {
@@ -182,21 +234,33 @@ const FolderTable: React.FC<FolderTableProps> = ({
     }
   };
 
-  const deleteSelected = async () => {
+  const deleteSelected = async (mode: "delete" | "move" = deleteMode) => {
     if (!onDeleteAll) return;
 
     const ids = (selectedRowKeys || []).map(String).filter(Boolean);
     if (!ids.length) return;
+    if (mode === "move" && !moveToFolderId) return;
 
     try {
-      await onDeleteAll(ids);
+      setDeleteSubmitting(true);
+      await onDeleteAll(
+        ids,
+        mode === "move" ? { move_to_folder_id: moveToFolderId } : undefined,
+      );
 
       message.success(
-        `${intl.formatMessage({ id: "commons.deleted", defaultMessage: "Deleted" })} ${ids.length}`,
+        mode === "move"
+          ? intl.formatMessage({
+              id: "folders.delete.move_success",
+              defaultMessage: "Folder deleted and leads moved",
+            })
+          : `${intl.formatMessage({ id: "commons.deleted", defaultMessage: "Deleted" })} ${ids.length}`,
       );
 
       onSelectedRowKeysChange?.([]);
       setSearchDraft("");
+      setDeleteOpen(false);
+      setMoveToFolderId(undefined);
 
       if (isServerMode) {
         onFetch?.({ page: 1, limit: value?.limit ?? pageSize, search: "" });
@@ -208,6 +272,8 @@ const FolderTable: React.FC<FolderTableProps> = ({
           defaultMessage: "Bulk delete failed",
         }),
       );
+    } finally {
+      setDeleteSubmitting(false);
     }
   };
 
@@ -286,10 +352,6 @@ const FolderTable: React.FC<FolderTableProps> = ({
         }
       : undefined;
 
-  // ✅ helper for consistent id
-  const getFolderId = (record: Folder) =>
-    String((record as any)?._id ?? (record as any)?.id ?? "");
-
   return (
     <Card
       title={
@@ -345,20 +407,14 @@ const FolderTable: React.FC<FolderTableProps> = ({
               {intl.formatMessage({ id: "commons.clear_selection", defaultMessage: "Clear selection" })}
             </Button>
 
-            <Popconfirm
-              title={intl.formatMessage(
-                { id: "folders.confirm.delete_selected", defaultMessage: "Delete {count} folder(s)?" },
-                { count: selectedRowKeys.length },
-              )}
-              okText={intl.formatMessage({ id: "commons.delete", defaultMessage: "Delete" })}
-              okButtonProps={{ danger: true }}
-              onConfirm={deleteSelected}
+            <Button
+              danger
+              icon={<DeleteOutlined />}
               disabled={!selectedRowKeys.length || !onDeleteAll}
+              onClick={openDeleteConfirm}
             >
-              <Button danger icon={<DeleteOutlined />} disabled={!selectedRowKeys.length || !onDeleteAll}>
-                {intl.formatMessage({ id: "commons.delete_selected", defaultMessage: "Delete selected" })}
-              </Button>
-            </Popconfirm>
+              {intl.formatMessage({ id: "commons.delete_selected", defaultMessage: "Delete selected" })}
+            </Button>
           </Space>
         ) : null
       }
@@ -462,6 +518,120 @@ const FolderTable: React.FC<FolderTableProps> = ({
             <Input maxLength={80} />
           </Form.Item>
         </Form>
+      </Modal>
+
+      {/* Delete confirmation modal */}
+      <Modal
+        open={deleteOpen}
+        onCancel={closeDeleteConfirm}
+        title={intl.formatMessage({
+          id: "folders.delete.confirm_title",
+          defaultMessage: "Delete selected folder(s)?",
+        })}
+        footer={[
+          <Button key="cancel" onClick={closeDeleteConfirm} disabled={deleteSubmitting}>
+            {intl.formatMessage({ id: "commons.cancel", defaultMessage: "Cancel" })}
+          </Button>,
+          <Button
+            key="delete"
+            danger
+            loading={deleteSubmitting && deleteMode === "delete"}
+            onClick={() => {
+              setDeleteMode("delete");
+              void deleteSelected("delete");
+            }}
+          >
+            {selectedLeadCount > 0
+              ? intl.formatMessage({
+                  id: "folders.delete.confirm_loss",
+                  defaultMessage: "Delete folder and leads",
+                })
+              : intl.formatMessage({
+                  id: "folders.delete.confirm_empty",
+                  defaultMessage: "Delete folder",
+                })}
+          </Button>,
+          selectedLeadCount > 0 ? (
+            <Button
+              key="move"
+              type="primary"
+              disabled={!moveToFolderId || moveFolderOptions.length === 0}
+              loading={deleteSubmitting && deleteMode === "move"}
+              onClick={() => {
+                setDeleteMode("move");
+                void deleteSelected("move");
+              }}
+            >
+              {intl.formatMessage({
+                id: "folders.delete.move_and_delete",
+                defaultMessage: "Move leads and delete",
+              })}
+            </Button>
+          ) : null,
+        ]}
+      >
+        {selectedLeadCount > 0 ? (
+          <Alert
+            type="warning"
+            showIcon
+            message={intl.formatMessage({
+              id: "folders.delete.warning_title",
+              defaultMessage: "This folder contains leads",
+            })}
+            description={intl.formatMessage(
+              {
+                id: "folders.delete.warning_desc",
+                defaultMessage:
+                  "The selected folder(s) contain leads or data. Deleting without moving will permanently remove those leads from this folder.",
+              },
+            )}
+            style={{ marginBottom: 16 }}
+          />
+        ) : (
+          <p>
+            {intl.formatMessage(
+              {
+                id: "folders.delete.empty_desc",
+                defaultMessage: "You are deleting {count} selected folder(s).",
+              },
+              { count: selectedRowKeys.length },
+            )}
+          </p>
+        )}
+
+        {selectedLeadCount > 0 && (
+          <Space direction="vertical" style={{ width: "100%" }} size={8}>
+            <Text strong>
+              {intl.formatMessage({
+                id: "folders.delete.move_label",
+                defaultMessage: "Move leads to another folder first",
+              })}
+            </Text>
+            <Select
+              allowClear
+              showSearch
+              optionFilterProp="label"
+              style={{ width: "100%" }}
+              placeholder={intl.formatMessage({
+                id: "folders.delete.move_placeholder",
+                defaultMessage: "Choose destination folder",
+              })}
+              options={moveFolderOptions}
+              value={moveToFolderId}
+              onChange={setMoveToFolderId}
+              disabled={moveFolderOptions.length === 0}
+            />
+            {moveFolderOptions.length === 0 && (
+              <Text type="secondary">
+                {intl.formatMessage({
+                  id: "folders.delete.no_destination",
+                  defaultMessage:
+                    "Create another folder if you want to move these leads before deleting.",
+                })}
+              </Text>
+            )}
+          </Space>
+        )}
       </Modal>
     </Card>
   );

@@ -1,4 +1,5 @@
 import { Button, Form, Input } from "antd";
+import { useRouter } from "next/navigation";
 import { FormattedMessage, useIntl } from "react-intl";
 import { useResetPassword } from "../hooks/";
 
@@ -10,11 +11,19 @@ type ResetPasswordValues = {
 
 const ResetPasswordForm = () => {
   const intl = useIntl();
+  const router = useRouter();
   const resetPassMutation = useResetPassword();
   const onFinish = async (values: ResetPasswordValues) => {
+    const email = localStorage.getItem("password_reset_email");
+    if (!email) {
+      router.replace("/auth/forgot-password");
+      return;
+    }
+
     const newValues = {
-      ...values,
-      email: localStorage.getItem("email") || "asadtanvir20@gmail.com",
+      email,
+      otp: values.otp.trim(),
+      newPassword: values.newPassword,
     };
     await resetPassMutation.mutateAsync(newValues);
   };

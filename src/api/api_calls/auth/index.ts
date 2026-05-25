@@ -52,8 +52,13 @@ export async function ForgotPassword(input: {
 export async function ResetPassword(input: {
   email: string;
   otp: string;
-  password: string;
+  newPassword?: string;
+  password?: string;
 }): Promise<GenericResponse> {
-  const { data } = await api.post(apiEndpoints.auth.reset_password, input);
+  const { data } = await api.post(apiEndpoints.auth.reset_password, {
+    email: input.email.trim().toLowerCase(),
+    otp: input.otp.trim(),
+    newPassword: input.newPassword ?? input.password,
+  });
   return data;
 }

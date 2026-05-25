@@ -73,7 +73,11 @@ export function useForgotPassword () {
   return useMutation({
     mutationKey: ["forgot-password"],
     mutationFn: async (input: any) => await ForgotPassword(input),
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
+      const email = String(variables?.email || "").trim().toLowerCase();
+      if (email) {
+        localStorage.setItem("password_reset_email", email);
+      }
       const successKey = getSuccessMessage(data?.message);
       message.success(intl.formatMessage({ id: successKey }));
       router.replace("/auth/reset-password");
@@ -108,13 +112,17 @@ export function useOTPResend() {
 
 export function useResetPassword () {
   const intl = useIntl();
+  const router = useRouter();
 
   return useMutation({
     mutationKey: ["reset-password"],
     mutationFn: async (input: any) => await ResetPassword(input),
     onSuccess: (data) => {
+      localStorage.removeItem("password_reset_email");
+      localStorage.removeItem("email");
       const successKey = getSuccessMessage(data?.message);
       message.success(intl.formatMessage({ id: successKey }));
+      router.replace("/auth/signin");
       return data;
     },
     onError: (error) => {
