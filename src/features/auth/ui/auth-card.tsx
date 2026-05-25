@@ -6,6 +6,8 @@ import { FormattedMessage } from "react-intl";
 import Image from "next/image";
 import lightLogo from "../../../../public/assets/PNGs/logo.png";
 import darkLogo from "../../../../public/assets/PNGs/logo_dark.png";
+import LanguageSwitcher from "@/components/ui (generic)/language-swticher";
+import { ThemeModeButton } from "@/components/layout/app-header/header-menu";
 
 const { Title, Text } = Typography;
 
@@ -25,6 +27,10 @@ const AuthCard = ({ children, title, subtitle }: Props) => {
     <div className="relative min-h-screen overflow-hidden bg-[#f5f5f8] px-4 py-8 text-gray-900 dark:bg-[#0b0b0f] dark:text-white sm:px-6 lg:px-8">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(0,0,0,0.03),_transparent_35%),radial-gradient(circle_at_bottom,_rgba(168,85,247,0.06),_transparent_30%)] dark:bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.06),_transparent_35%),radial-gradient(circle_at_bottom,_rgba(168,85,247,0.12),_transparent_30%)]" />
       <div className="pointer-events-none absolute inset-0 opacity-[0.06] [background-image:linear-gradient(rgba(0,0,0,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.08)_1px,transparent_1px)] [background-size:40px_40px] dark:opacity-[0.08] dark:[background-image:linear-gradient(rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.08)_1px,transparent_1px)]" />
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl justify-end gap-3 pb-4">
+        <LanguageSwitcher />
+        <ThemeModeButton />
+      </div>
 
       <div className="relative mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-6xl items-center justify-center">
         <div className="grid w-full overflow-hidden rounded-[32px] border border-gray-200 bg-white/95 shadow-[0_30px_80px_rgba(0,0,0,0.10)] backdrop-blur dark:border-white/8 dark:bg-[#151519]/95 dark:shadow-[0_30px_120px_rgba(0,0,0,0.55)] xl:grid-cols-[1.02fr_0.9fr]">

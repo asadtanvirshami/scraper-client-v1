@@ -10,12 +10,27 @@
     "emails": "Emails",
     "notifications": "Notificaciones",
     "settings": "ConfiguraciÃ³n",
+    "scrape_jobs": "Trabajos de scraping",
+    "email_templates": "Plantillas de correo",
+    "growth": "Crecimiento",
+    "records": "Registros",
+    "group": {
+      "command": "Comando",
+      "operations": "Operaciones",
+      "workspace": "Espacio de trabajo",
+      "pipeline": "Pipeline",
+      "system": "Sistema"
+    },
     "admin": {
       "dashboard": "Dashboard",
       "users": "Usuarios",
+      "quality": "Calidad",
       "bugs": "Errores",
       "notifications": "Notificaciones",
-      "reports": "Informes"
+      "reports": "Informes",
+      "feedbacks": "Feedbacks",
+      "account_pool": "Pool de cuentas",
+      "billing_management": "Gestión de facturación"
     },
 
     "role": {
@@ -60,6 +75,15 @@
       "confirm": {
         "delete_one": "Â¿Eliminar este feedback?",
         "delete_selected": "Â¿Eliminar {count} elemento(s) seleccionado(s)?"
+      },
+      "modal": {
+        "view": "Detalles del feedback",
+        "feedback": "Feedback",
+        "user": "Usuario",
+        "email": "Correo",
+        "created": "Creado",
+        "updated": "Actualizado",
+        "id": "ID"
       }
     },
     "bugs": {
@@ -71,6 +95,7 @@
       },
       "table": {
         "bug": "Bug",
+        "status": "Estado",
         "user": "Usuario",
         "created": "Creado",
         "updated": "Actualizado"
@@ -78,6 +103,23 @@
       "confirm": {
         "delete_one": "Â¿Eliminar este bug?",
         "delete_selected": "Â¿Eliminar {count} elemento(s) seleccionado(s)?"
+      },
+      "status": {
+        "open": "Abierto",
+        "in_progress": "En progreso",
+        "resolved": "Resuelto"
+      },
+      "modal": {
+        "view": "Detalles del bug",
+        "edit": "Editar bug",
+        "bug_description": "Descripción del bug",
+        "bug_description_required": "Por favor ingresa la descripción del bug",
+        "status_required": "Por favor selecciona un estado",
+        "user": "Usuario",
+        "email": "Correo",
+        "created": "Creado",
+        "updated": "Actualizado",
+        "id": "ID"
       }
     },
     "users": {
@@ -91,6 +133,7 @@
         "placeholder": "Buscar por nombre o correo..."
       },
       "table": {
+        "user": "Usuario",
         "name": "Nombre",
         "email": "Correo",
         "role": "Rol",
@@ -107,6 +150,41 @@
         "delete_one": "Â¿Eliminar este usuario?",
         "delete_selected": "Â¿Eliminar {count} usuario(s) seleccionado(s)?"
       }
+    }
+  },
+
+  "onboarding": {
+    "title": "¡Bienvenido a DataHarvX!",
+    "subtitle": "Vamos a dejar todo listo en solo unos pasos.",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "skip": "Omitir",
+    "complete": "Completar configuración",
+    "step1": {
+      "title": "¿Cómo supiste de nosotros?",
+      "question": "¿Cómo conociste DataHarvX?",
+      "description": "Ayúdanos a entender cómo nos encontraste.",
+      "success": "¡Paso 1 completado con éxito!",
+      "error": "No se pudieron guardar los datos del paso 1.",
+      "validation": {
+        "required": "Selecciona cómo supiste de nosotros"
+      },
+      "option": {
+        "word_of_mouth": "Recomendación"
+      }
+    },
+    "step2": {
+      "title": "Cuéntanos sobre tu negocio",
+      "question": "Cuéntanos sobre tu negocio",
+      "description": "Ayúdanos a personalizar tu experiencia.",
+      "success": "¡Onboarding completado con éxito!",
+      "error": "No se pudo completar el onboarding.",
+      "business_name": "Nombre del negocio",
+      "business_name_placeholder": "Ingresa el nombre de tu negocio",
+      "business_name_min": "El nombre del negocio debe tener al menos 2 caracteres",
+      "business_website": "Sitio web del negocio",
+      "business_website_placeholder": "https://tuweb.com",
+      "business_website_invalid": "Ingresa una URL válida (que comience con http:// o https://)"
     }
   },
 
@@ -462,9 +540,12 @@
     "save_failed": "Error al guardar",
     "deleted": "Eliminado",
     "delete_failed": "Error al eliminar",
+    "updated": "Actualizado",
+    "update_failed": "Error al actualizar",
     "bulk_delete_failed": "Error al eliminar en lote",
     "clear": "Limpiar",
     "view": "Ver",
+    "edit": "Editar",
     "view_all": "Ver Todos",
     "end_of_list": "Fin de la lista",
     "blocked": "Usuario bloqueado",
@@ -481,7 +562,11 @@
     "range_placeholder": {
       "start": "Fecha de inicio",
       "end": "Fecha de fin"
-    }
+    },
+    "pagination": {
+      "range_total": "{start}-{end} de {total} elementos"
+    },
+    "close": "Cerrar"
   },
   "errors": {
     "global": {
@@ -595,6 +680,210 @@
     }
   },
 
+  "analysis": {
+    "home": {
+      "title": "Análisis",
+      "subtitle": "Selecciona una plataforma para continuar con el análisis a nivel de servicio."
+    },
+    "profile": {
+      "label": "Perfil"
+    },
+    "platform": {
+      "instagram": {
+        "title": "Instagram",
+        "description": "Explora datos de cuentas y contenido de Instagram con opciones de análisis por servicio.",
+        "subtitle": "Elige entre servicios de extracción individual o masiva y continúa con el mismo flujo de scraping usado en Leads.",
+        "individual_section": "Extracción de perfil individual",
+        "single_card": {
+          "title": "Extracción de perfil individual",
+          "description": "Extrae detalles del perfil de una sola cuenta de Instagram y revisa los resultados."
+        },
+        "bulk_section": "Servicios de extracción masiva",
+        "bulk_subtitle": "Selecciona un servicio para ejecutar extracción masiva de seguidores o seguidos."
+      },
+      "linkedin": {
+        "title": "LinkedIn",
+        "description": "Ejecuta servicios de análisis de perfiles y seguidores sobre perfiles y redes de LinkedIn."
+      }
+    },
+    "services": {
+      "followers": {
+        "title": "Seguidores de la cuenta",
+        "short_title": "Seguidores",
+        "description": "Analiza audiencias de seguidores para tendencias de crecimiento, calidad de perfiles e insights de segmentación."
+      },
+      "following": {
+        "title": "Seguidos de la cuenta",
+        "short_title": "Seguidos",
+        "description": "Revisa listas de seguidos para entender afinidad de la cuenta, estilo de segmentación y patrones de relación."
+      }
+    },
+    "service": {
+      "linkedin_unsupported": {
+        "title": "LinkedIn no admite este servicio de análisis.",
+        "subtitle": "La extracción de seguidores y seguidos está disponible solo para Instagram."
+      }
+    },
+    "profile_extractor": {
+      "instagram_title": "Extracción de perfil de Instagram",
+      "instagram_subtitle": "Extrae un perfil de Instagram y revisa los leads obtenidos abajo.",
+      "linkedin_title": "Extracción de perfil de LinkedIn",
+      "linkedin_subtitle": "Extrae un perfil de LinkedIn y revisa los leads obtenidos abajo.",
+      "settings": "Configuración del scraper",
+      "info": "El scraping puede tardar varios minutos según el tamaño de la fuente. Los resultados aparecerán en la tabla inferior.",
+      "folder": "Seleccionar carpeta",
+      "profile_url": "URL del perfil",
+      "submit": "Iniciar scraping",
+      "results": "Leads extraídos",
+      "folder.required": "Por favor selecciona una carpeta",
+      "folder.placeholder": "Elige una carpeta",
+      "profile_url.required": "Por favor ingresa la URL de un perfil",
+      "profile_url.placeholder": "https://...",
+      "results.empty": "Envía el formulario de arriba para comenzar el scraping. Los resultados aparecerán aquí."
+    },
+    "analyzer": {
+      "linkedin": {
+        "title": "Analizador de LinkedIn",
+        "subtitle": "Extrae seguidores o seguidos de cualquier perfil de LinkedIn",
+        "username_label": "URL del perfil de LinkedIn",
+        "username_placeholder": "p. ej., john-smith-12345 o company/acme"
+      },
+      "twitter": {
+        "title": "Analizador de Twitter (X)",
+        "subtitle": "Extrae seguidores o seguidos de cualquier cuenta de Twitter (X)",
+        "username_label": "Usuario de Twitter",
+        "username_placeholder": "p. ej., elonmusk"
+      },
+      "credits": {
+        "insufficient_title": "Créditos insuficientes",
+        "insufficient_content": "No te quedan créditos. Actualiza tu plan para continuar con el scraping.",
+        "go_billing": "Ir a facturación",
+        "low_title": "Aviso de pocos créditos",
+        "low_content": "Solo te quedan {credits} crédito(s). El scraping puede detenerse antes si se agotan. ¿Continuar?",
+        "continue": "Continuar",
+        "none_remaining": "No te quedan créditos. Actualiza tu plan para iniciar el scraping.",
+        "low_banner": "Créditos bajos: quedan {credits}. El scraping puede detenerse antes si se agotan.",
+        "upgrade_plan": "Actualizar plan"
+      },
+      "background_running": {
+        "title": "El scraping se está ejecutando en segundo plano.",
+        "body": "Cerrar esta ventana no detendrá el scraping, pero mantén esta pestaña abierta para ver cómo aparecen los resultados en la tabla en tiempo real.",
+        "saved_so_far": "{count} guardados hasta ahora"
+      },
+      "status": {
+        "paused": "Pausado",
+        "active": "Activo",
+        "queued": "En cola",
+        "completed": "Completado",
+        "failed": "Fallido"
+      },
+      "actions": {
+        "pause": "Pausar",
+        "resume": "Reanudar",
+        "running": "Ejecutándose...",
+        "starting": "Iniciando...",
+        "paused": "Scraping pausado",
+        "pause_failed": "No se pudo pausar el scraping",
+        "resumed": "Scraping reanudado",
+        "resume_failed": "No se pudo reanudar el scraping",
+        "deleted": "Trabajo de scraping eliminado",
+        "delete_failed": "No se pudo eliminar el trabajo de scraping"
+      },
+      "stats": {
+        "profiles_fetched": "Perfiles obtenidos",
+        "total_scraped": "Total extraído",
+        "saved_to_db": "Guardados en BD",
+        "deep_scan_completed": "Escaneo profundo completado"
+      }
+    },
+    "scrape_jobs": {
+      "title": "Trabajos de scraping",
+      "subtitle": "Todos tus trabajos de scraping de Instagram y sus resultados",
+      "refresh": "Actualizar",
+      "load_failed": "No se pudieron cargar los trabajos de scraping",
+      "empty": "No se encontraron trabajos de scraping. Inicia uno desde la página de análisis.",
+      "live_progress": "{completed} / {total} perfiles obtenidos",
+      "pagination_total": "{count} trabajos",
+      "summary": {
+        "total_jobs": "Trabajos totales",
+        "active": "Activos",
+        "completed": "Completados"
+      },
+      "status": {
+        "paused": "Pausado",
+        "active": "Activo",
+        "queued": "En cola",
+        "completed": "Completado",
+        "failed": "Fallido"
+      },
+      "actions": {
+        "pause": "Pausar",
+        "resume": "Reanudar",
+        "paused": "Trabajo pausado",
+        "pause_failed": "No se pudo pausar el trabajo",
+        "resumed": "Trabajo reanudado",
+        "resume_failed": "No se pudo reanudar el trabajo",
+        "deleted": "Trabajo eliminado",
+        "delete_failed": "No se pudo eliminar el trabajo"
+      },
+      "table": {
+        "target": "Objetivo",
+        "type": "Tipo",
+        "status": "Estado",
+        "saved": "Guardados",
+        "total_on_profile": "Total en el perfil",
+        "started": "Iniciado",
+        "finished": "Finalizado",
+        "error": "Error"
+      },
+      "leads": {
+        "load_failed": "No se pudieron cargar los leads de este trabajo",
+        "scraped_from": "Leads extraídos de @{username}",
+        "total": "{count} total",
+        "pagination_total": "{count} leads",
+        "empty": "Todavía no se encontraron leads para este trabajo.",
+        "table": {
+          "avatar": "Avatar",
+          "username": "Usuario",
+          "full_name": "Nombre completo",
+          "followers": "Seguidores",
+          "emails": "Correos",
+          "phones": "Teléfonos",
+          "verified": "Verificado",
+          "verified_yes": "Sí",
+          "private": "Privado",
+          "private_value": "Privado",
+          "public_value": "Público"
+        }
+      }
+    }
+  },
+
+  "header": {
+    "breadcrumbs": {
+      "app": "App",
+      "create": "Crear",
+      "edit": "Editar",
+      "email_templates": "Plantillas de correo"
+    },
+    "navigation": {
+      "toggle_mode": "Cambiar modo de navegación",
+      "primary": "Navegación principal",
+      "use_bottom_deck": "Usar barra inferior",
+      "use_sidebar": "Usar barra lateral"
+    },
+    "theme": {
+      "switch_to_light": "Cambiar a modo claro",
+      "switch_to_dark": "Cambiar a modo oscuro"
+    },
+    "account": {
+      "tooltip": "Cuenta",
+      "fallback_name": "Cuenta",
+      "settings": "Configuración",
+      "sign_out": "Cerrar sesión"
+    }
+  },
+
   "leads": {
     "page": {
       "title": "Leads",
@@ -614,9 +903,21 @@
       "view_all": "Ver todos",
       "download": "Descargar",
       "add_to_leads": "AÃ±adir a leads",
+      "send_to_folder": "Enviar a carpeta",
       "approve_all": "Aprobar Todos",
       "upload": "Subir Archivo",
       "upload_csv_xlsx": "Subir CSV/XLSX"
+    },
+    "send_to_folder": {
+      "title": "Enviar a carpeta",
+      "description": "Selecciona una carpeta para mover este lead.",
+      "placeholder": "Selecciona una carpeta",
+      "confirm": "Mover a carpeta",
+      "bulk_button": "Mover a carpeta",
+      "bulk_title": "Mover leads seleccionados a una carpeta",
+      "bulk_description": "Selecciona una carpeta para mover {count} lead(s) seleccionado(s).",
+      "success": "Lead(s) movido(s) a la carpeta",
+      "failed": "No se pudo mover el/los lead(s)"
     },
     "upload": {
       "title": "ImportaciÃ³n Masiva de Leads",

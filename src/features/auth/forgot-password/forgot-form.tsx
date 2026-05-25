@@ -51,10 +51,11 @@ const ForgotPassForm: React.FC = () => {
 
       <div className="pt-2">
         <Button
+          type="primary"
           loading={forgotPassMutation.isPending}
           htmlType="submit"
           block
-          className="!h-13 !rounded-2xl !border-0 !bg-[#f2f2f3] !text-[17px] !font-bold !text-[#17171b] shadow-none hover:!bg-white"
+          className="!h-13 !rounded-2xl !border-0 !text-[17px] !font-bold shadow-none"
         >
           <FormattedMessage id="auth.forgot_password.buttonCTA" />
         </Button>

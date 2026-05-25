@@ -6,7 +6,7 @@ const ForgotPasswordLayout = () => {
   return (
     <div className="w-full">
       <AuthCard
-        title="auth.reset_password.title"
+        title="auth.forgot_password.title"
         subtitle="auth.forgot_password.description"
         children={<ForgotPassForm />}
       />

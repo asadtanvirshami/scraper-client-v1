@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 
 import { useUpdateOnboarding } from "@/features/onboarding/hooks";
 import { useUserInfo } from "@/helpers/use-user";
+import LanguageSwitcher from "@/components/ui (generic)/language-swticher";
+import { ThemeModeButton } from "@/components/layout/app-header/header-menu";
 import Step1Form from "./ui/step1-form";
 import Step2Form from "./ui/step2-form";
 
@@ -48,9 +50,19 @@ const OnboardingLayout: React.FC = () => {
       });
       setStep1Data(data);
       setCurrentStep(1);
-      message.success("Step 1 completed successfully!");
+      message.success(
+        intl.formatMessage({
+          id: "onboarding.step1.success",
+          defaultMessage: "Step 1 completed successfully!",
+        }),
+      );
     } catch (error) {
-      message.error("Failed to save step 1 data");
+      message.error(
+        intl.formatMessage({
+          id: "onboarding.step1.error",
+          defaultMessage: "Failed to save step 1 data.",
+        }),
+      );
     }
   };
 
@@ -62,10 +74,20 @@ const OnboardingLayout: React.FC = () => {
         business_website: data.business_website,
       });
       setStep2Data(data);
-      message.success("Onboarding completed successfully!");
+      message.success(
+        intl.formatMessage({
+          id: "onboarding.step2.success",
+          defaultMessage: "Onboarding completed successfully!",
+        }),
+      );
       router.push("/dashboard");
     } catch (error) {
-      message.error("Failed to complete onboarding");
+      message.error(
+        intl.formatMessage({
+          id: "onboarding.step2.error",
+          defaultMessage: "Failed to complete onboarding.",
+        }),
+      );
     }
   };
 
@@ -103,8 +125,13 @@ const OnboardingLayout: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <Card className="w-full max-w-4xl shadow-lg">
+    <div className="min-h-screen bg-[#f4f5f8] p-4 text-gray-900 transition-colors dark:bg-[#0b0b0f] dark:text-white">
+      <div className="mx-auto flex w-full max-w-5xl justify-end gap-3 pb-4">
+        <LanguageSwitcher />
+        <ThemeModeButton />
+      </div>
+      <div className="flex items-center justify-center">
+        <Card className="w-full max-w-4xl border border-gray-200/80 bg-white/95 shadow-[0_30px_80px_rgba(0,0,0,0.10)] dark:border-white/10 dark:bg-[#151519]/95 dark:shadow-[0_30px_120px_rgba(0,0,0,0.55)]">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-center mb-2">
             {intl.formatMessage({
@@ -112,7 +139,7 @@ const OnboardingLayout: React.FC = () => {
               defaultMessage: "Welcome to DataHarvX!",
             })}
           </h1>
-          <p className="text-gray-600 text-center">
+          <p className="text-center text-gray-600 dark:text-white/60">
             {intl.formatMessage({
               id: "onboarding.subtitle",
               defaultMessage: "Let's get you set up in just a few steps.",
@@ -129,7 +156,8 @@ const OnboardingLayout: React.FC = () => {
         <div className="min-h-[300px]">
           {steps[currentStep].content}
         </div>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 };

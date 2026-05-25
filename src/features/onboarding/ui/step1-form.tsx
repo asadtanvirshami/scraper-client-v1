@@ -58,7 +58,7 @@ const Step1Form: React.FC<Step1FormProps> = ({ onSubmit, initialData }) => {
             defaultMessage: "How did you hear about DataHarvX?",
           })}
         </h2>
-        <p className="text-gray-600">
+        <p className="text-gray-600 dark:text-white/60">
           {intl.formatMessage({
             id: "onboarding.step1.description",
             defaultMessage: "Help us understand how you found us.",
@@ -83,7 +83,7 @@ const Step1Form: React.FC<Step1FormProps> = ({ onSubmit, initialData }) => {
             {options.map((option) => (
               <div
                 key={option.value}
-                className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors"
+                className="rounded-lg border border-gray-200 p-4 transition-colors hover:border-violet-400 dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-violet-300"
               >
                 <Radio value={option.value} className="w-full">
                   <span className="text-base">{option.label}</span>

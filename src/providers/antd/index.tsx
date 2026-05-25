@@ -2,11 +2,14 @@
 
 import { ConfigProvider, theme } from "antd";
 import React, { useEffect, useMemo, useState } from "react";
+import enUS from "antd/locale/en_US";
 import esES from "antd/locale/es_ES";
+import { useLanguage } from "@/hooks/language/use-language";
 
 const { defaultAlgorithm, darkAlgorithm } = theme;
 
 export default function Providers({ children }: { children: React.ReactNode }) {
+  const { language } = useLanguage();
   const [isDark, setIsDark] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -92,7 +95,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <ConfigProvider
-      locale={esES}
+      locale={language === "es" ? esES : enUS}
       theme={{
         algorithm: isDark ? darkAlgorithm : defaultAlgorithm,
         token: {
@@ -151,6 +154,11 @@ export default function Providers({ children }: { children: React.ReactNode }) {
             optionSelectedBg: palette.selectedBg,
             optionActiveBg: palette.hoverBg,
           },
+          Table: {
+            headerBg: isDark ? "rgba(255,255,255,0.03)" : "#f8fafc",
+            headerColor: palette.textBase,
+            rowHoverBg: palette.hoverBg,
+          },
           Tabs: {
             inkBarColor: palette.accent,
             itemSelectedColor: palette.accent,
@@ -166,6 +174,23 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           },
           Divider: {
             colorSplit: palette.border,
+          },
+          Modal: {
+            contentBg: palette.bgContainer,
+            headerBg: palette.bgContainer,
+            titleColor: palette.textBase,
+          },
+          Drawer: {
+            colorBgElevated: palette.bgElevated,
+          },
+          Pagination: {
+            itemActiveBg: palette.selectedBg,
+          },
+          Descriptions: {
+            labelBg: isDark ? "rgba(255,255,255,0.03)" : "#fafafa",
+          },
+          Segmented: {
+            trackBg: isDark ? "rgba(255,255,255,0.04)" : "rgba(9,9,11,0.04)",
           },
         },
       }}

@@ -14,6 +14,7 @@ import { logoutUser } from "@/redux/slices/user/user-slice";
 import { clearAuthCookies } from "@/lib/cookies";
 import { useRouter } from "next/navigation";
 import { persistor } from "@/redux/store";
+import { useIntl } from "react-intl";
 
 const { Text } = Typography;
 
@@ -36,6 +37,7 @@ const iconBtnStyle: React.CSSProperties = {
 const ThemeModeButton: React.FC = () => {
   const [isDark, setIsDark] = useState(false);
   const { token } = theme.useToken();
+  const intl = useIntl();
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -52,7 +54,14 @@ const ThemeModeButton: React.FC = () => {
   };
 
   return (
-    <Tooltip title={isDark ? "Switch to light mode" : "Switch to dark mode"} placement="bottom">
+    <Tooltip
+      title={intl.formatMessage({
+        id: isDark
+          ? "header.theme.switch_to_light"
+          : "header.theme.switch_to_dark",
+      })}
+      placement="bottom"
+    >
       <button
         style={{ ...iconBtnStyle, color: token.colorTextSecondary }}
         onClick={handleToggleTheme}
@@ -70,8 +79,11 @@ const ProfileDropdown: React.FC = () => {
   const { user } = useUserInfo();
   const { token } = theme.useToken();
   const router = useRouter();
+  const intl = useIntl();
 
-  const fullName = [user?.first_name, user?.last_name].filter(Boolean).join(" ") || "Account";
+  const fullName =
+    [user?.first_name, user?.last_name].filter(Boolean).join(" ") ||
+    intl.formatMessage({ id: "header.account.fallback_name" });
 
   const items: MenuProps["items"] = [
     {
@@ -87,13 +99,13 @@ const ProfileDropdown: React.FC = () => {
     {
       key: "settings",
       icon: <SettingOutlined />,
-      label: "Settings",
+      label: intl.formatMessage({ id: "header.account.settings" }),
       onClick: () => router.push("/settings"),
     },
   ];
 
   return (
-    <Tooltip title="Account" placement="bottom">
+    <Tooltip title={intl.formatMessage({ id: "header.account.tooltip" })} placement="bottom">
       <Dropdown menu={{ items }} trigger={["click"]} placement="bottomRight">
         <button
           style={{
@@ -125,6 +137,7 @@ const LogoutButton: React.FC = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const { token } = theme.useToken();
+  const intl = useIntl();
 
   const handleLogout = async () => {
     try {
@@ -138,7 +151,7 @@ const LogoutButton: React.FC = () => {
   };
 
   return (
-    <Tooltip title="Sign out" placement="bottom">
+    <Tooltip title={intl.formatMessage({ id: "header.account.sign_out" })} placement="bottom">
       <button
         style={{ ...iconBtnStyle, color: token.colorTextSecondary }}
         onClick={handleLogout}

@@ -1,8 +1,0 @@
-# Environment
-NODE_ENV="production"
-
-# BASE_URL
-NEXT_PUBLIC_BASE_URL=https://api.dataharvx.com
-
-# Google OAuth
-NEXT_PUBLIC_GOOGLE_CLIENT_ID=599942742401-dr4lk2jcotksej590glhq2t7pglpvgg3.apps.googleusercontent.com

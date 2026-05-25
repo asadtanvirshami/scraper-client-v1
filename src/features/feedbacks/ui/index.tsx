@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { Modal, Button, Descriptions, Tag, Space } from "antd";
+import { Modal, Button, Descriptions, Space, theme } from "antd";
 import { FormattedMessage, useIntl } from "react-intl";
-import { MessageOutlined, UserOutlined, ClockCircleOutlined, CheckCircleOutlined } from "@ant-design/icons";
+import { MessageOutlined, UserOutlined, ClockCircleOutlined } from "@ant-design/icons";
 import FeedbacksTableServer, { FeedbackItem, ServerFilters } from "./table";
 import {
   useFeedbacksList,
@@ -12,6 +12,7 @@ import {
 
 const FeedBackLayout: React.FC = () => {
   const intl = useIntl();
+  const { token } = theme.useToken();
   const { feedbacks, total, isLoading, query, setQuery, refetch } =
     useFeedbacksList();
   const deleteFeedbackMutation = useDeleteFeedback();
@@ -44,6 +45,17 @@ const FeedBackLayout: React.FC = () => {
     setViewingFeedback(feedback);
     setIsViewModalOpen(true);
   };
+  const formatDateTime = (value?: string) =>
+    value
+      ? `${intl.formatDate(new Date(value), {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        })} ${intl.formatTime(new Date(value), {
+          hour: "numeric",
+          minute: "2-digit",
+        })}`
+      : "-";
 
   return (
     <>
@@ -101,7 +113,15 @@ const FeedBackLayout: React.FC = () => {
               labelStyle={{ fontWeight: 600, width: "30%" }}
             >
               <Descriptions.Item
-                label={<><MessageOutlined className="mr-1" /> Feedback</>}
+                label={
+                  <>
+                    <MessageOutlined className="mr-1" />{" "}
+                    <FormattedMessage
+                      id="admin.feedbacks.modal.feedback"
+                      defaultMessage="Feedback"
+                    />
+                  </>
+                }
               >
                 <div style={{ whiteSpace: "pre-wrap", maxHeight: 200, overflowY: "auto" }}>
                   {viewingFeedback.feedback || "-"}
@@ -109,7 +129,15 @@ const FeedBackLayout: React.FC = () => {
               </Descriptions.Item>
 
               <Descriptions.Item
-                label={<><UserOutlined className="mr-1" /> User</>}
+                label={
+                  <>
+                    <UserOutlined className="mr-1" />{" "}
+                    <FormattedMessage
+                      id="admin.feedbacks.modal.user"
+                      defaultMessage="User"
+                    />
+                  </>
+                }
               >
                 {typeof viewingFeedback.user_id === "string"
                   ? viewingFeedback.user_id
@@ -119,7 +147,12 @@ const FeedBackLayout: React.FC = () => {
               </Descriptions.Item>
 
               <Descriptions.Item
-                label="Email"
+                label={
+                  <FormattedMessage
+                    id="admin.feedbacks.modal.email"
+                    defaultMessage="Email"
+                  />
+                }
               >
                 {typeof viewingFeedback.user_id === "string"
                   ? "-"
@@ -127,23 +160,48 @@ const FeedBackLayout: React.FC = () => {
               </Descriptions.Item>
 
               <Descriptions.Item
-                label={<><ClockCircleOutlined className="mr-1" /> Created</>}
+                label={
+                  <>
+                    <ClockCircleOutlined className="mr-1" />{" "}
+                    <FormattedMessage
+                      id="admin.feedbacks.modal.created"
+                      defaultMessage="Created"
+                    />
+                  </>
+                }
               >
-                {viewingFeedback.createdAt
-                  ? new Date(viewingFeedback.createdAt).toLocaleString()
-                  : "-"}
+                {formatDateTime(viewingFeedback.createdAt)}
               </Descriptions.Item>
 
               <Descriptions.Item
-                label={<><ClockCircleOutlined className="mr-1" /> Updated</>}
+                label={
+                  <>
+                    <ClockCircleOutlined className="mr-1" />{" "}
+                    <FormattedMessage
+                      id="admin.feedbacks.modal.updated"
+                      defaultMessage="Updated"
+                    />
+                  </>
+                }
               >
-                {viewingFeedback.updatedAt
-                  ? new Date(viewingFeedback.updatedAt).toLocaleString()
-                  : "-"}
+                {formatDateTime(viewingFeedback.updatedAt)}
               </Descriptions.Item>
 
-              <Descriptions.Item label="ID">
-                <span style={{ fontSize: 12, fontFamily: "monospace", color: "#666" }}>
+              <Descriptions.Item
+                label={
+                  <FormattedMessage
+                    id="admin.feedbacks.modal.id"
+                    defaultMessage="ID"
+                  />
+                }
+              >
+                <span
+                  style={{
+                    fontSize: 12,
+                    fontFamily: "monospace",
+                    color: token.colorTextTertiary,
+                  }}
+                >
                   {viewingFeedback._id}
                 </span>
               </Descriptions.Item>

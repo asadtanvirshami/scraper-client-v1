@@ -15,6 +15,7 @@ import {
   Modal,
   Descriptions,
   Avatar,
+  theme,
 } from "antd";
 import {
   ReloadOutlined,
@@ -110,6 +111,7 @@ const UsersTableServer: React.FC<Props> = ({
 }) => {
   const { Text } = Typography;
   const intl = useIntl();
+  const { token } = theme.useToken();
 
   const filters = value;
 
@@ -205,7 +207,9 @@ const UsersTableServer: React.FC<Props> = ({
               <div className="font-medium">
                 {user.first_name} {user.last_name || ""}
               </div>
-              <div className="text-xs text-gray-500">{user.email}</div>
+              <div className="text-xs text-gray-500 dark:text-white/60">
+                {user.email}
+              </div>
             </div>
           </Space>
         ),
@@ -459,6 +463,17 @@ const UsersTableServer: React.FC<Props> = ({
       : undefined;
 
   const isDirtySearch = (searchDraft || "").trim() !== (filters.search || "");
+  const formatDateTime = (value?: string | Date) =>
+    value
+      ? `${intl.formatDate(new Date(value), {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        })} ${intl.formatTime(new Date(value), {
+          hour: "numeric",
+          minute: "2-digit",
+        })}`
+      : "-";
 
   return (
     <>
@@ -512,8 +527,8 @@ const UsersTableServer: React.FC<Props> = ({
         }
         style={{
           borderRadius: 8,
-          boxShadow:
-            "0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02)",
+          border: `1px solid ${token.colorBorderSecondary}`,
+          boxShadow: token.boxShadowSecondary,
         }}
       >
         {showFilters && (
@@ -521,7 +536,7 @@ const UsersTableServer: React.FC<Props> = ({
             className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
             style={{
               padding: "16px",
-              background: "#fafafa",
+              background: token.colorFillAlter,
               borderRadius: 8,
               marginBottom: 16,
             }}
@@ -570,14 +585,24 @@ const UsersTableServer: React.FC<Props> = ({
           dataSource={data}
           onChange={handleChange}
           rowSelection={rowSelection}
-          pagination={{
-            current: filters.page,
-            pageSize: filters.limit,
-            total,
-            showSizeChanger: true,
-            showTotal: (total, range) =>
-              `${range[0]}-${range[1]} of ${total} items`,
-          }}
+          pagination={
+            showFilters
+              ? {
+                  current: filters.page,
+                  pageSize: filters.limit,
+                  total,
+                  showSizeChanger: true,
+                  showTotal: (total, range) =>
+                    intl.formatMessage(
+                      {
+                        id: "commons.pagination.range_total",
+                        defaultMessage: "{start}-{end} of {total} items",
+                      },
+                      { start: range[0], end: range[1], total },
+                    ),
+                }
+              : false
+          }
           size="middle"
           scroll={{ x: 900 }}
           locale={{
@@ -622,23 +647,25 @@ const UsersTableServer: React.FC<Props> = ({
             </Descriptions.Item>
 
             <Descriptions.Item
-              label={intl.formatMessage({ id: "commons.verified" })}
+              label={intl.formatMessage({ id: "admin.users.table.verified" })}
             >
-              {selectedUser.is_verified ? "Yes" : "No"}
+              {selectedUser.is_verified
+                ? intl.formatMessage({ id: "commons.yes" })
+                : intl.formatMessage({ id: "commons.no" })}
             </Descriptions.Item>
 
             <Descriptions.Item
-              label={intl.formatMessage({ id: "commons.blocked" })}
+              label={intl.formatMessage({ id: "admin.users.table.blocked" })}
             >
-              {selectedUser.is_blocked ? "Yes" : "No"}
+              {selectedUser.is_blocked
+                ? intl.formatMessage({ id: "commons.yes" })
+                : intl.formatMessage({ id: "commons.no" })}
             </Descriptions.Item>
 
             <Descriptions.Item
               label={intl.formatMessage({ id: "commons.created" })}
             >
-              {selectedUser.created
-                ? new Date(selectedUser.created).toLocaleString()
-                : "-"}
+              {formatDateTime(selectedUser.created)}
             </Descriptions.Item>
           </Descriptions>
         )}

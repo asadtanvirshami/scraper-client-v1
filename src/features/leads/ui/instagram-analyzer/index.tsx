@@ -32,6 +32,7 @@ import {
   TeamOutlined,
   SafetyCertificateOutlined,
   SaveOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -78,14 +79,54 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
   const isTwitter = platform === "twitter";
   const isLinkedIn = platform === "linkedin";
   const PlatformIcon = isTwitter ? TwitterOutlined : isLinkedIn ? LinkedinOutlined : InstagramOutlined;
-  const titleText = isLinkedIn ? "LinkedIn Analyzer" : isTwitter ? "Twitter (X) Analyzer" : "Instagram Analyzer";
-  const subtitleText = isLinkedIn
-    ? "Scrape followers or following from any LinkedIn profile"
-    : isTwitter
-    ? "Scrape followers or following from any Twitter (X) account"
-    : "Scrape followers or following from any Instagram account";
-  const usernameLabel = isLinkedIn ? "LinkedIn Profile URL" : isTwitter ? "Twitter Username" : "Instagram Username";
-  const usernamePlaceholder = isLinkedIn ? "e.g., john-smith-12345 or company/acme" : isTwitter ? "e.g., elonmusk" : "e.g., filmdirectorbrucemac";
+  const titleText = intl.formatMessage({
+    id: isLinkedIn
+      ? "analysis.analyzer.linkedin.title"
+      : isTwitter
+        ? "analysis.analyzer.twitter.title"
+        : "leads.instagram_analyzer.title",
+    defaultMessage: isLinkedIn
+      ? "LinkedIn Analyzer"
+      : isTwitter
+        ? "Twitter (X) Analyzer"
+        : "Instagram Analyzer",
+  });
+  const subtitleText = intl.formatMessage({
+    id: isLinkedIn
+      ? "analysis.analyzer.linkedin.subtitle"
+      : isTwitter
+        ? "analysis.analyzer.twitter.subtitle"
+        : "leads.instagram_analyzer.subtitle",
+    defaultMessage: isLinkedIn
+      ? "Scrape followers or following from any LinkedIn profile"
+      : isTwitter
+        ? "Scrape followers or following from any Twitter (X) account"
+        : "Scrape followers or following from any Instagram account",
+  });
+  const usernameLabel = intl.formatMessage({
+    id: isLinkedIn
+      ? "analysis.analyzer.linkedin.username_label"
+      : isTwitter
+        ? "analysis.analyzer.twitter.username_label"
+        : "leads.instagram_analyzer.form.username",
+    defaultMessage: isLinkedIn
+      ? "LinkedIn Profile URL"
+      : isTwitter
+        ? "Twitter Username"
+        : "Instagram Username",
+  });
+  const usernamePlaceholder = intl.formatMessage({
+    id: isLinkedIn
+      ? "analysis.analyzer.linkedin.username_placeholder"
+      : isTwitter
+        ? "analysis.analyzer.twitter.username_placeholder"
+        : "leads.instagram_analyzer.form.username_placeholder",
+    defaultMessage: isLinkedIn
+      ? "e.g., john-smith-12345 or company/acme"
+      : isTwitter
+        ? "e.g., elonmusk"
+        : "e.g., filmdirectorbrucemac",
+  });
 
   const [scrapeQuery, setScrapeQuery] = useState({
     page: 1,
@@ -99,6 +140,8 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
   const [totalScraped, setTotalScraped] = useState<number | null>(null);
   const [deepScanCount, setDeepScanCount] = useState<number | null>(null);
   const [deepScanTotal, setDeepScanTotal] = useState<number | null>(null);
+  const [profilesFetched, setProfilesFetched] = useState<number | null>(null);
+  const [profilesTotal, setProfilesTotal] = useState<number | null>(null);
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [scrapedUsername, setScrapedUsername] = useState<string | null>(null);
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
@@ -166,22 +209,90 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
       setDeepScanCount(payload.deep_scan_count);
       setDeepScanTotal(payload.deep_scan_total);
     };
+    const followerCountHandler = (payload: {
+      completed: number;
+      total: number;
+    }) => {
+      setProfilesFetched(payload.completed);
+      setProfilesTotal(payload.total);
+    };
+    const enrichedCountHandler = (payload: {
+      job_id: string | null;
+      enriched_profile_count: number;
+    }) => {
+      const eventJobId = String(payload?.job_id || "").trim();
+      if (!eventJobId || !activeJobId || eventJobId !== activeJobId) {
+        return;
+      }
+
+      const increment = Number(payload?.enriched_profile_count) || 0;
+      if (increment <= 0) return;
+
+      setProfilesFetched((prev) => (prev ?? 0) + increment);
+    };
     socket.on("scrape:progress", progressHandler);
     socket.on("scrape:deepscan", deepscanHandler);
+    socket.on("scrape:follower_count", followerCountHandler);
+    socket.on("scrape:enriched_profile_count", enrichedCountHandler);
     return () => {
       socket.off("scrape:progress", progressHandler);
       socket.off("scrape:deepscan", deepscanHandler);
+      socket.off("scrape:follower_count", followerCountHandler);
+      socket.off("scrape:enriched_profile_count", enrichedCountHandler);
     };
-  }, [socket, refetchLeads]);
+  }, [socket, refetchLeads, activeJobId]);
 
   const statusChip = (() => {
     if (!activeJobId && !activeJobState) return null;
-    if (activeJobPaused) return <Tag color="orange">Paused</Tag>;
-    if (activeJobState === "active") return <Tag color="green">Active</Tag>;
+    if (activeJobPaused) {
+      return (
+        <Tag color="orange">
+          {intl.formatMessage({
+            id: "analysis.analyzer.status.paused",
+            defaultMessage: "Paused",
+          })}
+        </Tag>
+      );
+    }
+    if (activeJobState === "active") {
+      return (
+        <Tag color="green">
+          {intl.formatMessage({
+            id: "analysis.analyzer.status.active",
+            defaultMessage: "Active",
+          })}
+        </Tag>
+      );
+    }
     if (activeJobState === "waiting" || activeJobState === "delayed" || activeJobState === "prioritized")
-      return <Tag color="blue">Queued</Tag>;
-    if (activeJobState === "completed") return <Tag color="default">Completed</Tag>;
-    if (activeJobState === "failed") return <Tag color="red">Failed</Tag>;
+      return (
+        <Tag color="blue">
+          {intl.formatMessage({
+            id: "analysis.analyzer.status.queued",
+            defaultMessage: "Queued",
+          })}
+        </Tag>
+      );
+    if (activeJobState === "completed") {
+      return (
+        <Tag color="default">
+          {intl.formatMessage({
+            id: "analysis.analyzer.status.completed",
+            defaultMessage: "Completed",
+          })}
+        </Tag>
+      );
+    }
+    if (activeJobState === "failed") {
+      return (
+        <Tag color="red">
+          {intl.formatMessage({
+            id: "analysis.analyzer.status.failed",
+            defaultMessage: "Failed",
+          })}
+        </Tag>
+      );
+    }
     return null;
   })();
 
@@ -250,10 +361,19 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
     // ── Credits gate ─────────────────────────────────────────────────────────
     if (creditsRemaining !== null && creditsRemaining < 1) {
       Modal.error({
-        title: "Insufficient Credits",
-        content:
-          "You have 0 credits remaining. Please upgrade your plan to continue scraping.",
-        okText: "Go to Billing",
+        title: intl.formatMessage({
+          id: "analysis.analyzer.credits.insufficient_title",
+          defaultMessage: "Insufficient Credits",
+        }),
+        content: intl.formatMessage({
+          id: "analysis.analyzer.credits.insufficient_content",
+          defaultMessage:
+            "You have 0 credits remaining. Please upgrade your plan to continue scraping.",
+        }),
+        okText: intl.formatMessage({
+          id: "analysis.analyzer.credits.go_billing",
+          defaultMessage: "Go to Billing",
+        }),
         onOk: () => { window.location.href = "/billings"; },
       });
       return;
@@ -262,10 +382,26 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
     if (creditsRemaining !== null && creditsRemaining < 50) {
       const confirmed = await new Promise<boolean>((resolve) => {
         Modal.confirm({
-          title: "Low Credits Warning",
-          content: `You only have ${creditsRemaining.toLocaleString()} credit(s) remaining. The scrape may stop early if credits run out. Continue?`,
-          okText: "Continue",
-          cancelText: "Cancel",
+          title: intl.formatMessage({
+            id: "analysis.analyzer.credits.low_title",
+            defaultMessage: "Low Credits Warning",
+          }),
+          content: intl.formatMessage(
+            {
+              id: "analysis.analyzer.credits.low_content",
+              defaultMessage:
+                "You only have {credits} credit(s) remaining. The scrape may stop early if credits run out. Continue?",
+            },
+            { credits: creditsRemaining.toLocaleString() },
+          ),
+          okText: intl.formatMessage({
+            id: "analysis.analyzer.credits.continue",
+            defaultMessage: "Continue",
+          }),
+          cancelText: intl.formatMessage({
+            id: "commons.cancel",
+            defaultMessage: "Cancel",
+          }),
           onOk: () => resolve(true),
           onCancel: () => resolve(false),
         });
@@ -289,6 +425,8 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
       setTotalScraped(null);
       setDeepScanCount(null);
       setDeepScanTotal(null);
+      setProfilesFetched(0);
+      setProfilesTotal(null);
       setScrapeQuery((prev) => ({
         ...prev,
         page: 1,
@@ -315,9 +453,20 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
       const job = response?.data?.job;
       setActiveJobState(String(job?.state || activeJobState || "").toLowerCase() || null);
       setActiveJobPaused(Boolean(job?.control?.paused));
-      message.success("Scraping paused");
+      message.success(
+        intl.formatMessage({
+          id: "analysis.analyzer.actions.paused",
+          defaultMessage: "Scraping paused",
+        }),
+      );
     } catch (error: any) {
-      message.error(error?.response?.data?.message || "Failed to pause scraping");
+      message.error(
+        error?.response?.data?.message ||
+          intl.formatMessage({
+            id: "analysis.analyzer.actions.pause_failed",
+            defaultMessage: "Failed to pause scraping",
+          }),
+      );
     } finally {
       setControlLoading(null);
     }
@@ -331,9 +480,20 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
       const job = response?.data?.job;
       setActiveJobState(String(job?.state || activeJobState || "").toLowerCase() || null);
       setActiveJobPaused(Boolean(job?.control?.paused));
-      message.success("Scraping resumed");
+      message.success(
+        intl.formatMessage({
+          id: "analysis.analyzer.actions.resumed",
+          defaultMessage: "Scraping resumed",
+        }),
+      );
     } catch (error: any) {
-      message.error(error?.response?.data?.message || "Failed to resume scraping");
+      message.error(
+        error?.response?.data?.message ||
+          intl.formatMessage({
+            id: "analysis.analyzer.actions.resume_failed",
+            defaultMessage: "Failed to resume scraping",
+          }),
+      );
     } finally {
       setControlLoading(null);
     }
@@ -347,9 +507,20 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
       setActiveJobId(null);
       setActiveJobState(null);
       setActiveJobPaused(false);
-      message.success("Scraping job deleted");
+      message.success(
+        intl.formatMessage({
+          id: "analysis.analyzer.actions.deleted",
+          defaultMessage: "Scraping job deleted",
+        }),
+      );
     } catch (error: any) {
-      message.error(error?.response?.data?.message || "Failed to delete scraping job");
+      message.error(
+        error?.response?.data?.message ||
+          intl.formatMessage({
+            id: "analysis.analyzer.actions.delete_failed",
+            defaultMessage: "Failed to delete scraping job",
+          }),
+      );
     } finally {
       setControlLoading(null);
     }
@@ -397,13 +568,27 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
                   showIcon
                   message={
                     creditsRemaining < 1
-                      ? "You have no credits left. Upgrade your plan to start scraping."
-                      : `Low credits: ${creditsRemaining.toLocaleString()} remaining. The scrape may stop early if credits run out.`
+                      ? intl.formatMessage({
+                          id: "analysis.analyzer.credits.none_remaining",
+                          defaultMessage:
+                            "You have no credits left. Upgrade your plan to start scraping.",
+                        })
+                      : intl.formatMessage(
+                          {
+                            id: "analysis.analyzer.credits.low_banner",
+                            defaultMessage:
+                              "Low credits: {credits} remaining. The scrape may stop early if credits run out.",
+                          },
+                          { credits: creditsRemaining.toLocaleString() },
+                        )
                   }
                   action={
                     creditsRemaining < 1 ? (
                       <Button size="small" href="/billings" type="primary" danger>
-                        Upgrade Plan
+                        <FormattedMessage
+                          id="analysis.analyzer.credits.upgrade_plan"
+                          defaultMessage="Upgrade Plan"
+                        />
                       </Button>
                     ) : undefined
                   }
@@ -521,13 +706,28 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
                   showIcon
                   message={
                     <span>
-                      <strong>Scraping is running in the background.</strong>{" "}
-                      Closing this window won&apos;t stop the scrape, but{" "}
-                      <strong>keep this tab open</strong> to see results appear
-                      in the table in real time.
+                      <strong>
+                        {intl.formatMessage({
+                          id: "analysis.analyzer.background_running.title",
+                          defaultMessage: "Scraping is running in the background.",
+                        })}
+                      </strong>{" "}
+                      {intl.formatMessage({
+                        id: "analysis.analyzer.background_running.body",
+                        defaultMessage:
+                          "Closing this window won't stop the scrape, but keep this tab open to see results appear in the table in real time.",
+                      })}
                       {liveCount !== null && (
                         <span className="ml-2">
-                          <Tag color="green">{liveCount.toLocaleString()} saved so far</Tag>
+                          <Tag color="green">
+                            {intl.formatMessage(
+                              {
+                                id: "analysis.analyzer.background_running.saved_so_far",
+                                defaultMessage: "{count} saved so far",
+                              },
+                              { count: liveCount.toLocaleString() },
+                            )}
+                          </Tag>
                         </span>
                       )}
                     </span>
@@ -548,9 +748,15 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
                     size="large"
                   >
                     {isScrapeRunning
-                      ? "Running…"
+                      ? intl.formatMessage({
+                          id: "analysis.analyzer.actions.running",
+                          defaultMessage: "Running...",
+                        })
                       : scrapeMutation.isPending
-                      ? "Starting…"
+                      ? intl.formatMessage({
+                          id: "analysis.analyzer.actions.starting",
+                          defaultMessage: "Starting...",
+                        })
                       : <FormattedMessage
                           id="leads.instagram_analyzer.form.submit"
                           defaultMessage="Start Scraping"
@@ -565,7 +771,10 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
                         disabled={!canPause}
                         loading={controlLoading === "pause"}
                       >
-                        Pause
+                        <FormattedMessage
+                          id="analysis.analyzer.actions.pause"
+                          defaultMessage="Pause"
+                        />
                       </Button>
                       <Button
                         icon={<CaretRightOutlined />}
@@ -573,7 +782,10 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
                         disabled={!canResume}
                         loading={controlLoading === "resume"}
                       >
-                        Resume
+                        <FormattedMessage
+                          id="analysis.analyzer.actions.resume"
+                          defaultMessage="Resume"
+                        />
                       </Button>
                       <Button
                         danger
@@ -582,7 +794,7 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
                         disabled={!canDelete}
                         loading={controlLoading === "delete"}
                       >
-                        Delete
+                        <FormattedMessage id="commons.delete" defaultMessage="Delete" />
                       </Button>
                     </Space>
                   )}
@@ -594,16 +806,47 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
         </Col>
 
         {/* ── Real-time scrape stats ── */}
-        {(totalScraped !== null || deepScanCount !== null || liveCount !== null) && (
+        {(totalScraped !== null || deepScanCount !== null || liveCount !== null || profilesFetched !== null) && (
           <Col xs={24}>
             <Row gutter={[16, 16]}>
-              <Col xs={24} sm={8}>
+              {profilesFetched !== null && (
+                <Col xs={24} sm={6}>
+                  <Card bodyStyle={{ padding: "16px 20px" }} bordered>
+                    <Statistic
+                      title={
+                        <Space size={6}>
+                          <UserOutlined style={{ color: "#fa8c16" }} />
+                          <span>
+                            <FormattedMessage
+                              id="analysis.analyzer.stats.profiles_fetched"
+                              defaultMessage="Profiles Fetched"
+                            />
+                            {profilesTotal !== null && profilesTotal > 0 && (
+                              <span style={{ fontWeight: 400, color: "#8c8c8c", marginLeft: 4 }}>
+                                / {profilesTotal.toLocaleString()}
+                              </span>
+                            )}
+                          </span>
+                        </Space>
+                      }
+                      value={profilesFetched}
+                      valueStyle={{ color: "#fa8c16", fontWeight: 700 }}
+                    />
+                  </Card>
+                </Col>
+              )}
+              <Col xs={24} sm={profilesFetched !== null ? 6 : 8}>
                 <Card bodyStyle={{ padding: "16px 20px" }} bordered>
                   <Statistic
                     title={
                       <Space size={6}>
                         <TeamOutlined style={{ color: "#1677ff" }} />
-                        <span>Total Scraped</span>
+                        <span>
+                          <FormattedMessage
+                            id="analysis.analyzer.stats.total_scraped"
+                            defaultMessage="Total Scraped"
+                          />
+                        </span>
                       </Space>
                     }
                     value={totalScraped ?? 0}
@@ -611,13 +854,18 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
                   />
                 </Card>
               </Col>
-              <Col xs={24} sm={8}>
+              <Col xs={24} sm={profilesFetched !== null ? 6 : 8}>
                 <Card bodyStyle={{ padding: "16px 20px" }} bordered>
                   <Statistic
                     title={
                       <Space size={6}>
                         <SaveOutlined style={{ color: "#52c41a" }} />
-                        <span>Saved to DB</span>
+                        <span>
+                          <FormattedMessage
+                            id="analysis.analyzer.stats.saved_to_db"
+                            defaultMessage="Saved to DB"
+                          />
+                        </span>
                       </Space>
                     }
                     value={liveCount ?? 0}
@@ -625,14 +873,17 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
                   />
                 </Card>
               </Col>
-              <Col xs={24} sm={8}>
+              <Col xs={24} sm={profilesFetched !== null ? 6 : 8}>
                 <Card bodyStyle={{ padding: "16px 20px" }} bordered>
                   <Statistic
                     title={
                       <Space size={6}>
                         <SafetyCertificateOutlined style={{ color: "#722ed1" }} />
                         <span>
-                          Deep Scan Completed
+                          <FormattedMessage
+                            id="analysis.analyzer.stats.deep_scan_completed"
+                            defaultMessage="Deep Scan Completed"
+                          />
                           {deepScanTotal !== null && deepScanTotal > 0 && (
                             <span style={{ fontWeight: 400, color: "#8c8c8c", marginLeft: 4 }}>
                               / {deepScanTotal.toLocaleString()}

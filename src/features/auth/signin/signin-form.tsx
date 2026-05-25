@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Form, Input, Typography } from "antd";
 import { MailOutlined, LockOutlined } from "@ant-design/icons";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -20,6 +20,23 @@ const SignInForm: React.FC = () => {
   const googleSigninMutation = useGoogleSignin();
   const dispatch = useDispatch();
   const router = useRouter();
+  const [googleTheme, setGoogleTheme] = useState<"outline" | "filled_black">(
+    "outline",
+  );
+
+  useEffect(() => {
+    const syncGoogleTheme = () => {
+      setGoogleTheme(
+        document.documentElement.classList.contains("dark")
+          ? "filled_black"
+          : "outline",
+      );
+    };
+
+    syncGoogleTheme();
+    window.addEventListener("app-theme-change", syncGoogleTheme);
+    return () => window.removeEventListener("app-theme-change", syncGoogleTheme);
+  }, []);
 
   const handleSubmit = (values: { email: string; password: string }) => {
     logInMutation.mutateAsync(values, {
@@ -145,10 +162,11 @@ const SignInForm: React.FC = () => {
 
       <div className="pt-1">
         <Button
+          type="primary"
           loading={logInMutation.isPending}
           htmlType="submit"
           block
-          className="!h-13 !rounded-2xl !border-0 !bg-[#f2f2f3] !text-[17px] !font-bold !text-[#17171b] shadow-none hover:!bg-white"
+          className="!h-13 !rounded-2xl !border-0 !text-[17px] !font-bold shadow-none"
         >
           <FormattedMessage id="auth.sign_in.buttonCTA" />
         </Button>
@@ -171,7 +189,7 @@ const SignInForm: React.FC = () => {
           onError={onGoogleError}
           shape="rectangular"
           width="274"
-          theme="outline"
+          theme={googleTheme}
           text="signin_with"
         />
       </div>

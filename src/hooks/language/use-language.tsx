@@ -7,7 +7,7 @@ import en from "../../../public/locales/en.json";
 import es from "../../../public/locales/es.json";
 import { setIntl } from "@/lib/notification";
 
-type SupportedLanguage = "en" | "es";
+export type SupportedLanguage = "en" | "es";
 
 const flagMap: Record<SupportedLanguage, string> = {
   en: "🇺🇸",
@@ -97,6 +97,10 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
       setLanguageState(storedLang);
     }
   }, []);
+
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
 
   const setLanguage = (lang: SupportedLanguage) => {
     localStorage.setItem("lang", lang);

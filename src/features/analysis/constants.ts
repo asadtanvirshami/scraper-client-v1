@@ -6,46 +6,91 @@ export type AnalysisServiceSlug =
 
 export type AnalysisPlatformOption = {
   slug: AnalysisPlatformSlug;
-  title: string;
-  description: string;
+  title: {
+    id: string;
+    defaultMessage: string;
+  };
+  description: {
+    id: string;
+    defaultMessage: string;
+  };
 };
 
 export type AnalysisServiceOption = {
   slug: AnalysisServiceSlug;
-  title: string;
-  shortTitle: string;
-  description: string;
+  title: {
+    id: string;
+    defaultMessage: string;
+  };
+  shortTitle: {
+    id: string;
+    defaultMessage: string;
+  };
+  description: {
+    id: string;
+    defaultMessage: string;
+  };
 };
 
 export const ANALYSIS_PLATFORM_OPTIONS: AnalysisPlatformOption[] = [
   {
     slug: "instagram",
-    title: "Instagram",
-    description:
-      "Explore Instagram account and content data with service-level analysis options.",
+    title: {
+      id: "analysis.platform.instagram.title",
+      defaultMessage: "Instagram",
+    },
+    description: {
+      id: "analysis.platform.instagram.description",
+      defaultMessage:
+        "Explore Instagram account and content data with service-level analysis options.",
+    },
   },
   {
     slug: "linkedin",
-    title: "LinkedIn",
-    description:
-      "Run profile and follower analysis services against LinkedIn profiles and networks.",
+    title: {
+      id: "analysis.platform.linkedin.title",
+      defaultMessage: "LinkedIn",
+    },
+    description: {
+      id: "analysis.platform.linkedin.description",
+      defaultMessage:
+        "Run profile and follower analysis services against LinkedIn profiles and networks.",
+    },
   },
 ];
 
 export const ANALYSIS_SERVICE_OPTIONS: AnalysisServiceOption[] = [
   {
     slug: "followers",
-    title: "Account Followers",
-    shortTitle: "Followers",
-    description:
-      "Analyze follower audiences for growth trends, profile quality, and segmentation insights.",
+    title: {
+      id: "analysis.services.followers.title",
+      defaultMessage: "Account Followers",
+    },
+    shortTitle: {
+      id: "analysis.services.followers.short_title",
+      defaultMessage: "Followers",
+    },
+    description: {
+      id: "analysis.services.followers.description",
+      defaultMessage:
+        "Analyze follower audiences for growth trends, profile quality, and segmentation insights.",
+    },
   },
   {
     slug: "following",
-    title: "Account Following",
-    shortTitle: "Following",
-    description:
-      "Review following lists to understand account affinity, targeting style, and relationship patterns.",
+    title: {
+      id: "analysis.services.following.title",
+      defaultMessage: "Account Following",
+    },
+    shortTitle: {
+      id: "analysis.services.following.short_title",
+      defaultMessage: "Following",
+    },
+    description: {
+      id: "analysis.services.following.description",
+      defaultMessage:
+        "Review following lists to understand account affinity, targeting style, and relationship patterns.",
+    },
   },
 ];
 

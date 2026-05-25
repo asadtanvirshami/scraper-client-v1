@@ -33,7 +33,7 @@ const Step2Form: React.FC<Step2FormProps> = ({ onSubmit, onPrev, initialData }) 
             defaultMessage: "Tell us about your business",
           })}
         </h2>
-        <p className="text-gray-600">
+        <p className="text-gray-600 dark:text-white/60">
           {intl.formatMessage({
             id: "onboarding.step2.description",
             defaultMessage: "Help us personalize your experience.",
