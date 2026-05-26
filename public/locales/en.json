@@ -10,6 +10,28 @@
     "billing": "Billing",
     "emails": "Emails",
     "settings": "Settings",
+    "scrape_jobs": "Scrape Jobs",
+    "email_templates": "Email Templates",
+    "growth": "Growth",
+    "records": "Records",
+    "group": {
+      "command": "Command",
+      "operations": "Operations",
+      "workspace": "Workspace",
+      "pipeline": "Pipeline",
+      "system": "System"
+    },
+    "admin": {
+      "dashboard": "Dashboard",
+      "users": "Users",
+      "quality": "Quality",
+      "bugs": "Bugs",
+      "feedbacks": "Feedbacks",
+      "notifications": "Notifications",
+      "reports": "Reports",
+      "account_pool": "Account Pooling",
+      "billing_management": "Billing Management"
+    },
     "role": {
       "admin": "Admin",
       "user": "Workspace"
@@ -52,6 +74,15 @@
       "confirm": {
         "delete_one": "Delete this feedback?",
         "delete_selected": "Delete {count} selected item(s)?"
+      },
+      "modal": {
+        "view": "Feedback Details",
+        "feedback": "Feedback",
+        "user": "User",
+        "email": "Email",
+        "created": "Created",
+        "updated": "Updated",
+        "id": "ID"
       }
     },
     "bugs": {
@@ -63,6 +94,7 @@
       },
       "table": {
         "bug": "Bug",
+        "status": "Status",
         "user": "User",
         "created": "Created",
         "updated": "Updated"
@@ -74,6 +106,23 @@
         "bulk_delete_desc": "This will delete {count} user(s). This action cannot be undone.",
         "delete_all": "Delete all users?",
         "delete_all_desc": "This will delete all users matching current filters. This action cannot be undone."
+      },
+      "status": {
+        "open": "Open",
+        "in_progress": "In Progress",
+        "resolved": "Resolved"
+      },
+      "modal": {
+        "view": "Bug Details",
+        "edit": "Edit Bug",
+        "bug_description": "Bug Description",
+        "bug_description_required": "Please enter bug description",
+        "status_required": "Please select status",
+        "user": "User",
+        "email": "Email",
+        "created": "Created",
+        "updated": "Updated",
+        "id": "ID"
       }
     },
     "users": {
@@ -87,6 +136,7 @@
         "placeholder": "Search name or email..."
       },
       "table": {
+        "user": "User",
         "name": "Name",
         "email": "Email",
         "role": "Role",
@@ -99,6 +149,41 @@
         "delete_one": "Delete this user?",
         "delete_selected": "Delete {count} selected user(s)?"
       }
+    }
+  },
+
+  "onboarding": {
+    "title": "Welcome to DataHarvX!",
+    "subtitle": "Let's get you set up in just a few steps.",
+    "next": "Next",
+    "previous": "Previous",
+    "skip": "Skip",
+    "complete": "Complete Setup",
+    "step1": {
+      "title": "How did you hear about us?",
+      "question": "How did you hear about DataHarvX?",
+      "description": "Help us understand how you found us.",
+      "success": "Step 1 completed successfully!",
+      "error": "Failed to save step 1 data.",
+      "validation": {
+        "required": "Please select how you heard about us"
+      },
+      "option": {
+        "word_of_mouth": "Word of mouth"
+      }
+    },
+    "step2": {
+      "title": "Tell us about your business",
+      "question": "Tell us about your business",
+      "description": "Help us personalize your experience.",
+      "success": "Onboarding completed successfully!",
+      "error": "Failed to complete onboarding.",
+      "business_name": "Business Name",
+      "business_name_placeholder": "Enter your business name",
+      "business_name_min": "Business name must be at least 2 characters",
+      "business_website": "Business Website",
+      "business_website_placeholder": "https://yourwebsite.com",
+      "business_website_invalid": "Please enter a valid website URL (starting with http:// or https://)"
     }
   },
 
@@ -445,9 +530,12 @@
     "save_failed": "Save failed",
     "deleted": "Deleted",
     "delete_failed": "Delete failed",
+    "updated": "Updated",
+    "update_failed": "Update failed",
     "clear": "Clear",
     "bulk_delete_failed": "Bulk delete failed",
     "view": "View",
+    "edit": "Edit",
     "view_all": "View All",
     "end_of_list": "End of list",
     "range_presets": {
@@ -472,6 +560,10 @@
       "start": "Start date",
       "end": "End date"
     },
+    "pagination": {
+      "range_total": "{start}-{end} of {total} items"
+    },
+    "close": "Close",
     "select_all": "Select all",
     "clear_selection": "Clear selection"
   },
@@ -513,6 +605,210 @@
     }
   },
 
+  "analysis": {
+    "home": {
+      "title": "Analysis",
+      "subtitle": "Select a platform to continue to service-level analysis."
+    },
+    "profile": {
+      "label": "Profile"
+    },
+    "platform": {
+      "instagram": {
+        "title": "Instagram",
+        "description": "Explore Instagram account and content data with service-level analysis options.",
+        "subtitle": "Choose from individual or bulk extraction services and continue with the same scraping flow used in Leads.",
+        "individual_section": "Individual Profile Extraction",
+        "single_card": {
+          "title": "Individual Profile Extraction",
+          "description": "Extract profile details for a single Instagram account and review results."
+        },
+        "bulk_section": "Bulk extractor services",
+        "bulk_subtitle": "Select a service to run bulk extraction for followers or following."
+      },
+      "linkedin": {
+        "title": "LinkedIn",
+        "description": "Run profile and follower analysis services against LinkedIn profiles and networks."
+      }
+    },
+    "services": {
+      "followers": {
+        "title": "Account Followers",
+        "short_title": "Followers",
+        "description": "Analyze follower audiences for growth trends, profile quality, and segmentation insights."
+      },
+      "following": {
+        "title": "Account Following",
+        "short_title": "Following",
+        "description": "Review following lists to understand account affinity, targeting style, and relationship patterns."
+      }
+    },
+    "service": {
+      "linkedin_unsupported": {
+        "title": "LinkedIn does not support this analysis service.",
+        "subtitle": "Followers and following extraction are available for Instagram only."
+      }
+    },
+    "profile_extractor": {
+      "instagram_title": "Instagram Profile Extraction",
+      "instagram_subtitle": "Scrape an Instagram profile and review scraped leads below.",
+      "linkedin_title": "LinkedIn Profile Extraction",
+      "linkedin_subtitle": "Scrape a LinkedIn profile and review scraped leads below.",
+      "settings": "Scraper Settings",
+      "info": "Scraping may take several minutes depending on source size. Results will appear in the table below.",
+      "folder": "Select Folder",
+      "profile_url": "Profile URL",
+      "submit": "Start Scraping",
+      "results": "Scraped Leads",
+      "folder.required": "Please select a folder",
+      "folder.placeholder": "Choose a folder",
+      "profile_url.required": "Please enter a profile URL",
+      "profile_url.placeholder": "https://...",
+      "results.empty": "Submit the form above to start scraping. Results will appear here."
+    },
+    "analyzer": {
+      "linkedin": {
+        "title": "LinkedIn Analyzer",
+        "subtitle": "Scrape followers or following from any LinkedIn profile",
+        "username_label": "LinkedIn Profile URL",
+        "username_placeholder": "e.g., john-smith-12345 or company/acme"
+      },
+      "twitter": {
+        "title": "Twitter (X) Analyzer",
+        "subtitle": "Scrape followers or following from any Twitter (X) account",
+        "username_label": "Twitter Username",
+        "username_placeholder": "e.g., elonmusk"
+      },
+      "credits": {
+        "insufficient_title": "Insufficient Credits",
+        "insufficient_content": "You have 0 credits remaining. Please upgrade your plan to continue scraping.",
+        "go_billing": "Go to Billing",
+        "low_title": "Low Credits Warning",
+        "low_content": "You only have {credits} credit(s) remaining. The scrape may stop early if credits run out. Continue?",
+        "continue": "Continue",
+        "none_remaining": "You have no credits left. Upgrade your plan to start scraping.",
+        "low_banner": "Low credits: {credits} remaining. The scrape may stop early if credits run out.",
+        "upgrade_plan": "Upgrade Plan"
+      },
+      "background_running": {
+        "title": "Scraping is running in the background.",
+        "body": "Closing this window won't stop the scrape, but keep this tab open to see results appear in the table in real time.",
+        "saved_so_far": "{count} saved so far"
+      },
+      "status": {
+        "paused": "Paused",
+        "active": "Active",
+        "queued": "Queued",
+        "completed": "Completed",
+        "failed": "Failed"
+      },
+      "actions": {
+        "pause": "Pause",
+        "resume": "Resume",
+        "running": "Running...",
+        "starting": "Starting...",
+        "paused": "Scraping paused",
+        "pause_failed": "Failed to pause scraping",
+        "resumed": "Scraping resumed",
+        "resume_failed": "Failed to resume scraping",
+        "deleted": "Scraping job deleted",
+        "delete_failed": "Failed to delete scraping job"
+      },
+      "stats": {
+        "profiles_fetched": "Profiles Fetched",
+        "total_scraped": "Total Scraped",
+        "saved_to_db": "Saved to DB",
+        "deep_scan_completed": "Deep Scan Completed"
+      }
+    },
+    "scrape_jobs": {
+      "title": "Scrape Jobs",
+      "subtitle": "All your Instagram scraping jobs and their results",
+      "refresh": "Refresh",
+      "load_failed": "Failed to load scrape jobs",
+      "empty": "No scrape jobs found. Start scraping from the Analysis page.",
+      "live_progress": "{completed} / {total} profiles fetched",
+      "pagination_total": "{count} jobs",
+      "summary": {
+        "total_jobs": "Total Jobs",
+        "active": "Active",
+        "completed": "Completed"
+      },
+      "status": {
+        "paused": "Paused",
+        "active": "Active",
+        "queued": "Queued",
+        "completed": "Completed",
+        "failed": "Failed"
+      },
+      "actions": {
+        "pause": "Pause",
+        "resume": "Resume",
+        "paused": "Job paused",
+        "pause_failed": "Failed to pause job",
+        "resumed": "Job resumed",
+        "resume_failed": "Failed to resume job",
+        "deleted": "Job deleted",
+        "delete_failed": "Failed to delete job"
+      },
+      "table": {
+        "target": "Target",
+        "type": "Type",
+        "status": "Status",
+        "saved": "Saved",
+        "total_on_profile": "Total on Profile",
+        "started": "Started",
+        "finished": "Finished",
+        "error": "Error"
+      },
+      "leads": {
+        "load_failed": "Failed to load leads for this job",
+        "scraped_from": "Leads scraped from @{username}",
+        "total": "{count} total",
+        "pagination_total": "{count} leads",
+        "empty": "No leads found for this job yet.",
+        "table": {
+          "avatar": "Avatar",
+          "username": "Username",
+          "full_name": "Full Name",
+          "followers": "Followers",
+          "emails": "Emails",
+          "phones": "Phones",
+          "verified": "Verified",
+          "verified_yes": "Yes",
+          "private": "Private",
+          "private_value": "Private",
+          "public_value": "Public"
+        }
+      }
+    }
+  },
+
+  "header": {
+    "breadcrumbs": {
+      "app": "App",
+      "create": "Create",
+      "edit": "Edit",
+      "email_templates": "Email Templates"
+    },
+    "navigation": {
+      "toggle_mode": "Toggle navigation mode",
+      "primary": "Primary navigation",
+      "use_bottom_deck": "Use bottom deck",
+      "use_sidebar": "Use sidebar"
+    },
+    "theme": {
+      "switch_to_light": "Switch to light mode",
+      "switch_to_dark": "Switch to dark mode"
+    },
+    "account": {
+      "tooltip": "Account",
+      "fallback_name": "Account",
+      "settings": "Settings",
+      "sign_out": "Sign out"
+    }
+  },
+
   "leads": {
     "page": {
       "title": "Leads",
@@ -533,9 +829,21 @@
       "view_all": "View all",
       "download": "Download",
       "add_to_leads": "Add to leads",
+      "send_to_folder": "Send to folder",
       "approve_all": "Approve All",
       "upload": "Upload File",
       "upload_csv_xlsx": "Upload CSV/XLSX"
+    },
+    "send_to_folder": {
+      "title": "Send to Folder",
+      "description": "Select a folder to move this lead into.",
+      "placeholder": "Choose a folder",
+      "confirm": "Move to Folder",
+      "bulk_button": "Move to Folder",
+      "bulk_title": "Move Selected Leads to Folder",
+      "bulk_description": "Select a folder to move {count} selected lead(s) into.",
+      "success": "Lead(s) moved to folder",
+      "failed": "Failed to move lead(s)"
     },
     "upload": {
       "title": "Bulk Import Leads",
@@ -682,6 +990,7 @@
         "folder": "Select Folder",
         "folder_placeholder": "Choose a folder",
         "folder_required": "Please select a folder",
+        "username": "Instagram Username",
         "username": "Instagram Username",
         "username_placeholder": "e.g., filmdirectorbrucemac",
         "username_required": "Please enter a username",

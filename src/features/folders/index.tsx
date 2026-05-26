@@ -32,7 +32,16 @@ const FolderLayout: React.FC = () => {
     name: query.search,
   } as any);
 
+  const { data: allFoldersData } = useFetchFolders({
+    user_id: userId,
+    page: 1,
+    limit: 1000,
+  } as any);
+
   const folders = ((data as any)?.folders ?? data?.data ?? []) as any[];
+  const allFolders = ((allFoldersData as any)?.folders ??
+    allFoldersData?.data ??
+    folders) as any[];
   const total = ((data as any)?.total ?? (data as any)?.meta?.total ?? 0) as number;
 
   const createFolder = useCreateFolder();
@@ -43,6 +52,7 @@ const FolderLayout: React.FC = () => {
     <div className="p-4 lg:p-6">
       <FolderTable
         data={folders as any}
+        folderOptions={allFolders as any}
         loading={isFetching}
         showFilters
         pageSize={query.limit}
@@ -67,8 +77,11 @@ const FolderLayout: React.FC = () => {
           await updateFolder.mutateAsync({ folder_id: folder_id, name } as any);
           setQuery((q) => ({ ...q }));
         }}
-        onDeleteAll={async (ids) => {
-          await bulkDelete.mutateAsync(ids as any);
+        onDeleteAll={async (ids, options) => {
+          await bulkDelete.mutateAsync({
+            folder_ids: ids as string[],
+            move_to_folder_id: options?.move_to_folder_id,
+          });
           setSelectedRowKeys([]);
           setQuery((q) => ({ ...q, page: 1, search: "" }));
         }}

@@ -26,6 +26,7 @@ import {
   ReloadOutlined,
   UserOutlined,
 } from "@ant-design/icons";
+import { FormattedMessage, useIntl } from "react-intl";
 import {
   DeleteScrapeFollowersJob,
   ListScrapeFollowersJobs,
@@ -34,20 +35,66 @@ import {
 } from "@/api/api_calls/scrapper";
 import { FetchAllLeadsList } from "@/api/api_calls/leads";
 import { useUserInfo } from "@/helpers/use-user";
+import { useSocket } from "@/hooks/use-socket";
 
 const { Title, Text } = Typography;
 
 const TERMINAL_STATES = new Set(["completed", "failed"]);
 
-const stateTag = (state: string, paused: boolean) => {
-  if (paused) return <Tag color="orange">Paused</Tag>;
+const stateTag = (
+  intl: ReturnType<typeof useIntl>,
+  state: string,
+  paused: boolean,
+) => {
+  if (paused) {
+    return (
+      <Tag color="orange">
+        {intl.formatMessage({
+          id: "analysis.scrape_jobs.status.paused",
+          defaultMessage: "Paused",
+        })}
+      </Tag>
+    );
+  }
   switch (state) {
-    case "active": return <Tag color="green">Active</Tag>;
+    case "active":
+      return (
+        <Tag color="green">
+          {intl.formatMessage({
+            id: "analysis.scrape_jobs.status.active",
+            defaultMessage: "Active",
+          })}
+        </Tag>
+      );
     case "waiting":
     case "delayed":
-    case "prioritized": return <Tag color="blue">Queued</Tag>;
-    case "completed": return <Tag color="default">Completed</Tag>;
-    case "failed": return <Tag color="red">Failed</Tag>;
+    case "prioritized":
+      return (
+        <Tag color="blue">
+          {intl.formatMessage({
+            id: "analysis.scrape_jobs.status.queued",
+            defaultMessage: "Queued",
+          })}
+        </Tag>
+      );
+    case "completed":
+      return (
+        <Tag color="default">
+          {intl.formatMessage({
+            id: "analysis.scrape_jobs.status.completed",
+            defaultMessage: "Completed",
+          })}
+        </Tag>
+      );
+    case "failed":
+      return (
+        <Tag color="red">
+          {intl.formatMessage({
+            id: "analysis.scrape_jobs.status.failed",
+            defaultMessage: "Failed",
+          })}
+        </Tag>
+      );
     default: return <Tag>{state}</Tag>;
   }
 };
@@ -80,6 +127,7 @@ function JobLeadsTable({
   targetUsername: string;
   folderId: string | null;
 }) {
+  const intl = useIntl();
   const [leadsPage, setLeadsPage] = useState(1);
   const LIMIT = 10;
   const [leads, setLeads] = useState<any[]>([]);
@@ -106,7 +154,12 @@ function JobLeadsTable({
         setLeads(list);
         setTotal(tot);
       } catch {
-        message.error("Failed to load leads for this job");
+        message.error(
+          intl.formatMessage({
+            id: "analysis.scrape_jobs.leads.load_failed",
+            defaultMessage: "Failed to load leads for this job",
+          }),
+        );
       } finally {
         setLoading(false);
       }
@@ -120,7 +173,10 @@ function JobLeadsTable({
 
   const leadsColumns: ColumnsType<any> = [
     {
-      title: "Avatar",
+      title: intl.formatMessage({
+        id: "analysis.scrape_jobs.leads.table.avatar",
+        defaultMessage: "Avatar",
+      }),
       key: "avatar",
       width: 56,
       render: (_, r) => (
@@ -132,7 +188,10 @@ function JobLeadsTable({
       ),
     },
     {
-      title: "Username",
+      title: intl.formatMessage({
+        id: "analysis.scrape_jobs.leads.table.username",
+        defaultMessage: "Username",
+      }),
       key: "username",
       render: (_, r) => (
         <a
@@ -145,13 +204,19 @@ function JobLeadsTable({
       ),
     },
     {
-      title: "Full Name",
+      title: intl.formatMessage({
+        id: "analysis.scrape_jobs.leads.table.full_name",
+        defaultMessage: "Full Name",
+      }),
       dataIndex: "full_name",
       key: "full_name",
       render: (v: string) => v || <Text type="secondary">—</Text>,
     },
     {
-      title: "Followers",
+      title: intl.formatMessage({
+        id: "analysis.scrape_jobs.leads.table.followers",
+        defaultMessage: "Followers",
+      }),
       key: "followers",
       width: 100,
       render: (_, r) =>
@@ -160,7 +225,10 @@ function JobLeadsTable({
           : <Text type="secondary">—</Text>,
     },
     {
-      title: "Emails",
+      title: intl.formatMessage({
+        id: "analysis.scrape_jobs.leads.table.emails",
+        defaultMessage: "Emails",
+      }),
       key: "emails",
       render: (_, r) => {
         const emails: string[] = r.emails ?? [];
@@ -175,7 +243,10 @@ function JobLeadsTable({
       },
     },
     {
-      title: "Phones",
+      title: intl.formatMessage({
+        id: "analysis.scrape_jobs.leads.table.phones",
+        defaultMessage: "Phones",
+      }),
       key: "phones",
       render: (_, r) => {
         const phones: string[] = r.phone_numbers ?? [];
@@ -190,7 +261,10 @@ function JobLeadsTable({
       },
     },
     {
-      title: "Verified",
+      title: intl.formatMessage({
+        id: "analysis.scrape_jobs.leads.table.verified",
+        defaultMessage: "Verified",
+      }),
       key: "verified",
       width: 80,
       render: (_, r) =>
@@ -201,7 +275,10 @@ function JobLeadsTable({
         ),
     },
     {
-      title: "Private",
+      title: intl.formatMessage({
+        id: "analysis.scrape_jobs.leads.table.private",
+        defaultMessage: "Private",
+      }),
       key: "private",
       width: 80,
       render: (_, r) =>
@@ -214,10 +291,24 @@ function JobLeadsTable({
       <div style={{ marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}>
         <InstagramOutlined style={{ color: "#e1306c" }} />
         <Text strong>
-          Leads scraped from @{targetUsername}
+          {intl.formatMessage(
+            {
+              id: "analysis.scrape_jobs.leads.scraped_from",
+              defaultMessage: "Leads scraped from @{username}",
+            },
+            { username: targetUsername },
+          )}
         </Text>
         {total > 0 && (
-          <Tag color="blue">{total.toLocaleString()} total</Tag>
+          <Tag color="blue">
+            {intl.formatMessage(
+              {
+                id: "analysis.scrape_jobs.leads.total",
+                defaultMessage: "{count} total",
+              },
+              { count: total.toLocaleString() },
+            )}
+          </Tag>
         )}
       </div>
       <Table
@@ -232,14 +323,24 @@ function JobLeadsTable({
           total,
           onChange: (p) => setLeadsPage(p),
           showSizeChanger: false,
-          showTotal: (t) => `${t} leads`,
+          showTotal: (t) =>
+            intl.formatMessage(
+              {
+                id: "analysis.scrape_jobs.leads.pagination_total",
+                defaultMessage: "{count} leads",
+              },
+              { count: t },
+            ),
           size: "small",
         }}
         locale={{
           emptyText: (
             <Empty
               image={Empty.PRESENTED_IMAGE_SIMPLE}
-              description="No leads found for this job yet."
+              description={intl.formatMessage({
+                id: "analysis.scrape_jobs.leads.empty",
+                defaultMessage: "No leads found for this job yet.",
+              })}
             />
           ),
         }}
@@ -250,6 +351,7 @@ function JobLeadsTable({
 }
 
 export default function ScrapeJobsManager() {
+  const intl = useIntl();
   const { id: userId } = useUserInfo();
   const [jobs, setJobs] = useState<ScrapeJob[]>([]);
   const [total, setTotal] = useState(0);
@@ -257,6 +359,30 @@ export default function ScrapeJobsManager() {
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState<Record<string, string>>({});
   const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const socket = useSocket(userId);
+
+  // live per-job profile counts keyed as "targetUsername:type"
+  const [liveJobCounts, setLiveJobCounts] = useState<
+    Record<string, { completed: number; total: number }>
+  >({});
+
+  useEffect(() => {
+    if (!socket) return;
+    const handler = (payload: {
+      target_username: string;
+      type: string;
+      completed: number;
+      total: number;
+    }) => {
+      const key = `${payload.target_username}:${payload.type}`;
+      setLiveJobCounts((prev) => ({
+        ...prev,
+        [key]: { completed: payload.completed, total: payload.total },
+      }));
+    };
+    socket.on("scrape:follower_count", handler);
+    return () => { socket.off("scrape:follower_count", handler); };
+  }, [socket]);
 
   const fetchJobs = useCallback(async (p = page, silent = false) => {
     if (!userId) return;
@@ -267,11 +393,18 @@ export default function ScrapeJobsManager() {
       setJobs(d?.jobs ?? []);
       setTotal(d?.total ?? 0);
     } catch {
-      if (!silent) message.error("Failed to load scrape jobs");
+      if (!silent) {
+        message.error(
+          intl.formatMessage({
+            id: "analysis.scrape_jobs.load_failed",
+            defaultMessage: "Failed to load scrape jobs",
+          }),
+        );
+      }
     } finally {
       if (!silent) setLoading(false);
     }
-  }, [userId, page]);
+  }, [intl, userId, page]);
 
   // Initial load + poll while any job is active/waiting
   useEffect(() => {
@@ -299,10 +432,21 @@ export default function ScrapeJobsManager() {
     setJobAction(jobId, "pause");
     try {
       await PauseScrapeFollowersJob(jobId);
-      message.success("Job paused");
+      message.success(
+        intl.formatMessage({
+          id: "analysis.scrape_jobs.actions.paused",
+          defaultMessage: "Job paused",
+        }),
+      );
       await fetchJobs(page, true);
     } catch (e: any) {
-      message.error(e?.response?.data?.message || "Failed to pause job");
+      message.error(
+        e?.response?.data?.message ||
+          intl.formatMessage({
+            id: "analysis.scrape_jobs.actions.pause_failed",
+            defaultMessage: "Failed to pause job",
+          }),
+      );
     } finally { clearJobAction(jobId); }
   };
 
@@ -310,10 +454,21 @@ export default function ScrapeJobsManager() {
     setJobAction(jobId, "resume");
     try {
       await ResumeScrapeFollowersJob(jobId);
-      message.success("Job resumed");
+      message.success(
+        intl.formatMessage({
+          id: "analysis.scrape_jobs.actions.resumed",
+          defaultMessage: "Job resumed",
+        }),
+      );
       await fetchJobs(page, true);
     } catch (e: any) {
-      message.error(e?.response?.data?.message || "Failed to resume job");
+      message.error(
+        e?.response?.data?.message ||
+          intl.formatMessage({
+            id: "analysis.scrape_jobs.actions.resume_failed",
+            defaultMessage: "Failed to resume job",
+          }),
+      );
     } finally { clearJobAction(jobId); }
   };
 
@@ -321,44 +476,94 @@ export default function ScrapeJobsManager() {
     setJobAction(jobId, "delete");
     try {
       await DeleteScrapeFollowersJob(jobId);
-      message.success("Job deleted");
+      message.success(
+        intl.formatMessage({
+          id: "analysis.scrape_jobs.actions.deleted",
+          defaultMessage: "Job deleted",
+        }),
+      );
       setJobs((prev) => prev.filter((j) => j.id !== jobId));
       setTotal((t) => Math.max(0, t - 1));
     } catch (e: any) {
-      message.error(e?.response?.data?.message || "Failed to delete job");
+      message.error(
+        e?.response?.data?.message ||
+          intl.formatMessage({
+            id: "analysis.scrape_jobs.actions.delete_failed",
+            defaultMessage: "Failed to delete job",
+          }),
+      );
     } finally { clearJobAction(jobId); }
   };
 
   const columns: ColumnsType<ScrapeJob> = [
     {
-      title: "Target",
+      title: intl.formatMessage({
+        id: "analysis.scrape_jobs.table.target",
+        defaultMessage: "Target",
+      }),
       dataIndex: ["data", "targetUsername"],
       key: "target",
       render: (v: string) => <Text strong>@{v}</Text>,
     },
     {
-      title: "Type",
+      title: intl.formatMessage({
+        id: "analysis.scrape_jobs.table.type",
+        defaultMessage: "Type",
+      }),
       dataIndex: ["data", "type"],
       key: "type",
       width: 110,
       render: (v: string) => (
         <Tag color={v === "followers" ? "blue" : "purple"}>
-          {v?.charAt(0).toUpperCase() + v?.slice(1)}
+          {intl.formatMessage({
+            id: `analysis.services.${v}.short_title`,
+            defaultMessage: v?.charAt(0).toUpperCase() + v?.slice(1),
+          })}
         </Tag>
       ),
     },
     {
-      title: "Status",
+      title: intl.formatMessage({
+        id: "analysis.scrape_jobs.table.status",
+        defaultMessage: "Status",
+      }),
       key: "status",
       width: 120,
-      render: (_, r) => stateTag(r.state, r.control?.paused),
+      render: (_, r) => stateTag(intl, r.state, r.control?.paused),
     },
     {
-      title: "Saved",
+      title: intl.formatMessage({
+        id: "analysis.scrape_jobs.table.saved",
+        defaultMessage: "Saved",
+      }),
       key: "saved",
       width: 100,
       render: (_, r) => {
         const count = r.result?.inserted_count ?? r.result?.saved_count ?? null;
+        const liveKey = `${r.data?.targetUsername}:${r.data?.type}`;
+        const live = liveJobCounts[liveKey];
+        if (live) {
+          return (
+            <Tooltip
+              title={intl.formatMessage(
+                {
+                  id: "analysis.scrape_jobs.live_progress",
+                  defaultMessage: "{completed} / {total} profiles fetched",
+                },
+                { completed: live.completed, total: live.total },
+              )}
+            >
+              <Text strong style={{ color: "#fa8c16" }}>
+                {live.completed.toLocaleString()}
+                {live.total > 0 && (
+                  <Text type="secondary" style={{ fontSize: 11, marginLeft: 2 }}>
+                    /{live.total}
+                  </Text>
+                )}
+              </Text>
+            </Tooltip>
+          );
+        }
         return count !== null ? (
           <Text strong style={{ color: "#52c41a" }}>{count.toLocaleString()}</Text>
         ) : (
@@ -367,7 +572,10 @@ export default function ScrapeJobsManager() {
       },
     },
     {
-      title: "Total on Profile",
+      title: intl.formatMessage({
+        id: "analysis.scrape_jobs.table.total_on_profile",
+        defaultMessage: "Total on Profile",
+      }),
       key: "total",
       width: 130,
       render: (_, r) => {
@@ -376,7 +584,10 @@ export default function ScrapeJobsManager() {
       },
     },
     {
-      title: "Started",
+      title: intl.formatMessage({
+        id: "analysis.scrape_jobs.table.started",
+        defaultMessage: "Started",
+      }),
       key: "started",
       width: 160,
       render: (_, r) =>
@@ -385,14 +596,20 @@ export default function ScrapeJobsManager() {
           : new Date(r.timestamp).toLocaleString(),
     },
     {
-      title: "Finished",
+      title: intl.formatMessage({
+        id: "analysis.scrape_jobs.table.finished",
+        defaultMessage: "Finished",
+      }),
       key: "finished",
       width: 160,
       render: (_, r) =>
         r.finishedOn ? new Date(r.finishedOn).toLocaleString() : <Text type="secondary">—</Text>,
     },
     {
-      title: "Error",
+      title: intl.formatMessage({
+        id: "analysis.scrape_jobs.table.error",
+        defaultMessage: "Error",
+      }),
       key: "error",
       ellipsis: true,
       render: (_, r) =>
@@ -403,7 +620,10 @@ export default function ScrapeJobsManager() {
         ) : null,
     },
     {
-      title: "Actions",
+      title: intl.formatMessage({
+        id: "commons.actions",
+        defaultMessage: "Actions",
+      }),
       key: "actions",
       width: 160,
       render: (_, r) => {
@@ -420,7 +640,10 @@ export default function ScrapeJobsManager() {
                 disabled={!!busy}
                 onClick={() => handlePause(r.id)}
               >
-                Pause
+                {intl.formatMessage({
+                  id: "analysis.scrape_jobs.actions.pause",
+                  defaultMessage: "Pause",
+                })}
               </Button>
             )}
             {!isTerminal && isPaused && (
@@ -431,7 +654,10 @@ export default function ScrapeJobsManager() {
                 disabled={!!busy}
                 onClick={() => handleResume(r.id)}
               >
-                Resume
+                {intl.formatMessage({
+                  id: "analysis.scrape_jobs.actions.resume",
+                  defaultMessage: "Resume",
+                })}
               </Button>
             )}
             {!r.state.includes("active") && (
@@ -454,28 +680,48 @@ export default function ScrapeJobsManager() {
     <div className="space-y-6 p-4 lg:p-6">
       <div className="flex items-center justify-between">
         <div>
-          <Title level={4} className="!mb-1">Scrape Jobs</Title>
-          <Text type="secondary">All your Instagram scraping jobs and their results</Text>
+          <Title level={4} className="!mb-1">
+            <FormattedMessage
+              id="analysis.scrape_jobs.title"
+              defaultMessage="Scrape Jobs"
+            />
+          </Title>
+          <Text type="secondary">
+            <FormattedMessage
+              id="analysis.scrape_jobs.subtitle"
+              defaultMessage="All your Instagram scraping jobs and their results"
+            />
+          </Text>
         </div>
         <Button
           icon={<ReloadOutlined />}
           onClick={() => fetchJobs(page)}
           loading={loading}
         >
-          Refresh
+          <FormattedMessage id="analysis.scrape_jobs.refresh" defaultMessage="Refresh" />
         </Button>
       </div>
 
       <Row gutter={[16, 16]}>
         <Col xs={8} sm={6} md={4}>
           <Card bodyStyle={{ padding: "12px 16px" }} bordered>
-            <Text type="secondary" style={{ fontSize: 12 }}>Total Jobs</Text>
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              <FormattedMessage
+                id="analysis.scrape_jobs.summary.total_jobs"
+                defaultMessage="Total Jobs"
+              />
+            </Text>
             <div style={{ fontSize: 22, fontWeight: 700 }}>{total}</div>
           </Card>
         </Col>
         <Col xs={8} sm={6} md={4}>
           <Card bodyStyle={{ padding: "12px 16px" }} bordered>
-            <Text type="secondary" style={{ fontSize: 12 }}>Active</Text>
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              <FormattedMessage
+                id="analysis.scrape_jobs.summary.active"
+                defaultMessage="Active"
+              />
+            </Text>
             <div style={{ fontSize: 22, fontWeight: 700, color: "#52c41a" }}>
               {jobs.filter((j) => j.state === "active").length}
             </div>
@@ -483,7 +729,12 @@ export default function ScrapeJobsManager() {
         </Col>
         <Col xs={8} sm={6} md={4}>
           <Card bodyStyle={{ padding: "12px 16px" }} bordered>
-            <Text type="secondary" style={{ fontSize: 12 }}>Completed</Text>
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              <FormattedMessage
+                id="analysis.scrape_jobs.summary.completed"
+                defaultMessage="Completed"
+              />
+            </Text>
             <div style={{ fontSize: 22, fontWeight: 700, color: "#1677ff" }}>
               {jobs.filter((j) => j.state === "completed").length}
             </div>
@@ -528,12 +779,23 @@ export default function ScrapeJobsManager() {
             total,
             onChange: (p) => setPage(p),
             showSizeChanger: false,
-            showTotal: (t) => `${t} jobs`,
+            showTotal: (t) =>
+              intl.formatMessage(
+                {
+                  id: "analysis.scrape_jobs.pagination_total",
+                  defaultMessage: "{count} jobs",
+                },
+                { count: t },
+              ),
           }}
           locale={{
             emptyText: (
               <Empty
-                description="No scrape jobs found. Start scraping from the Analysis page."
+                description={intl.formatMessage({
+                  id: "analysis.scrape_jobs.empty",
+                  defaultMessage:
+                    "No scrape jobs found. Start scraping from the Analysis page.",
+                })}
                 image={Empty.PRESENTED_IMAGE_SIMPLE}
               />
             ),

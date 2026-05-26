@@ -99,7 +99,8 @@ export const useChangePlan = () => {
   const dispatch = useDispatch();
 
   return useMutation({
-    mutationFn: (planName: string) => changePlan(planName),
+    mutationFn: ({ planName, interval }: { planName: string; interval?: "month" | "year" }) =>
+      changePlan(planName, interval),
     onSuccess: (res) => {
       message.success(res.message || "Plan changed successfully");
       dispatch(setSubscription(res.data));

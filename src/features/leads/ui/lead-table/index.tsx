@@ -123,6 +123,10 @@ const LeadsTableServer: React.FC<Props> = ({
   const [sendingToFolder, setSendingToFolder] = useState(false);
   const [bulkMoveModalOpen, setBulkMoveModalOpen] = useState(false);
 
+  const filters = value;
+  const activeFolderId = filters.folder_id || folder_id;
+  const canDownloadLeads = !loading && total > 0;
+
   // Folder options filtered to exclude the folder the lead is already in
   const filteredFolderOptions = useMemo(() => {
     if (!sendToFolderLead) return folderOptions;
@@ -135,7 +139,10 @@ const LeadsTableServer: React.FC<Props> = ({
     return folderOptions.filter((o) => o.value !== currentFolderId);
   }, [folderOptions, sendToFolderLead]);
 
-  const filters = value;
+  const bulkMoveFolderOptions = useMemo(() => {
+    if (!activeFolderId) return folderOptions;
+    return folderOptions.filter((o) => o.value !== activeFolderId);
+  }, [activeFolderId, folderOptions]);
 
   // File upload states
   const [uploading, setUploading] = useState(false);
@@ -179,18 +186,20 @@ const LeadsTableServer: React.FC<Props> = ({
       search: "",
       type: "",
       is_converted: undefined,
-      folder_id: filters.folder_id,
+      folder_id: activeFolderId,
     });
   };
 
   // ✅ download all (CSV)
   const downloadAll = () => {
+    if (!canDownloadLeads) return;
+
     download.mutate({
       user_id,
       search: filters.search,
       type: (filters.type as any) || "",
       is_converted: filters.is_converted,
-      folder_id: filters.folder_id,
+      folder_id: activeFolderId,
     } as any);
   };
 
@@ -754,16 +763,18 @@ const LeadsTableServer: React.FC<Props> = ({
           {/* ✅ Hide "download" + "add" when showFilters=false */}
           {showFilters && (
             <>
-              <Button
-                icon={<DownloadOutlined />}
-                onClick={downloadAll}
-                loading={download.isPending}
-              >
-                <FormattedMessage
-                  id="leads.actions.download"
-                  defaultMessage="Download"
-                />
-              </Button>
+              {canDownloadLeads && (
+                <Button
+                  icon={<DownloadOutlined />}
+                  onClick={downloadAll}
+                  loading={download.isPending}
+                >
+                  <FormattedMessage
+                    id="leads.actions.download"
+                    defaultMessage="Download"
+                  />
+                </Button>
+              )}
 
               {showFileUpload && (
                 <Button
@@ -1005,7 +1016,7 @@ const LeadsTableServer: React.FC<Props> = ({
         <Select
           style={{ width: "100%" }}
           placeholder={intl.formatMessage({ id: "leads.send_to_folder.placeholder", defaultMessage: "Choose a folder" })}
-          options={folderOptions}
+          options={bulkMoveFolderOptions}
           value={selectedFolderId}
           onChange={setSelectedFolderId}
           showSearch

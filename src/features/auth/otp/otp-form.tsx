@@ -102,11 +102,12 @@ const OTPForm: React.FC<OTPFormProps> = ({
 
       <div className="pt-2">
         <Button
+          type="primary"
           htmlType="submit"
           disabled={!isComplete}
           loading={verifyMutation.isPending}
           block
-          className="!h-13 !rounded-2xl !border-0 !bg-[#f2f2f3] !text-[17px] !font-bold !text-[#17171b] shadow-none hover:!bg-white disabled:!bg-gray-100 disabled:!text-gray-400 dark:disabled:!bg-white/15 dark:disabled:!text-white/35"
+          className="!h-13 !rounded-2xl !border-0 !text-[17px] !font-bold shadow-none disabled:!bg-gray-100 disabled:!text-gray-400 dark:disabled:!bg-white/15 dark:disabled:!text-white/35"
         >
           <FormattedMessage id="auth.otp.verify_button" />
         </Button>

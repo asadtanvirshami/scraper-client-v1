@@ -1,6 +1,7 @@
 "use client";
 
 import { Card, Typography } from "antd";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import AnalysisBreadcrumbs from "./ui/analysis-breadcrumbs";
 import InstagramAnalyzer from "@/features/leads/ui/instagram-analyzer";
@@ -19,6 +20,7 @@ type AnalysisServicePageProps = {
 };
 
 const AnalysisServicePage = ({ platform, service }: AnalysisServicePageProps) => {
+  const intl = useIntl();
   const platformInfo = ANALYSIS_PLATFORM_MAP[platform];
   const serviceInfo = ANALYSIS_SERVICE_MAP[service];
   const isLinkedIn = platform === "linkedin";
@@ -27,10 +29,25 @@ const AnalysisServicePage = ({ platform, service }: AnalysisServicePageProps) =>
     <div className="p-4 lg:p-6">
       <AnalysisBreadcrumbs
         items={[
-          { title: "Dashboard", href: "/dashboard" },
-          { title: "Analysis", href: "/analysis" },
-          { title: platformInfo.title, href: `/analysis/${platform}` },
-          { title: serviceInfo.shortTitle },
+          {
+            title: intl.formatMessage({
+              id: "sidebar.dashboard",
+              defaultMessage: "Dashboard",
+            }),
+            href: "/dashboard",
+          },
+          {
+            title: intl.formatMessage({
+              id: "sidebar.analysis",
+              defaultMessage: "Analysis",
+            }),
+            href: "/analysis",
+          },
+          {
+            title: intl.formatMessage(platformInfo.title),
+            href: `/analysis/${platform}`,
+          },
+          { title: intl.formatMessage(serviceInfo.shortTitle) },
         ]}
       />
 
@@ -38,10 +55,16 @@ const AnalysisServicePage = ({ platform, service }: AnalysisServicePageProps) =>
         <Card bodyStyle={{ padding: 24 }}>
           <div className="space-y-2">
             <Title level={5} className="!mb-0">
-              LinkedIn does not support this analysis service.
+              <FormattedMessage
+                id="analysis.service.linkedin_unsupported.title"
+                defaultMessage="LinkedIn does not support this analysis service."
+              />
             </Title>
             <Text type="secondary">
-              Followers and following extraction are available for Instagram only.
+              <FormattedMessage
+                id="analysis.service.linkedin_unsupported.subtitle"
+                defaultMessage="Followers and following extraction are available for Instagram only."
+              />
             </Text>
           </div>
         </Card>

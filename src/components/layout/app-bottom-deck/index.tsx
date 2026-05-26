@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { Popover, Tooltip } from "antd";
+import { useIntl } from "react-intl";
 import {
   AppNavGroup,
   AppNavLeaf,
@@ -13,6 +14,7 @@ const collectLeaves = (items: AppNavNode[]): AppNavLeaf[] =>
   items.flatMap((item) => (item.type === "submenu" ? item.children : [item]));
 
 const AppBottomDeck = () => {
+  const intl = useIntl();
   const { activeParentKeys, groups, navigate, selectedKeys } = useAppNavigation();
   const [openKey, setOpenKey] = useState<string | null>(null);
 
@@ -63,7 +65,13 @@ const AppBottomDeck = () => {
   );
 
   return (
-    <nav className="app-bottom-deck" aria-label="Primary navigation">
+    <nav
+      className="app-bottom-deck"
+      aria-label={intl.formatMessage({
+        id: "header.navigation.primary",
+        defaultMessage: "Primary navigation",
+      })}
+    >
       {deckGroups.map((group) => {
         const isActive =
           activeParentKeys.includes(group.key) ||

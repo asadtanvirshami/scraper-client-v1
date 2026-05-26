@@ -233,12 +233,24 @@ const AnalysisProfileExtractor = ({ platform, compact = false }: ProfileExtracto
       <div>
         <Title level={4} className="!mb-1">
           <PlatformIcon className="mr-2" />
-          {isLinkedIn ? "LinkedIn Profile Extraction" : "Instagram Profile Extraction"}
+          {intl.formatMessage({
+            id: isLinkedIn
+              ? "analysis.profile_extractor.linkedin_title"
+              : "analysis.profile_extractor.instagram_title",
+            defaultMessage: isLinkedIn
+              ? "LinkedIn Profile Extraction"
+              : "Instagram Profile Extraction",
+          })}
         </Title>
         <Text type="secondary">
-          {isLinkedIn
-            ? "Scrape a LinkedIn profile and review scraped leads below."
-            : "Scrape an Instagram profile and review scraped leads below."}
+          {intl.formatMessage({
+            id: isLinkedIn
+              ? "analysis.profile_extractor.linkedin_subtitle"
+              : "analysis.profile_extractor.instagram_subtitle",
+            defaultMessage: isLinkedIn
+              ? "Scrape a LinkedIn profile and review scraped leads below."
+              : "Scrape an Instagram profile and review scraped leads below.",
+          })}
         </Text>
       </div>
 
@@ -327,7 +339,12 @@ const AnalysisProfileExtractor = ({ platform, compact = false }: ProfileExtracto
                         },
                       ]}
                     >
-                      <Input placeholder="https://..." />
+                      <Input
+                        placeholder={intl.formatMessage({
+                          id: "analysis.profile_extractor.profile_url.placeholder",
+                          defaultMessage: "https://...",
+                        })}
+                      />
                     </Form.Item>
                   </Col>
                 </Row>

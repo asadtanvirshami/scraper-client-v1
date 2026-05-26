@@ -245,4 +245,26 @@ export const apiEndpoints = {
     delete: (template_id: string, user_id: string) =>
       `/email-template/delete?template_id=${template_id}&user_id=${user_id}`,
   },
+
+  /* ================= ADMIN ACCOUNT POOL ================= */
+
+  adminAccountPool: {
+    list: "/admin/account-pool",
+    add: "/admin/account-pool",
+    update: (id: string) => `/admin/account-pool/${id}`,
+    updateCookies: (id: string) => `/admin/account-pool/${id}/cookies`,
+    reset: (id: string) => `/admin/account-pool/${id}/reset`,
+    delete: (id: string) => `/admin/account-pool/${id}`,
+  },
+
+  /* ================= ADMIN BILLING ====================== */
+
+  adminBilling: {
+    subscriptions: "/admin/billing/subscriptions",
+    cancelSubscription: (userId: string) => `/admin/billing/subscriptions/${userId}/cancel`,
+    charges: "/admin/billing/charges",
+    refund: "/admin/billing/refund",
+    promoCodes: "/admin/billing/promo-codes",
+    deactivatePromoCode: (promoCodeId: string) => `/admin/billing/promo-codes/${promoCodeId}/deactivate`,
+  },
 };

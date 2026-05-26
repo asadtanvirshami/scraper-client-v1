@@ -7,32 +7,26 @@ import { Tooltip } from "antd";
 import { RectangleGroupIcon, ViewColumnsIcon } from "@heroicons/react/24/outline";
 import { usePathname } from "next/navigation";
 import type { NavMode } from "@/components/layout/navigation/app-navigation";
+import { useIntl } from "react-intl";
 
-const LABELS: Record<string, string> = {
-  a: "Admin",
-  u: "Workspace",
-  dashboard: "Dashboard",
-  analysis: "Analysis",
-  campaigns: "Campaigns",
-  create: "Create",
-  edit: "Edit",
-  leads: "Leads",
-  folders: "Folders",
-  notifications: "Notifications",
-  billings: "Billing",
-  settings: "Settings",
-  users: "Users",
-  bugs: "Bugs",
-  feedback: "Feedback",
-  "email-templates": "Email Templates",
+const LABEL_IDS: Record<string, string> = {
+  a: "sidebar.role.admin",
+  u: "sidebar.role.user",
+  dashboard: "sidebar.dashboard",
+  analysis: "sidebar.analysis",
+  campaigns: "sidebar.campaigns",
+  create: "header.breadcrumbs.create",
+  edit: "header.breadcrumbs.edit",
+  leads: "sidebar.leads",
+  folders: "sidebar.folders",
+  notifications: "sidebar.notifications",
+  billings: "sidebar.billing",
+  settings: "sidebar.settings",
+  users: "admin.users.title",
+  bugs: "admin.bugs.title",
+  feedback: "support.feedback.title",
+  "email-templates": "header.breadcrumbs.email_templates",
 };
-
-const toTitle = (segment: string) =>
-  LABELS[segment] ??
-  segment
-    .replace(/-/g, " ")
-    .replace(/\b\w/g, (char) => char.toUpperCase())
-    .slice(0, 28);
 
 type AppHeaderProps = {
   navMode: NavMode;
@@ -40,7 +34,15 @@ type AppHeaderProps = {
 };
 
 const AppHeader = ({ navMode, onNavModeChange }: AppHeaderProps) => {
+  const intl = useIntl();
   const pathname = usePathname();
+  const toTitle = (segment: string) =>
+    LABEL_IDS[segment]
+      ? intl.formatMessage({ id: LABEL_IDS[segment] })
+      : segment
+          .replace(/-/g, " ")
+          .replace(/\b\w/g, (char) => char.toUpperCase())
+          .slice(0, 28);
   const crumbs = (pathname ?? "/")
     .split("/")
     .filter(Boolean)
@@ -51,7 +53,9 @@ const AppHeader = ({ navMode, onNavModeChange }: AppHeaderProps) => {
     <Header className="app-header">
       <div className="app-header__left">
         <div className="app-breadcrumb" aria-label="Breadcrumb">
-          <span className="app-breadcrumb__root">App</span>
+          <span className="app-breadcrumb__root">
+            {intl.formatMessage({ id: "header.breadcrumbs.app" })}
+          </span>
           {crumbs.map((crumb) => (
             <span className="app-breadcrumb__item" key={crumb}>
               {toTitle(crumb)}
@@ -64,13 +68,20 @@ const AppHeader = ({ navMode, onNavModeChange }: AppHeaderProps) => {
         <CreditsBadge />
         <LanguageSwitcher />
         <Tooltip
-          title={navMode === "sidebar" ? "Use bottom deck" : "Use sidebar"}
+          title={intl.formatMessage({
+            id:
+              navMode === "sidebar"
+                ? "header.navigation.use_bottom_deck"
+                : "header.navigation.use_sidebar",
+          })}
           placement="bottom"
         >
           <button
             type="button"
             className="app-header__icon-button"
-            aria-label="Toggle navigation mode"
+            aria-label={intl.formatMessage({
+              id: "header.navigation.toggle_mode",
+            })}
             onClick={() => onNavModeChange(navMode === "sidebar" ? "deck" : "sidebar")}
           >
             {navMode === "sidebar" ? (

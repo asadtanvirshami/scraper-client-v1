@@ -17,6 +17,7 @@ import {
   Tag,
   Select,
   Spin,
+  theme,
 } from "antd";
 import {
   ReloadOutlined,
@@ -87,35 +88,6 @@ const formatEmail = (u?: AppUserLite | string | null) => {
   return u.email || "-";
 };
 
-const safeDate = (d?: string | Date) =>
-  d ? new Date(d).toLocaleString() : "-";
-
-const getStatusColor = (status?: string) => {
-  switch (status) {
-    case "open":
-      return "error";
-    case "in_progress":
-      return "processing";
-    case "resolved":
-      return "success";
-    default:
-      return "default";
-  }
-};
-
-const getStatusLabel = (status?: string) => {
-  switch (status) {
-    case "open":
-      return "Open";
-    case "in_progress":
-      return "In Progress";
-    case "resolved":
-      return "Resolved";
-    default:
-      return "Open";
-  }
-};
-
 const FeedbacksTableServer: React.FC<Props> = ({
   feedbacks = [],
   total = 0,
@@ -131,6 +103,7 @@ const FeedbacksTableServer: React.FC<Props> = ({
 }) => {
   const { Text } = Typography;
   const intl = useIntl();
+  const { token } = theme.useToken();
   const filters = value;
 
   const [searchDraft, setSearchDraft] = useState(filters.search ?? "");
@@ -238,7 +211,7 @@ const FeedbacksTableServer: React.FC<Props> = ({
       ),
       dataIndex: "createdAt",
       key: "createdAt",
-      render: (d?: string | Date) => safeDate(d),
+      render: (d?: string | Date) => formatDateTime(d),
     },
     {
       title: (
@@ -249,7 +222,7 @@ const FeedbacksTableServer: React.FC<Props> = ({
       ),
       dataIndex: "updatedAt",
       key: "updatedAt",
-      render: (d?: string | Date) => safeDate(d),
+      render: (d?: string | Date) => formatDateTime(d),
     },
     {
       title: <FormattedMessage id="commons.actions" defaultMessage="Actions" />,
@@ -309,6 +282,17 @@ const FeedbacksTableServer: React.FC<Props> = ({
     : undefined;
 
   const isDirtySearch = (searchDraft || "").trim() !== (filters.search || "");
+  const formatDateTime = (value?: string | Date) =>
+    value
+      ? `${intl.formatDate(new Date(value), {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        })} ${intl.formatTime(new Date(value), {
+          hour: "numeric",
+          minute: "2-digit",
+        })}`
+      : "-";
 
   return (
     <Card
@@ -334,8 +318,8 @@ const FeedbacksTableServer: React.FC<Props> = ({
       }
       style={{
         borderRadius: 8,
-        boxShadow:
-          "0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02)",
+        border: `1px solid ${token.colorBorderSecondary}`,
+        boxShadow: token.boxShadowSecondary,
       }}
     >
       {showFilters && (
@@ -343,7 +327,7 @@ const FeedbacksTableServer: React.FC<Props> = ({
           className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
           style={{
             padding: "16px",
-            background: "#fafafa",
+            background: token.colorFillAlter,
             borderRadius: 8,
             marginBottom: 16,
           }}
@@ -428,7 +412,13 @@ const FeedbacksTableServer: React.FC<Props> = ({
                 total,
                 showSizeChanger: true,
                 showTotal: (total, range) =>
-                  `${range[0]}-${range[1]} of ${total} items`,
+                  intl.formatMessage(
+                    {
+                      id: "commons.pagination.range_total",
+                      defaultMessage: "{start}-{end} of {total} items",
+                    },
+                    { start: range[0], end: range[1], total },
+                  ),
               }
             : false
         }

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Modal, Form, Input, Select, Button, Space, message, Descriptions, Tag, Divider } from "antd";
+import { Modal, Form, Input, Select, Button, Space, message, Descriptions, Tag, theme } from "antd";
 import { FormattedMessage, useIntl } from "react-intl";
 import { BugOutlined, UserOutlined, ClockCircleOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import BugsTableServer, { BugItem, ServerFilters } from "./table";
@@ -9,6 +9,7 @@ import { useBugsList, useUpdateBug, useDeleteBug } from "../hooks";
 
 const BugLayout: React.FC = () => {
   const intl = useIntl();
+  const { token } = theme.useToken();
   const { bugs, total, isLoading, query, setQuery, refetch } = useBugsList();
   const updateBugMutation = useUpdateBug();
   const deleteBugMutation = useDeleteBug();
@@ -74,6 +75,29 @@ const BugLayout: React.FC = () => {
     }
   };
 
+  const formatDateTime = (value?: string | Date) =>
+    value
+      ? `${intl.formatDate(new Date(value), {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        })} ${intl.formatTime(new Date(value), {
+          hour: "numeric",
+          minute: "2-digit",
+        })}`
+      : "-";
+
+  const getStatusLabel = (status?: BugItem["status"]) =>
+    intl.formatMessage({
+      id: `admin.bugs.status.${status || "open"}`,
+      defaultMessage:
+        status === "in_progress"
+          ? "In Progress"
+          : status === "resolved"
+            ? "Resolved"
+            : "Open",
+    });
+
   return (
     <>
       <BugsTableServer
@@ -133,7 +157,15 @@ const BugLayout: React.FC = () => {
               labelStyle={{ fontWeight: 600, width: "30%" }}
             >
               <Descriptions.Item
-                label={<><BugOutlined className="mr-1" /> Bug Description</>}
+                label={
+                  <>
+                    <BugOutlined className="mr-1" />{" "}
+                    <FormattedMessage
+                      id="admin.bugs.modal.bug_description"
+                      defaultMessage="Bug Description"
+                    />
+                  </>
+                }
               >
                 <div style={{ whiteSpace: "pre-wrap", maxHeight: 200, overflowY: "auto" }}>
                   {viewingBug.bug || "-"}
@@ -152,16 +184,20 @@ const BugLayout: React.FC = () => {
                       : "success"
                   }
                 >
-                  {viewingBug.status === "in_progress"
-                    ? "In Progress"
-                    : viewingBug.status === "resolved"
-                    ? "Resolved"
-                    : "Open"}
+                  {getStatusLabel(viewingBug.status)}
                 </Tag>
               </Descriptions.Item>
 
               <Descriptions.Item
-                label={<><UserOutlined className="mr-1" /> User</>}
+                label={
+                  <>
+                    <UserOutlined className="mr-1" />{" "}
+                    <FormattedMessage
+                      id="admin.bugs.modal.user"
+                      defaultMessage="User"
+                    />
+                  </>
+                }
               >
                 {typeof viewingBug.user_id === "string"
                   ? viewingBug.user_id
@@ -171,7 +207,12 @@ const BugLayout: React.FC = () => {
               </Descriptions.Item>
 
               <Descriptions.Item
-                label="Email"
+                label={
+                  <FormattedMessage
+                    id="admin.bugs.modal.email"
+                    defaultMessage="Email"
+                  />
+                }
               >
                 {typeof viewingBug.user_id === "string"
                   ? "-"
@@ -179,23 +220,48 @@ const BugLayout: React.FC = () => {
               </Descriptions.Item>
 
               <Descriptions.Item
-                label={<><ClockCircleOutlined className="mr-1" /> Created</>}
+                label={
+                  <>
+                    <ClockCircleOutlined className="mr-1" />{" "}
+                    <FormattedMessage
+                      id="admin.bugs.modal.created"
+                      defaultMessage="Created"
+                    />
+                  </>
+                }
               >
-                {viewingBug.createdAt
-                  ? new Date(viewingBug.createdAt).toLocaleString()
-                  : "-"}
+                {formatDateTime(viewingBug.createdAt)}
               </Descriptions.Item>
 
               <Descriptions.Item
-                label={<><ClockCircleOutlined className="mr-1" /> Updated</>}
+                label={
+                  <>
+                    <ClockCircleOutlined className="mr-1" />{" "}
+                    <FormattedMessage
+                      id="admin.bugs.modal.updated"
+                      defaultMessage="Updated"
+                    />
+                  </>
+                }
               >
-                {viewingBug.updatedAt
-                  ? new Date(viewingBug.updatedAt).toLocaleString()
-                  : "-"}
+                {formatDateTime(viewingBug.updatedAt)}
               </Descriptions.Item>
 
-              <Descriptions.Item label="ID">
-                <span style={{ fontSize: 12, fontFamily: "monospace", color: "#666" }}>
+              <Descriptions.Item
+                label={
+                  <FormattedMessage
+                    id="admin.bugs.modal.id"
+                    defaultMessage="ID"
+                  />
+                }
+              >
+                <span
+                  style={{
+                    fontSize: 12,
+                    fontFamily: "monospace",
+                    color: token.colorTextTertiary,
+                  }}
+                >
                   {viewingBug._id}
                 </span>
               </Descriptions.Item>
@@ -232,12 +298,18 @@ const BugLayout: React.FC = () => {
             onFinish={handleEditSubmit}
           >
             <Form.Item
-              label="Bug Description"
+              label={intl.formatMessage({
+                id: "admin.bugs.modal.bug_description",
+                defaultMessage: "Bug Description",
+              })}
               name="bug"
               rules={[
                 {
                   required: true,
-                  message: "Please enter bug description",
+                  message: intl.formatMessage({
+                    id: "admin.bugs.modal.bug_description_required",
+                    defaultMessage: "Please enter bug description",
+                  }),
                 },
               ]}
             >
@@ -245,20 +317,26 @@ const BugLayout: React.FC = () => {
             </Form.Item>
 
             <Form.Item
-              label="Status"
+              label={intl.formatMessage({
+                id: "admin.bugs.table.status",
+                defaultMessage: "Status",
+              })}
               name="status"
               rules={[
                 {
                   required: true,
-                  message: "Please select status",
+                  message: intl.formatMessage({
+                    id: "admin.bugs.modal.status_required",
+                    defaultMessage: "Please select status",
+                  }),
                 },
               ]}
             >
               <Select
                 options={[
-                  { label: "Open", value: "open" },
-                  { label: "In Progress", value: "in_progress" },
-                  { label: "Resolved", value: "resolved" },
+                  { label: getStatusLabel("open"), value: "open" },
+                  { label: getStatusLabel("in_progress"), value: "in_progress" },
+                  { label: getStatusLabel("resolved"), value: "resolved" },
                 ]}
               />
             </Form.Item>
