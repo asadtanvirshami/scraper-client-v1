@@ -303,9 +303,7 @@ const PlanCard: React.FC<{
   const accentColor = PLAN_COLOR[plan.name] ?? token.colorPrimary;
   const gradient = PLAN_GRADIENT[plan.name] ?? `linear-gradient(135deg, ${accentColor} 0%, ${accentColor}99 100%)`;
   const isFreeTrial = plan.name === "free_trial";
-  const isEnterprise = plan.name === "enterprise";
   const badge = PLAN_BADGE[plan.name];
-  const isUnlimited = plan.name === "unlimited";
 
   // Pricing logic
   const monthlyPrice = plan.price_cents;
@@ -356,7 +354,7 @@ const PlanCard: React.FC<{
         borderRadius: 16,
         border: isCurrentPlan
           ? `2px solid ${accentColor}`
-          : isEnterprise
+          : plan.name === "premium"
             ? `2px solid ${accentColor}40`
             : `1px solid ${token.colorBorderSecondary}`,
         position: "relative",
@@ -365,7 +363,7 @@ const PlanCard: React.FC<{
         transition: "box-shadow 0.2s",
         boxShadow: isCurrentPlan
           ? `0 0 0 1px ${accentColor}30, 0 4px 24px ${accentColor}20`
-          : isEnterprise
+          : plan.name === "premium"
             ? `0 4px 24px ${accentColor}15`
             : "none",
         background: token.colorBgContainer,
@@ -599,7 +597,7 @@ const BillingPage: React.FC = () => {
           <Alert
             type="error" showIcon icon={<ExclamationCircleOutlined />}
             message={<span><strong>Subscription inactive</strong> — Scraping and campaign features are locked.</span>}
-            action={<Button size="small" type="primary" danger onClick={() => handleSubscribe(plans.find((p) => p.name === "starter") as Plan)}>Subscribe</Button>}
+            action={<Button size="small" type="primary" danger onClick={() => handleSubscribe(plans.find((p) => p.name === "basic") as Plan)}>Subscribe</Button>}
             style={{ borderRadius: 10 }}
           />
         )}
