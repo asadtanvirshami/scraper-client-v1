@@ -39,6 +39,7 @@ import {
   AdminUpdatePoolCookies,
   AdminDeletePoolAccount,
   AdminResetPoolAccount,
+  type InstagramCookie,
   type PoolAccount,
 } from "@/api/api_calls/account-pool";
 
@@ -54,6 +55,44 @@ const statusColor: Record<string, string> = {
   suspended: "red",
   error: "red",
 };
+
+const REQUIRED_COOKIE_NAMES = ["sessionid", "csrftoken"];
+
+function parseCookieJson(input: string): InstagramCookie[] {
+  let parsed: unknown;
+
+  try {
+    parsed = JSON.parse(input);
+  } catch {
+    throw new Error("Invalid JSON - paste the raw cookie array exported by Cookie-Editor.");
+  }
+
+  if (!Array.isArray(parsed)) {
+    throw new Error("Expected a JSON array of cookies.");
+  }
+
+  const invalidCookie = parsed.find(
+    (cookie) =>
+      !cookie ||
+      typeof cookie !== "object" ||
+      typeof (cookie as InstagramCookie).name !== "string" ||
+      typeof (cookie as InstagramCookie).value !== "string",
+  );
+
+  if (invalidCookie) {
+    throw new Error("Each cookie must include string name and value fields.");
+  }
+
+  const missing = REQUIRED_COOKIE_NAMES.filter(
+    (name) => !parsed.some((cookie) => (cookie as InstagramCookie).name === name),
+  );
+
+  if (missing.length > 0) {
+    throw new Error(`Missing required cookie: ${missing.join(", ")}`);
+  }
+
+  return parsed as InstagramCookie[];
+}
 
 // ─── Instructions panel ───────────────────────────────────────────────────────
 function SetupInstructions() {
@@ -171,7 +210,7 @@ function CookieModal({
   mode: "add" | "update";
   account: PoolAccount | null;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: () => Promise<void> | void;
 }) {
   const [form] = Form.useForm();
   const [saving, setSaving] = useState(false);
@@ -185,46 +224,42 @@ function CookieModal({
       const values = await form.validateFields();
       setSaving(true);
 
-      // Validate JSON before sending
-      let parsed: unknown;
+      let cookies: InstagramCookie[];
       try {
-        parsed = JSON.parse(values.cookies);
-      } catch {
-        message.error("Invalid JSON — paste the raw cookie array exported by Cookie-Editor.");
-        setSaving(false);
-        return;
-      }
-      if (!Array.isArray(parsed)) {
-        message.error("Expected a JSON array of cookies.");
-        setSaving(false);
+        cookies = parseCookieJson(values.cookies);
+      } catch (e: any) {
+        message.error(e?.message || "Invalid cookie JSON.");
         return;
       }
 
       if (mode === "add") {
         const res = await AdminAddPoolAccount({
-          cookies: values.cookies,
+          cookies,
           displayName: values.displayName || undefined,
           notes: values.notes || undefined,
         });
         if (res?.success) {
           message.success("Account added to pool successfully");
-          onSuccess();
+          await onSuccess();
           onClose();
         } else {
           message.error(res?.message || "Failed to add account");
         }
       } else if (account) {
-        const res = await AdminUpdatePoolCookies(account._id, values.cookies);
+        const res = await AdminUpdatePoolCookies(account._id, cookies);
         if (res?.success) {
           message.success("Cookies updated successfully");
-          onSuccess();
+          await onSuccess();
           onClose();
         } else {
           message.error(res?.message || "Failed to update cookies");
         }
       }
-    } catch {
-      // form validation errors handled automatically
+    } catch (e: any) {
+      const errorFields = e?.errorFields;
+      if (!errorFields) {
+        message.error(e?.response?.data?.message || e?.message || "Failed to save cookies");
+      }
     } finally {
       setSaving(false);
     }

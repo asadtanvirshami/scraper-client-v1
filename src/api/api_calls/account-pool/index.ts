@@ -22,8 +22,20 @@ export type PoolAccount = {
   updatedAt: string;
 };
 
+export type InstagramCookie = {
+  name: string;
+  value: string;
+  domain?: string;
+  path?: string;
+  expires?: number;
+  expirationDate?: number;
+  httpOnly?: boolean;
+  secure?: boolean;
+  sameSite?: string;
+};
+
 export type AddAccountPayload = {
-  cookies: string; // raw JSON string pasted by admin
+  cookies: InstagramCookie[];
   displayName?: string;
   notes?: string;
 };
@@ -62,7 +74,7 @@ export async function AdminUpdatePoolAccount(
 
 export async function AdminUpdatePoolCookies(
   id: string,
-  cookies: string,
+  cookies: InstagramCookie[],
 ): Promise<GenericResponse> {
   const { data } = await api.put(
     apiEndpoints.adminAccountPool.updateCookies(id),
