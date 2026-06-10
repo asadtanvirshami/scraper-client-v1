@@ -8,16 +8,21 @@
 import React, { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useSubscription } from "@/features/billings/hooks";
+import { useUserInfo } from "@/helpers/use-user";
 
 /** Routes where we must NOT redirect (user is trying to subscribe / manage billing). */
 const EXEMPT_PREFIXES = ["/plans", "/billings", "/auth", "/onboarding"];
 
 const SubscriptionInitializer: React.FC = () => {
   const { data: subscription, isLoading, isError } = useSubscription();
+  const { role } = useUserInfo();
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
+    // Admins are never gated by subscription
+    if (role === "ADMIN") return;
+
     // Wait for the query to settle
     if (isLoading) return;
 
@@ -36,7 +41,7 @@ const SubscriptionInitializer: React.FC = () => {
     if (noSubscription || lostAccess) {
       router.replace("/plans");
     }
-  }, [subscription, isLoading, isError, pathname, router]);
+  }, [subscription, isLoading, isError, pathname, router, role]);
 
   return null;
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Button, Form, Input, Typography } from "antd";
 import { MailOutlined, LockOutlined } from "@ant-design/icons";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -20,23 +20,6 @@ const SignInForm: React.FC = () => {
   const googleSigninMutation = useGoogleSignin();
   const dispatch = useDispatch();
   const router = useRouter();
-  const [googleTheme, setGoogleTheme] = useState<"outline" | "filled_black">(
-    "outline",
-  );
-
-  useEffect(() => {
-    const syncGoogleTheme = () => {
-      setGoogleTheme(
-        document.documentElement.classList.contains("dark")
-          ? "filled_black"
-          : "outline",
-      );
-    };
-
-    syncGoogleTheme();
-    window.addEventListener("app-theme-change", syncGoogleTheme);
-    return () => window.removeEventListener("app-theme-change", syncGoogleTheme);
-  }, []);
 
   const handleSubmit = (values: { email: string; password: string }) => {
     logInMutation.mutateAsync(values, {
@@ -100,7 +83,7 @@ const SignInForm: React.FC = () => {
       <Form.Item
         name="email"
         label={
-          <span className="text-sm font-medium text-gray-700 dark:text-white/82">
+          <span className="text-sm font-medium text-white/82">
             <FormattedMessage id="auth.common.email_label" />
           </span>
         }
@@ -120,9 +103,9 @@ const SignInForm: React.FC = () => {
         ]}
       >
         <Input
-          prefix={<MailOutlined className="mr-2 text-gray-400 dark:text-white/35" />}
+          prefix={<MailOutlined className="mr-2 text-white/35" />}
           placeholder={intl.formatMessage({ id: "auth.common.email_placeholder" })}
-          className="!h-13 !rounded-2xl !border-gray-200 !bg-white !px-3 !text-gray-900 placeholder:!text-gray-400 hover:!border-gray-300 focus:!border-gray-400 focus:!shadow-none dark:!border-white/10 dark:!bg-[#1b1b21] dark:!text-white dark:placeholder:!text-white/26 dark:hover:!border-white/18 dark:focus:!border-white/22"
+          className="!h-13 !rounded-2xl !border-white/10 !bg-[#1b1b21] !px-3 !text-white placeholder:!text-white/26 hover:!border-white/18 focus:!border-white/22 focus:!shadow-none"
         />
       </Form.Item>
 
@@ -130,7 +113,7 @@ const SignInForm: React.FC = () => {
         name="password"
         label={
           <div className="flex justify-between items-center w-full">
-            <span className="text-sm font-medium text-gray-700 dark:text-white/82">
+            <span className="text-sm font-medium text-white/82">
               <FormattedMessage id="auth.common.password_label" />
             </span>
           </div>
@@ -145,17 +128,17 @@ const SignInForm: React.FC = () => {
         ]}
       >
         <Input.Password
-          prefix={<LockOutlined className="mr-2 text-gray-400 dark:text-white/35" />}
+          prefix={<LockOutlined className="mr-2 text-white/35" />}
           placeholder={intl.formatMessage({ id: "auth.common.password_placeholder" })}
-          className="!h-13 !rounded-2xl !border-gray-200 !bg-white !px-3 !text-gray-900 placeholder:!text-gray-400 hover:!border-gray-300 focus:!border-gray-400 focus:!shadow-none dark:!border-white/10 dark:!bg-[#1b1b21] dark:!text-white dark:placeholder:!text-white/26 dark:hover:!border-white/18 dark:focus:!border-white/22"
+          className="!h-13 !rounded-2xl !border-white/10 !bg-[#1b1b21] !px-3 !text-white placeholder:!text-white/26 hover:!border-white/18 focus:!border-white/22 focus:!shadow-none"
         />
       </Form.Item>
 
-      <div className="-mt-1 mb-5 flex items-center justify-between gap-4 text-[13px] text-gray-500 dark:text-white/58">
-        <Link href="/auth/signup" className="!text-gray-500 hover:!text-gray-900 dark:!text-white/58 dark:hover:!text-white">
+      <div className="-mt-1 mb-5 flex items-center justify-between gap-4 text-[13px] text-white/58">
+        <Link href="/auth/signup" className="!text-white/58 hover:!text-white">
           <FormattedMessage id="auth.sign_in.no_account_prompt" />
         </Link>
-        <Link href="/auth/forgot-password" className="!text-gray-500 hover:!text-gray-900 dark:!text-white/58 dark:hover:!text-white">
+        <Link href="/auth/forgot-password" className="!text-white/58 hover:!text-white">
           <FormattedMessage id="auth.sign_in.forgot_password_short" />
         </Link>
       </div>
@@ -174,10 +157,10 @@ const SignInForm: React.FC = () => {
 
       <div className="relative py-6">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-200 dark:border-white/10"></div>
+          <div className="w-full border-t border-white/10"></div>
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-white px-3 text-[12px] font-semibold tracking-wide text-gray-500 dark:bg-[#151519] dark:text-white/58">
+          <span className="bg-[#151519] px-3 text-[12px] font-semibold tracking-wide text-white/58">
             <FormattedMessage id="auth.common.or_continue_with" />
           </span>
         </div>
@@ -189,7 +172,7 @@ const SignInForm: React.FC = () => {
           onError={onGoogleError}
           shape="rectangular"
           width="274"
-          theme={googleTheme}
+          theme="filled_black"
           text="signin_with"
         />
       </div>

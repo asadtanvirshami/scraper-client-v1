@@ -61,6 +61,7 @@ import type {
   StripeCharge,
   StripePromoCode,
 } from "@/types/api/billing";
+import { useIntl } from "react-intl";
 
 const { Title, Text, Paragraph } = Typography;
 const { TabPane } = Tabs;
@@ -87,6 +88,7 @@ const SUB_STATUS_COLOR: Record<string, string> = {
 
 const SubscriptionsTab: React.FC = () => {
   const { token } = theme.useToken();
+  const intl = useIntl();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
@@ -109,7 +111,10 @@ const SubscriptionsTab: React.FC = () => {
 
   const columns: ColumnsType<AdminSubscriptionRow> = [
     {
-      title: "User",
+      title: intl.formatMessage({
+        id: "admin.billing_management.subscriptions.columns.user",
+        defaultMessage: "User",
+      }),
       key: "user",
       render: (_, row) => (
         <Space direction="vertical" size={0}>
@@ -121,7 +126,10 @@ const SubscriptionsTab: React.FC = () => {
       ),
     },
     {
-      title: "Plan",
+      title: intl.formatMessage({
+        id: "admin.billing_management.subscriptions.columns.plan",
+        defaultMessage: "Plan",
+      }),
       key: "plan",
       render: (_, row) => (
         <Space size={4}>
@@ -133,7 +141,10 @@ const SubscriptionsTab: React.FC = () => {
       ),
     },
     {
-      title: "Status",
+      title: intl.formatMessage({
+        id: "admin.billing_management.subscriptions.columns.status",
+        defaultMessage: "Status",
+      }),
       dataIndex: "status",
       key: "status",
       render: (status: string) => (
@@ -143,7 +154,10 @@ const SubscriptionsTab: React.FC = () => {
       ),
     },
     {
-      title: "Period",
+      title: intl.formatMessage({
+        id: "admin.billing_management.subscriptions.columns.period",
+        defaultMessage: "Period",
+      }),
       key: "period",
       render: (_, row) => (
         <Text style={{ fontSize: 12, color: token.colorTextSecondary }}>
@@ -154,7 +168,10 @@ const SubscriptionsTab: React.FC = () => {
       ),
     },
     {
-      title: "Stripe ID",
+      title: intl.formatMessage({
+        id: "admin.billing_management.subscriptions.columns.stripe_id",
+        defaultMessage: "Stripe ID",
+      }),
       key: "stripe_id",
       render: (_, row) =>
         row.stripe_subscription_id ? (
@@ -168,7 +185,10 @@ const SubscriptionsTab: React.FC = () => {
         ),
     },
     {
-      title: "Actions",
+      title: intl.formatMessage({
+        id: "admin.billing_management.subscriptions.columns.actions",
+        defaultMessage: "Actions",
+      }),
       key: "actions",
       render: (_, row) =>
         row.status !== "canceled" ? (
@@ -196,7 +216,10 @@ const SubscriptionsTab: React.FC = () => {
       <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
         <Col xs={24} sm={14}>
           <Input.Search
-            placeholder="Search by email or name…"
+            placeholder={intl.formatMessage({
+              id: "admin.billing_management.subscriptions.search_placeholder",
+              defaultMessage: "Search by email or name...",
+            })}
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             onSearch={(v) => { setSearch(v); setPage(1); }}
@@ -207,7 +230,10 @@ const SubscriptionsTab: React.FC = () => {
         </Col>
         <Col xs={24} sm={10}>
           <Select
-            placeholder="Filter by status"
+            placeholder={intl.formatMessage({
+              id: "admin.billing_management.subscriptions.filter_status",
+              defaultMessage: "Filter by status",
+            })}
             allowClear
             style={{ width: "100%", borderRadius: 8 }}
             onChange={(v) => { setStatusFilter(v); setPage(1); }}
@@ -674,13 +700,22 @@ const PromoCodesTab: React.FC = () => {
 
 const AdminBillingManagement: React.FC = () => {
   const { token } = theme.useToken();
+  const intl = useIntl();
 
   return (
     <div style={{ padding: "24px", maxWidth: 1280, margin: "0 auto" }}>
       <div style={{ marginBottom: 28 }}>
-        <Title level={3} style={{ margin: 0, color: token.colorText }}>Billing Management</Title>
+        <Title level={3} style={{ margin: 0, color: token.colorText }}>
+          {intl.formatMessage({
+            id: "admin.billing_management.title",
+            defaultMessage: "Billing Management",
+          })}
+        </Title>
         <Text style={{ color: token.colorTextSecondary, marginTop: 4, display: "block" }}>
-          Manage subscriptions, issue refunds, and control promotional codes
+          {intl.formatMessage({
+            id: "admin.billing_management.subtitle",
+            defaultMessage: "Manage subscriptions, issue refunds, and control promotional codes",
+          })}
         </Text>
       </div>
 
@@ -695,7 +730,10 @@ const AdminBillingManagement: React.FC = () => {
               label: (
                 <Space>
                   <TeamOutlined />
-                  Subscriptions
+                  {intl.formatMessage({
+                    id: "admin.billing_management.tabs.subscriptions",
+                    defaultMessage: "Subscriptions",
+                  })}
                 </Space>
               ),
               children: (
@@ -709,7 +747,10 @@ const AdminBillingManagement: React.FC = () => {
               label: (
                 <Space>
                   <DollarCircleOutlined />
-                  Refunds
+                  {intl.formatMessage({
+                    id: "admin.billing_management.tabs.refunds",
+                    defaultMessage: "Refunds",
+                  })}
                 </Space>
               ),
               children: (
@@ -723,7 +764,10 @@ const AdminBillingManagement: React.FC = () => {
               label: (
                 <Space>
                   <GiftOutlined />
-                  Promo Codes
+                  {intl.formatMessage({
+                    id: "admin.billing_management.tabs.promo_codes",
+                    defaultMessage: "Promo Codes",
+                  })}
                 </Space>
               ),
               children: (

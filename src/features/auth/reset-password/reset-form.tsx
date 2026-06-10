@@ -1,4 +1,5 @@
 import { Button, Form, Input } from "antd";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { FormattedMessage, useIntl } from "react-intl";
 import { useResetPassword } from "../hooks/";
@@ -13,10 +14,30 @@ const ResetPasswordForm = () => {
   const intl = useIntl();
   const router = useRouter();
   const resetPassMutation = useResetPassword();
+
+  useEffect(() => {
+    const email = localStorage.getItem("password_reset_email");
+    const isOtpVerified = localStorage.getItem("password_reset_verified") === "true";
+
+    if (!email) {
+      router.replace("/auth/forgot-password");
+      return;
+    }
+
+    if (!isOtpVerified) {
+      router.replace("/auth/otp");
+    }
+  }, [router]);
+
   const onFinish = async (values: ResetPasswordValues) => {
     const email = localStorage.getItem("password_reset_email");
     if (!email) {
       router.replace("/auth/forgot-password");
+      return;
+    }
+
+    if (localStorage.getItem("password_reset_verified") !== "true") {
+      router.replace("/auth/otp");
       return;
     }
 
@@ -34,10 +55,12 @@ const ResetPasswordForm = () => {
       onFinish={onFinish}
       autoComplete="off"
       className="space-y-4"
+      initialValues={{
+        otp: typeof window !== "undefined" ? localStorage.getItem("password_reset_otp") ?? "" : "",
+      }}
     >
-      {/* OTP */}
       <Form.Item
-        label={<span className="text-sm font-medium text-gray-700 dark:text-white/82"><FormattedMessage id="auth.common.verification_code_label" /></span>}
+        label={<span className="text-sm font-medium text-white/82"><FormattedMessage id="auth.reset_password.otp" /></span>}
         name="otp"
         rules={[
           {
@@ -67,13 +90,13 @@ const ResetPasswordForm = () => {
           placeholder={intl.formatMessage({
             id: "auth.reset_password.otp_placeholder",
           })}
-          className="!h-13 !rounded-2xl !border-gray-200 !bg-white !px-3 !text-gray-900 placeholder:!text-gray-400 hover:!border-gray-300 focus:!border-gray-400 focus:!shadow-none dark:!border-white/10 dark:!bg-[#1b1b21] dark:!text-white dark:placeholder:!text-white/26 dark:hover:!border-white/18 dark:focus:!border-white/22"
+          className="!h-13 !rounded-2xl !border-white/10 !bg-[#1b1b21] !px-3 !text-white placeholder:!text-white/26 hover:!border-white/18 focus:!border-white/22 focus:!shadow-none"
         />
       </Form.Item>
 
       {/* New Password */}
       <Form.Item
-        label={<span className="text-sm font-medium text-gray-700 dark:text-white/82"><FormattedMessage id="auth.reset_password.new_password" /></span>}
+        label={<span className="text-sm font-medium text-white/82"><FormattedMessage id="auth.reset_password.new_password" /></span>}
         name="newPassword"
         hasFeedback
         rules={[
@@ -96,13 +119,13 @@ const ResetPasswordForm = () => {
           placeholder={intl.formatMessage({
             id: "auth.reset_password.new_password_placeholder",
           })}
-          className="!h-13 !rounded-2xl !border-gray-200 !bg-white !px-3 !text-gray-900 placeholder:!text-gray-400 hover:!border-gray-300 focus:!border-gray-400 focus:!shadow-none dark:!border-white/10 dark:!bg-[#1b1b21] dark:!text-white dark:placeholder:!text-white/26 dark:hover:!border-white/18 dark:focus:!border-white/22"
+          className="!h-13 !rounded-2xl !border-white/10 !bg-[#1b1b21] !px-3 !text-white placeholder:!text-white/26 hover:!border-white/18 focus:!border-white/22 focus:!shadow-none"
         />
       </Form.Item>
 
       {/* Confirm Password */}
       <Form.Item
-        label={<span className="text-sm font-medium text-gray-700 dark:text-white/82"><FormattedMessage id="auth.reset_password.confirm_password" /></span>}
+        label={<span className="text-sm font-medium text-white/82"><FormattedMessage id="auth.reset_password.confirm_password" /></span>}
         name="confirmPassword"
         dependencies={["newPassword"]}
         hasFeedback
@@ -134,7 +157,7 @@ const ResetPasswordForm = () => {
           placeholder={intl.formatMessage({
             id: "auth.reset_password.confirm_password_placeholder",
           })}
-          className="!h-13 !rounded-2xl !border-gray-200 !bg-white !px-3 !text-gray-900 placeholder:!text-gray-400 hover:!border-gray-300 focus:!border-gray-400 focus:!shadow-none dark:!border-white/10 dark:!bg-[#1b1b21] dark:!text-white dark:placeholder:!text-white/26 dark:hover:!border-white/18 dark:focus:!border-white/22"
+          className="!h-13 !rounded-2xl !border-white/10 !bg-[#1b1b21] !px-3 !text-white placeholder:!text-white/26 hover:!border-white/18 focus:!border-white/22 focus:!shadow-none"
         />
       </Form.Item>
 

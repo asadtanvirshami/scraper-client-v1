@@ -30,9 +30,7 @@ import {
   InfoCircleOutlined,
   WarningOutlined,
   TeamOutlined,
-  SafetyCertificateOutlined,
   SaveOutlined,
-  UserOutlined,
 } from "@ant-design/icons";
 import { FormattedMessage, useIntl } from "react-intl";
 
@@ -806,36 +804,10 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
         </Col>
 
         {/* ── Real-time scrape stats ── */}
-        {(totalScraped !== null || deepScanCount !== null || liveCount !== null || profilesFetched !== null) && (
+        {(totalScraped !== null || liveCount !== null) && (
           <Col xs={24}>
             <Row gutter={[16, 16]}>
-              {profilesFetched !== null && (
-                <Col xs={24} sm={6}>
-                  <Card bodyStyle={{ padding: "16px 20px" }} bordered>
-                    <Statistic
-                      title={
-                        <Space size={6}>
-                          <UserOutlined style={{ color: "#fa8c16" }} />
-                          <span>
-                            <FormattedMessage
-                              id="analysis.analyzer.stats.profiles_fetched"
-                              defaultMessage="Profiles Fetched"
-                            />
-                            {profilesTotal !== null && profilesTotal > 0 && (
-                              <span style={{ fontWeight: 400, color: "#8c8c8c", marginLeft: 4 }}>
-                                / {profilesTotal.toLocaleString()}
-                              </span>
-                            )}
-                          </span>
-                        </Space>
-                      }
-                      value={profilesFetched}
-                      valueStyle={{ color: "#fa8c16", fontWeight: 700 }}
-                    />
-                  </Card>
-                </Col>
-              )}
-              <Col xs={24} sm={profilesFetched !== null ? 6 : 8}>
+              <Col xs={24} sm={12}>
                 <Card bodyStyle={{ padding: "16px 20px" }} bordered>
                   <Statistic
                     title={
@@ -843,8 +815,8 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
                         <TeamOutlined style={{ color: "#1677ff" }} />
                         <span>
                           <FormattedMessage
-                            id="analysis.analyzer.stats.total_scraped"
-                            defaultMessage="Total Scraped"
+                            id="analysis.analyzer.stats.profiles_analyzed"
+                            defaultMessage="Profiles Analyzed"
                           />
                         </span>
                       </Space>
@@ -854,7 +826,7 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
                   />
                 </Card>
               </Col>
-              <Col xs={24} sm={profilesFetched !== null ? 6 : 8}>
+              <Col xs={24} sm={12}>
                 <Card bodyStyle={{ padding: "16px 20px" }} bordered>
                   <Statistic
                     title={
@@ -862,38 +834,14 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
                         <SaveOutlined style={{ color: "#52c41a" }} />
                         <span>
                           <FormattedMessage
-                            id="analysis.analyzer.stats.saved_to_db"
-                            defaultMessage="Saved to DB"
+                            id="analysis.analyzer.stats.profiles_enriched"
+                            defaultMessage="Profiles Enriched"
                           />
                         </span>
                       </Space>
                     }
                     value={liveCount ?? 0}
                     valueStyle={{ color: "#52c41a", fontWeight: 700 }}
-                  />
-                </Card>
-              </Col>
-              <Col xs={24} sm={profilesFetched !== null ? 6 : 8}>
-                <Card bodyStyle={{ padding: "16px 20px" }} bordered>
-                  <Statistic
-                    title={
-                      <Space size={6}>
-                        <SafetyCertificateOutlined style={{ color: "#722ed1" }} />
-                        <span>
-                          <FormattedMessage
-                            id="analysis.analyzer.stats.deep_scan_completed"
-                            defaultMessage="Deep Scan Completed"
-                          />
-                          {deepScanTotal !== null && deepScanTotal > 0 && (
-                            <span style={{ fontWeight: 400, color: "#8c8c8c", marginLeft: 4 }}>
-                              / {deepScanTotal.toLocaleString()}
-                            </span>
-                          )}
-                        </span>
-                      </Space>
-                    }
-                    value={deepScanCount ?? 0}
-                    valueStyle={{ color: "#722ed1", fontWeight: 700 }}
                   />
                 </Card>
               </Col>

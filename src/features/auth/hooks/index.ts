@@ -77,10 +77,14 @@ export function useForgotPassword () {
       const email = String(variables?.email || "").trim().toLowerCase();
       if (email) {
         localStorage.setItem("password_reset_email", email);
+        localStorage.setItem("auth_otp_email", email);
+        localStorage.setItem("auth_otp_purpose", "password_reset");
       }
+      localStorage.removeItem("password_reset_otp");
+      localStorage.removeItem("password_reset_verified");
       const successKey = getSuccessMessage(data?.message);
       message.success(intl.formatMessage({ id: successKey }));
-      router.replace("/auth/reset-password");
+      router.replace("/auth/otp");
       return data;
     },
     onError: (error) => {
@@ -119,6 +123,10 @@ export function useResetPassword () {
     mutationFn: async (input: any) => await ResetPassword(input),
     onSuccess: (data) => {
       localStorage.removeItem("password_reset_email");
+      localStorage.removeItem("password_reset_otp");
+      localStorage.removeItem("password_reset_verified");
+      localStorage.removeItem("auth_otp_email");
+      localStorage.removeItem("auth_otp_purpose");
       localStorage.removeItem("email");
       const successKey = getSuccessMessage(data?.message);
       message.success(intl.formatMessage({ id: successKey }));

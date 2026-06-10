@@ -10,17 +10,20 @@ import {
   Row,
   Space,
   Spin,
+  Switch,
   Table,
   Tag,
   Tooltip,
   Typography,
   message,
+  theme,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import {
   CaretRightOutlined,
   DeleteOutlined,
   DownOutlined,
+  InfoCircleOutlined,
   InstagramOutlined,
   PauseCircleOutlined,
   ReloadOutlined,
@@ -40,6 +43,18 @@ import { useSocket } from "@/hooks/use-socket";
 const { Title, Text } = Typography;
 
 const TERMINAL_STATES = new Set(["completed", "failed"]);
+const HIDDEN_FAILED_REASONS = new Set(["failed-to-analyze"]);
+
+const formatFailedReason = (failedReason: string | null) => {
+  if (!failedReason) return null;
+
+  const normalizedReason = failedReason.trim().toLowerCase();
+  if (HIDDEN_FAILED_REASONS.has(normalizedReason)) {
+    return null;
+  }
+
+  return failedReason;
+};
 
 const stateTag = (
   intl: ReturnType<typeof useIntl>,
@@ -79,7 +94,7 @@ const stateTag = (
       );
     case "completed":
       return (
-        <Tag color="default">
+        <Tag color="green">
           {intl.formatMessage({
             id: "analysis.scrape_jobs.status.completed",
             defaultMessage: "Completed",
@@ -95,7 +110,7 @@ const stateTag = (
           })}
         </Tag>
       );
-    default: return <Tag>{state}</Tag>;
+    default: return <Tag >{state}</Tag>;
   }
 };
 
@@ -128,11 +143,13 @@ function JobLeadsTable({
   folderId: string | null;
 }) {
   const intl = useIntl();
+  const { token } = theme.useToken();
   const [leadsPage, setLeadsPage] = useState(1);
   const LIMIT = 10;
   const [leads, setLeads] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [hasContacts, setHasContacts] = useState(false);
 
   const fetch = useCallback(
     async (p: number) => {
@@ -147,6 +164,7 @@ function JobLeadsTable({
           limit: LIMIT,
           scrape_status: true,
           type: "INSTAGRAM",
+          has_contacts: hasContacts || undefined,
         } as any);
         // response shape: { data: Lead[], pagination: { total, page, limit, totalPages } }
         const list: any[] = Array.isArray(res?.data) ? res.data : [];
@@ -164,12 +182,16 @@ function JobLeadsTable({
         setLoading(false);
       }
     },
-    [userId, targetUsername, folderId],
+    [userId, targetUsername, folderId, hasContacts],
   );
 
   useEffect(() => {
     fetch(leadsPage);
   }, [leadsPage, fetch]);
+
+  useEffect(() => {
+    setLeadsPage(1);
+  }, [hasContacts]);
 
   const leadsColumns: ColumnsType<any> = [
     {
@@ -287,29 +309,59 @@ function JobLeadsTable({
   ];
 
   return (
-    <div style={{ padding: "12px 24px 20px", background: "#fafafa" }}>
-      <div style={{ marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}>
-        <InstagramOutlined style={{ color: "#e1306c" }} />
-        <Text strong>
-          {intl.formatMessage(
-            {
-              id: "analysis.scrape_jobs.leads.scraped_from",
-              defaultMessage: "Leads scraped from @{username}",
-            },
-            { username: targetUsername },
-          )}
-        </Text>
-        {total > 0 && (
-          <Tag color="blue">
+    <div
+      style={{
+        padding: "12px 24px 20px",
+        background: token.colorFillAlter,
+        borderTop: `1px solid ${token.colorBorderSecondary}`,
+      }}
+    >
+      <div
+        style={{
+          marginBottom: 12,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 8,
+          flexWrap: "wrap",
+        }}
+      >
+        <Space size={8} align="center">
+          <InstagramOutlined style={{ color: "#e1306c" }} />
+          <Text strong>
             {intl.formatMessage(
               {
-                id: "analysis.scrape_jobs.leads.total",
-                defaultMessage: "{count} total",
+                id: "analysis.scrape_jobs.leads.scraped_from",
+                defaultMessage: "Leads scraped from @{username}",
               },
-              { count: total.toLocaleString() },
+              { username: targetUsername },
             )}
-          </Tag>
-        )}
+          </Text>
+          {total > 0 && (
+            <Tag color="blue">
+              {intl.formatMessage(
+                {
+                  id: "analysis.scrape_jobs.leads.total",
+                  defaultMessage: "{count} total",
+                },
+                { count: total.toLocaleString() },
+              )}
+            </Tag>
+          )}
+        </Space>
+        <Space size={8} align="center">
+          <Text>
+            {intl.formatMessage({
+              id: "analysis.scrape_jobs.leads.has_contacts",
+              defaultMessage: "Has Contacts (Email/Phone)",
+            })}
+          </Text>
+          <Switch
+            checked={hasContacts}
+            onChange={(checked) => setHasContacts(checked)}
+            size="small"
+          />
+        </Space>
       </div>
       <Table
         dataSource={leads}
@@ -352,6 +404,7 @@ function JobLeadsTable({
 
 export default function ScrapeJobsManager() {
   const intl = useIntl();
+  const { token } = theme.useToken();
   const { id: userId } = useUserInfo();
   const [jobs, setJobs] = useState<ScrapeJob[]>([]);
   const [total, setTotal] = useState(0);
@@ -531,58 +584,58 @@ export default function ScrapeJobsManager() {
       width: 120,
       render: (_, r) => stateTag(intl, r.state, r.control?.paused),
     },
-    {
-      title: intl.formatMessage({
-        id: "analysis.scrape_jobs.table.saved",
-        defaultMessage: "Saved",
-      }),
-      key: "saved",
-      width: 100,
-      render: (_, r) => {
-        const count = r.result?.inserted_count ?? r.result?.saved_count ?? null;
-        const liveKey = `${r.data?.targetUsername}:${r.data?.type}`;
-        const live = liveJobCounts[liveKey];
-        if (live) {
-          return (
-            <Tooltip
-              title={intl.formatMessage(
-                {
-                  id: "analysis.scrape_jobs.live_progress",
-                  defaultMessage: "{completed} / {total} profiles fetched",
-                },
-                { completed: live.completed, total: live.total },
-              )}
-            >
-              <Text strong style={{ color: "#fa8c16" }}>
-                {live.completed.toLocaleString()}
-                {live.total > 0 && (
-                  <Text type="secondary" style={{ fontSize: 11, marginLeft: 2 }}>
-                    /{live.total}
-                  </Text>
-                )}
-              </Text>
-            </Tooltip>
-          );
-        }
-        return count !== null ? (
-          <Text strong style={{ color: "#52c41a" }}>{count.toLocaleString()}</Text>
-        ) : (
-          <Text type="secondary">—</Text>
-        );
-      },
-    },
-    {
-      title: intl.formatMessage({
-        id: "analysis.scrape_jobs.table.total_on_profile",
-        defaultMessage: "Total on Profile",
-      }),
-      key: "total",
-      width: 130,
-      render: (_, r) => {
-        const t = r.result?.scrape_target ?? null;
-        return t !== null ? t.toLocaleString() : <Text type="secondary">—</Text>;
-      },
-    },
+    // {
+    //   title: intl.formatMessage({
+    //     id: "analysis.scrape_jobs.table.saved",
+    //     defaultMessage: "Saved",
+    //   }),
+    //   key: "saved",
+    //   width: 100,
+    //   render: (_, r) => {
+    //     const count = r.result?.inserted_count ?? r.result?.saved_count ?? null;
+    //     const liveKey = `${r.data?.targetUsername}:${r.data?.type}`;
+    //     const live = liveJobCounts[liveKey];
+    //     if (live) {
+    //       return (
+    //         <Tooltip
+    //           title={intl.formatMessage(
+    //             {
+    //               id: "analysis.scrape_jobs.live_progress",
+    //               defaultMessage: "{completed} / {total} profiles fetched",
+    //             },
+    //             { completed: live.completed, total: live.total },
+    //           )}
+    //         >
+    //           <Text strong style={{ color: "#fa8c16" }}>
+    //             {live.completed.toLocaleString()}
+    //             {live.total > 0 && (
+    //               <Text type="secondary" style={{ fontSize: 11, marginLeft: 2 }}>
+    //                 /{live.total}
+    //               </Text>
+    //             )}
+    //           </Text>
+    //         </Tooltip>
+    //       );
+    //     }
+    //     return count !== null ? (
+    //       <Text strong style={{ color: "#52c41a" }}>{count.toLocaleString()}</Text>
+    //     ) : (
+    //       <Text type="secondary">—</Text>
+    //     );
+    //   },
+    // },
+    // {
+    //   title: intl.formatMessage({
+    //     id: "analysis.scrape_jobs.table.total_on_profile",
+    //     defaultMessage: "Total on Profile",
+    //   }),
+    //   key: "total",
+    //   width: 130,
+    //   render: (_, r) => {
+    //     const t = r.result?.scrape_target ?? null;
+    //     return t !== null ? t.toLocaleString() : <Text type="secondary">—</Text>;
+    //   },
+    // },
     {
       title: intl.formatMessage({
         id: "analysis.scrape_jobs.table.started",
@@ -612,12 +665,15 @@ export default function ScrapeJobsManager() {
       }),
       key: "error",
       ellipsis: true,
-      render: (_, r) =>
-        r.failedReason ? (
-          <Tooltip title={r.failedReason}>
-            <Text type="danger" style={{ fontSize: 12 }}>{r.failedReason}</Text>
+      render: (_, r) => {
+        const failedReason = formatFailedReason(r.failedReason);
+
+        return failedReason ? (
+          <Tooltip title={failedReason}>
+            <Text type="danger" style={{ fontSize: 12 }}>{failedReason}</Text>
           </Tooltip>
-        ) : null,
+        ) : null;
+      },
     },
     {
       title: intl.formatMessage({
@@ -737,6 +793,227 @@ export default function ScrapeJobsManager() {
             </Text>
             <div style={{ fontSize: 22, fontWeight: 700, color: "#1677ff" }}>
               {jobs.filter((j) => j.state === "completed").length}
+            </div>
+          </Card>
+        </Col>
+      </Row>
+
+      <Row>
+        <Col span={24}>
+          <Card bordered={false} bodyStyle={{ padding: 0, background: "transparent" }}>
+            <div
+              style={{
+                border: `1px solid ${token.colorBorderSecondary}`,
+                borderRadius: 14,
+                padding: "18px 20px",
+                background: `linear-gradient(135deg, ${token.colorFillAlter} 0%, ${token.colorBgContainer} 100%)`,
+              }}
+            >
+              <Space direction="vertical" size={14} style={{ width: "100%" }}>
+                <Space size={8} align="center">
+                  <InfoCircleOutlined style={{ color: token.colorInfo }} />
+                  <Text strong style={{ fontSize: 16 }}>
+                    {intl.formatMessage({
+                      id: "analysis.scrape_jobs.notes.title",
+                      defaultMessage: "Job Lifecycle Notes",
+                    })}
+                  </Text>
+                </Space>
+
+                <Text type="secondary">
+                  {intl.formatMessage({
+                    id: "analysis.scrape_jobs.notes.subtitle",
+                    defaultMessage:
+                      "A job moves through these states: Queued, Active, Paused, Completed, or Failed.",
+                  })}
+                </Text>
+
+                <Space size={[8, 8]} wrap>
+                  <Tag color="blue">
+                    {intl.formatMessage({
+                      id: "analysis.scrape_jobs.notes.states.queued",
+                      defaultMessage: "Queued",
+                    })}
+                  </Tag>
+                  <Tag color="green">
+                    {intl.formatMessage({
+                      id: "analysis.scrape_jobs.notes.states.active",
+                      defaultMessage: "Active",
+                    })}
+                  </Tag>
+                  <Tag color="orange">
+                    {intl.formatMessage({
+                      id: "analysis.scrape_jobs.notes.states.paused",
+                      defaultMessage: "Paused",
+                    })}
+                  </Tag>
+                  <Tag color="success">
+                    {intl.formatMessage({
+                      id: "analysis.scrape_jobs.notes.states.completed",
+                      defaultMessage: "Completed",
+                    })}
+                  </Tag>
+                  <Tag color="red">
+                    {intl.formatMessage({
+                      id: "analysis.scrape_jobs.notes.states.failed",
+                      defaultMessage: "Failed",
+                    })}
+                  </Tag>
+                </Space>
+
+                <Row gutter={[16, 16]}>
+                  <Col xs={24} md={12}>
+                    <div
+                      style={{
+                        border: `1px solid ${token.colorBorderSecondary}`,
+                        borderRadius: 12,
+                        padding: "12px 14px",
+                        background: token.colorBgContainer,
+                      }}
+                    >
+                      <Text strong>
+                        {intl.formatMessage({
+                          id: "analysis.scrape_jobs.notes.state_definitions_title",
+                          defaultMessage: "State definitions",
+                        })}
+                      </Text>
+                      <ul style={{ margin: "8px 0 0", paddingLeft: 18 }}>
+                        <li>
+                          <Text>
+                            {intl.formatMessage({
+                              id: "analysis.scrape_jobs.notes.definitions.queued",
+                              defaultMessage: "Queued: Waiting to be processed.",
+                            })}
+                          </Text>
+                        </li>
+                        <li>
+                          <Text>
+                            {intl.formatMessage({
+                              id: "analysis.scrape_jobs.notes.definitions.active",
+                              defaultMessage: "Active: Currently running.",
+                            })}
+                          </Text>
+                        </li>
+                        <li>
+                          <Text>
+                            {intl.formatMessage({
+                              id: "analysis.scrape_jobs.notes.definitions.paused",
+                              defaultMessage:
+                                "Paused: Temporarily stopped and resumable from the last saved cursor/checkpoint.",
+                            })}
+                          </Text>
+                        </li>
+                        <li>
+                          <Text>
+                            {intl.formatMessage({
+                              id: "analysis.scrape_jobs.notes.definitions.completed",
+                              defaultMessage: "Completed: Finished successfully (final state).",
+                            })}
+                          </Text>
+                        </li>
+                        <li>
+                          <Text>
+                            {intl.formatMessage({
+                              id: "analysis.scrape_jobs.notes.definitions.failed",
+                              defaultMessage:
+                                "Failed: Stopped due to an error (may or may not be recoverable) but you can retry the job.",
+                            })}
+                          </Text>
+                        </li>
+                      </ul>
+                    </div>
+                  </Col>
+
+                  <Col xs={24} md={12}>
+                    <Space direction="vertical" size={16} style={{ width: "100%" }}>
+                      <div
+                        style={{
+                          border: `1px solid ${token.colorBorderSecondary}`,
+                          borderRadius: 12,
+                          padding: "12px 14px",
+                          background: token.colorBgContainer,
+                        }}
+                      >
+                        <Text strong>
+                          {intl.formatMessage({
+                            id: "analysis.scrape_jobs.notes.important_behavior_title",
+                            defaultMessage: "Important behavior",
+                          })}
+                        </Text>
+                        <ul style={{ margin: "8px 0 0", paddingLeft: 18 }}>
+                          <li>
+                            <Text>
+                              {intl.formatMessage({
+                                id: "analysis.scrape_jobs.notes.behavior.paused_not_completed",
+                                defaultMessage: "Paused is not a completed state.",
+                              })}
+                            </Text>
+                          </li>
+                          <li>
+                            <Text>
+                              {intl.formatMessage({
+                                id: "analysis.scrape_jobs.notes.behavior.paused_resume",
+                                defaultMessage: "A paused job should show a Resume action.",
+                              })}
+                            </Text>
+                          </li>
+                          <li>
+                            <Text>
+                              {intl.formatMessage({
+                                id: "analysis.scrape_jobs.notes.behavior.completed_no_resume",
+                                defaultMessage: "Completed jobs should not show Resume.",
+                              })}
+                            </Text>
+                          </li>
+                        </ul>
+                      </div>
+
+                      <div
+                        style={{
+                          border: `1px solid ${token.colorBorderSecondary}`,
+                          borderRadius: 12,
+                          padding: "12px 14px",
+                          background: token.colorBgContainer,
+                        }}
+                      >
+                        <Text strong>
+                          {intl.formatMessage({
+                            id: "analysis.scrape_jobs.notes.why_jobs_fail_title",
+                            defaultMessage: "Why jobs can fail",
+                          })}
+                        </Text>
+                        <ul style={{ margin: "8px 0 0", paddingLeft: 18 }}>
+                          <li>
+                            <Text>
+                              {intl.formatMessage({
+                                id: "analysis.scrape_jobs.notes.failures.rate_limits",
+                                defaultMessage: "Rate limits or temporary blocks (429).",
+                              })}
+                            </Text>
+                          </li>
+                          <li>
+                            <Text>
+                              {intl.formatMessage({
+                                id: "analysis.scrape_jobs.notes.failures.auth",
+                                defaultMessage:
+                                  "Session or cookie/auth issues (expired session, challenge required).",
+                              })}
+                            </Text>
+                          </li>
+                          <li>
+                            <Text>
+                              {intl.formatMessage({
+                                id: "analysis.scrape_jobs.notes.failures.network",
+                                defaultMessage: "Network/proxy timeouts or connection failures.",
+                              })}
+                            </Text>
+                          </li>
+                        </ul>
+                      </div>
+                    </Space>
+                  </Col>
+                </Row>
+              </Space>
             </div>
           </Card>
         </Col>

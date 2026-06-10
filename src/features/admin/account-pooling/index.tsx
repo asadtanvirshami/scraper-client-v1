@@ -39,14 +39,12 @@ import {
   AdminUpdatePoolCookies,
   AdminDeletePoolAccount,
   AdminResetPoolAccount,
-  type InstagramCookie,
   type PoolAccount,
 } from "@/api/api_calls/account-pool";
+import { useIntl } from "react-intl";
 
 const { Title, Text, Paragraph, Link } = Typography;
 const { TextArea } = Input;
-
-const MAX_ACCOUNTS = 10;
 
 const statusColor: Record<string, string> = {
   active: "green",
@@ -56,46 +54,10 @@ const statusColor: Record<string, string> = {
   error: "red",
 };
 
-const REQUIRED_COOKIE_NAMES = ["sessionid", "csrftoken"];
-
-function parseCookieJson(input: string): InstagramCookie[] {
-  let parsed: unknown;
-
-  try {
-    parsed = JSON.parse(input);
-  } catch {
-    throw new Error("Invalid JSON - paste the raw cookie array exported by Cookie-Editor.");
-  }
-
-  if (!Array.isArray(parsed)) {
-    throw new Error("Expected a JSON array of cookies.");
-  }
-
-  const invalidCookie = parsed.find(
-    (cookie) =>
-      !cookie ||
-      typeof cookie !== "object" ||
-      typeof (cookie as InstagramCookie).name !== "string" ||
-      typeof (cookie as InstagramCookie).value !== "string",
-  );
-
-  if (invalidCookie) {
-    throw new Error("Each cookie must include string name and value fields.");
-  }
-
-  const missing = REQUIRED_COOKIE_NAMES.filter(
-    (name) => !parsed.some((cookie) => (cookie as InstagramCookie).name === name),
-  );
-
-  if (missing.length > 0) {
-    throw new Error(`Missing required cookie: ${missing.join(", ")}`);
-  }
-
-  return parsed as InstagramCookie[];
-}
-
 // ─── Instructions panel ───────────────────────────────────────────────────────
 function SetupInstructions() {
+  const intl = useIntl();
+
   return (
     <Card
       style={{ marginBottom: 24, borderColor: "#1677ff33" }}
@@ -104,7 +66,10 @@ function SetupInstructions() {
         <Space>
           <SafetyCertificateOutlined style={{ color: "#1677ff" }} />
           <span style={{ color: "#1677ff", fontWeight: 600 }}>
-            How to add an Instagram pool account
+            {intl.formatMessage({
+              id: "admin.account_pool.instructions.title",
+              defaultMessage: "How to add an Instagram pool account",
+            })}
           </span>
         </Space>
       }
@@ -115,54 +80,111 @@ function SetupInstructions() {
         style={{ marginBottom: 12 }}
         items={[
           {
-            title: "Install the cookie extraction extension",
+            title: intl.formatMessage({
+              id: "admin.account_pool.instructions.steps.install.title",
+              defaultMessage: "Install the cookie extraction extension",
+            }),
             description: (
               <Text type="secondary">
-                Install{" "}
+                {intl.formatMessage({
+                  id: "admin.account_pool.instructions.steps.install.before_link",
+                  defaultMessage: "Install",
+                })}{" "}
                 <Link
                   href="https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm"
                   target="_blank"
                 >
                   Cookie-Editor
                 </Link>{" "}
-                (or similar) from the Chrome Web Store. It exports cookies as
-                JSON.
+                {intl.formatMessage({
+                  id: "admin.account_pool.instructions.steps.install.after_link",
+                  defaultMessage:
+                    "(or similar) from the Chrome Web Store. It exports cookies as JSON.",
+                })}
               </Text>
             ),
             icon: <ChromeOutlined />,
             status: "process",
           },
           {
-            title: "Log in to a dedicated Instagram \"burning\" account",
+            title: intl.formatMessage({
+              id: "admin.account_pool.instructions.steps.login.title",
+              defaultMessage:
+                'Log in to a dedicated Instagram "burning" account',
+            }),
             description: (
               <Text type="secondary">
-                Use a throwaway Instagram account — not your personal or client
-                accounts. Open Instagram in Chrome and log in fully.
+                {intl.formatMessage({
+                  id: "admin.account_pool.instructions.steps.login.description",
+                  defaultMessage:
+                    "Use a throwaway Instagram account, not your personal or client accounts. Open Instagram in Chrome and log in fully.",
+                })}
               </Text>
             ),
             icon: <CheckCircleOutlined />,
             status: "process",
           },
           {
-            title: "Export the session cookies",
+            title: intl.formatMessage({
+              id: "admin.account_pool.instructions.steps.export.title",
+              defaultMessage: "Export the session cookies",
+            }),
             description: (
               <Text type="secondary">
-                Click the Cookie-Editor extension icon → click{" "}
-                <Text strong>Export</Text> → choose{" "}
-                <Text strong>Export as JSON</Text>. The full cookie array is
-                copied to your clipboard.
+                {intl.formatMessage({
+                  id: "admin.account_pool.instructions.steps.export.before_export",
+                  defaultMessage: "Click the Cookie-Editor extension icon, then click",
+                })}{" "}
+                <Text strong>
+                  {intl.formatMessage({
+                    id: "admin.account_pool.instructions.steps.export.export_label",
+                    defaultMessage: "Export",
+                  })}
+                </Text>{" "}
+                {intl.formatMessage({
+                  id: "admin.account_pool.instructions.steps.export.before_json",
+                  defaultMessage: "and choose",
+                })}{" "}
+                <Text strong>
+                  {intl.formatMessage({
+                    id: "admin.account_pool.instructions.steps.export.export_json_label",
+                    defaultMessage: "Export as JSON",
+                  })}
+                </Text>
+                .{" "}
+                {intl.formatMessage({
+                  id: "admin.account_pool.instructions.steps.export.after_json",
+                  defaultMessage:
+                    "The full cookie array is copied to your clipboard.",
+                })}
               </Text>
             ),
             icon: <CheckCircleOutlined />,
             status: "process",
           },
           {
-            title: "Paste & save below",
+            title: intl.formatMessage({
+              id: "admin.account_pool.instructions.steps.save.title",
+              defaultMessage: "Paste and save below",
+            }),
             description: (
               <Text type="secondary">
-                Click <Text strong>Add Account</Text>, paste the JSON array into
-                the text area, give it a display name, and save. The proxy is
-                assigned automatically.
+                {intl.formatMessage({
+                  id: "admin.account_pool.instructions.steps.save.before_action",
+                  defaultMessage: "Click",
+                })}{" "}
+                <Text strong>
+                  {intl.formatMessage({
+                    id: "admin.account_pool.actions.add_account",
+                    defaultMessage: "Add Account",
+                  })}
+                </Text>
+                ,{" "}
+                {intl.formatMessage({
+                  id: "admin.account_pool.instructions.steps.save.after_action",
+                  defaultMessage:
+                    "paste the JSON array into the text area, give it a display name, and save. The proxy is assigned automatically.",
+                })}
               </Text>
             ),
             icon: <SafetyCertificateOutlined />,
@@ -174,22 +196,69 @@ function SetupInstructions() {
         type="warning"
         showIcon
         icon={<ExclamationCircleOutlined />}
-        message="Important notes"
+        message={intl.formatMessage({
+          id: "admin.account_pool.instructions.notes.title",
+          defaultMessage: "Important notes",
+        })}
         description={
           <ul style={{ margin: "4px 0 0 16px", padding: 0 }}>
-            <li>Up to <strong>10</strong> pool accounts can be added.</li>
             <li>
-              Each account is automatically assigned a dedicated proxy port
-              (round-robin from the configured proxy pool).
+              {intl.formatMessage(
+                {
+                  id: "admin.account_pool.instructions.notes.max_accounts",
+                  defaultMessage: "Unlimited pool accounts can be added.",
+                },
+              )}
             </li>
             <li>
-              Do <strong>not</strong> use your real Instagram account — these
-              accounts may get rate-limited or suspended during heavy scraping.
+              {intl.formatMessage({
+                id: "admin.account_pool.instructions.notes.proxy_assignment",
+                defaultMessage:
+                  "Each account is automatically assigned a dedicated proxy port (round-robin from the configured proxy pool).",
+              })}
             </li>
             <li>
-              Cookies expire when the Instagram session ends. Replace them here
-              whenever an account shows <Tag color="red">error</Tag> or{" "}
-              <Tag color="orange">rate_limited</Tag>.
+              {intl.formatMessage(
+                {
+                  id: "admin.account_pool.instructions.notes.real_account_warning",
+                  defaultMessage:
+                    "Do {notLabel} use your real Instagram account. These accounts may get rate-limited or suspended during heavy scraping.",
+                },
+                {
+                  notLabel: (
+                    <strong>
+                      {intl.formatMessage({
+                        id: "admin.account_pool.instructions.notes.not_label",
+                        defaultMessage: "not",
+                      })}
+                    </strong>
+                  ),
+                },
+              )}
+            </li>
+            <li>
+              {intl.formatMessage({
+                id: "admin.account_pool.instructions.notes.cookies_expire_prefix",
+                defaultMessage:
+                  "Cookies expire when the Instagram session ends. Replace them here whenever an account shows",
+              })}{" "}
+              <Tag color="red">
+                {intl.formatMessage({
+                  id: "admin.account_pool.status.error",
+                  defaultMessage: "error",
+                })}
+              </Tag>{" "}
+              {intl.formatMessage({
+                id: "admin.account_pool.instructions.notes.or_label",
+                defaultMessage: "or",
+              })}{" "}
+              <Tag color="orange">
+                {intl.formatMessage({
+                  id: "admin.account_pool.status.rate_limited",
+                  defaultMessage: "rate_limited",
+                })}
+              </Tag>
+              .
             </li>
           </ul>
         }
@@ -198,7 +267,116 @@ function SetupInstructions() {
   );
 }
 
+// ─── Cookie string parser ─────────────────────────────────────────────────────
+type CookieEditorCookie = {
+  domain: string;
+  expirationDate?: number;
+  hostOnly: boolean;
+  httpOnly: boolean;
+  name: string;
+  path: string;
+  sameSite: string;
+  secure: boolean;
+  session: boolean;
+  storeId: string;
+  value: string;
+};
+
+type CookieInput = Partial<CookieEditorCookie> & {
+  expires?: number;
+};
+
+const DEFAULT_COOKIE_TTL_SECONDS = 2 * 365 * 24 * 60 * 60;
+
+const instagramCookieMeta: Record<string, { httpOnly: boolean; sameSite: string; session?: boolean }> = {
+  datr: { httpOnly: true, sameSite: "no_restriction" },
+  ig_did: { httpOnly: true, sameSite: "no_restriction" },
+  ig_nrcb: { httpOnly: false, sameSite: "unspecified" },
+  mid: { httpOnly: true, sameSite: "no_restriction" },
+  ps_l: { httpOnly: true, sameSite: "lax" },
+  ps_n: { httpOnly: true, sameSite: "no_restriction" },
+  csrftoken: { httpOnly: false, sameSite: "unspecified" },
+  ds_user_id: { httpOnly: false, sameSite: "no_restriction" },
+  sessionid: { httpOnly: true, sameSite: "unspecified" },
+  rur: { httpOnly: true, sameSite: "lax", session: true },
+  wd: { httpOnly: false, sameSite: "lax" },
+  dpr: { httpOnly: false, sameSite: "unspecified" },
+};
+
+const getDefaultExpirationDate = () =>
+  Date.now() / 1000 + DEFAULT_COOKIE_TTL_SECONDS;
+
+const toPositiveNumber = (value: unknown) => {
+  const numberValue = Number(value);
+  return Number.isFinite(numberValue) && numberValue > 0 ? numberValue : null;
+};
+
+function normalizeCookieEditorCookies(cookies: CookieInput[]): CookieEditorCookie[] {
+  const defaultExpirationDate = getDefaultExpirationDate();
+  return cookies.map((cookie) => {
+    const name = String(cookie.name || "").trim();
+    const meta = instagramCookieMeta[name] || { httpOnly: false, sameSite: "unspecified" };
+    const rawExpiration = cookie.expirationDate ?? cookie.expires;
+    const expirationDate = toPositiveNumber(rawExpiration);
+    const session =
+      typeof cookie.session === "boolean"
+        ? cookie.session
+        : meta.session ?? (rawExpiration !== undefined && expirationDate === null);
+
+    return {
+      domain: typeof cookie.domain === "string" && cookie.domain.trim() ? cookie.domain.trim() : ".instagram.com",
+      ...(session ? {} : { expirationDate: expirationDate ?? defaultExpirationDate }),
+      hostOnly: typeof cookie.hostOnly === "boolean" ? cookie.hostOnly : false,
+      httpOnly: typeof cookie.httpOnly === "boolean" ? cookie.httpOnly : meta.httpOnly ?? false,
+      name,
+      path: typeof cookie.path === "string" && cookie.path.trim() ? cookie.path.trim() : "/",
+      sameSite: typeof cookie.sameSite === "string" && cookie.sameSite.trim() ? cookie.sameSite.trim() : meta.sameSite ?? "unspecified",
+      secure: typeof cookie.secure === "boolean" ? cookie.secure : true,
+      session,
+      storeId: cookie.storeId !== undefined && cookie.storeId !== null ? String(cookie.storeId) : "0",
+      value: cookie.value === undefined || cookie.value === null ? "" : String(cookie.value),
+    };
+  });
+}
+
+function parseCookieString(raw: string): CookieEditorCookie[] {
+  const cookies = raw
+    .split(";")
+    .map((pair) => pair.trim())
+    .filter(Boolean)
+    .map((pair) => {
+      const eqIdx = pair.indexOf("=");
+      if (eqIdx === -1) return null;
+      const name = pair.slice(0, eqIdx).trim();
+      const value = pair.slice(eqIdx + 1).trim();
+      if (!name) return null;
+      return { name, value };
+    })
+    .filter(Boolean) as CookieInput[];
+
+  return normalizeCookieEditorCookies(cookies);
+}
+
 // ─── Add / Update Cookies modal ───────────────────────────────────────────────
+function parseCookieInput(raw: string): { parsed: CookieEditorCookie[] | null; error: string | null } {
+  const trimmed = raw.trim();
+  if (!trimmed) return { parsed: [], error: null };
+  if (trimmed.startsWith("[")) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (!Array.isArray(parsed)) return { parsed: null, error: "Expected a JSON array of cookies." };
+      return { parsed: normalizeCookieEditorCookies(parsed), error: null };
+    } catch {
+      return { parsed: null, error: "Invalid JSON. Paste the cookie array from Cookie-Editor." };
+    }
+  }
+  const parsed = parseCookieString(trimmed);
+  if (parsed.length === 0) {
+    return { parsed: null, error: "Could not parse cookies. Use a JSON array or a cookie string (name=value; ...)." };
+  }
+  return { parsed, error: null };
+}
+
 function CookieModal({
   open,
   mode,
@@ -207,11 +385,12 @@ function CookieModal({
   onSuccess,
 }: {
   open: boolean;
-  mode: "add" | "update";
+  mode: "add" | "update" | "reset";
   account: PoolAccount | null;
   onClose: () => void;
-  onSuccess: () => Promise<void> | void;
+  onSuccess: () => void;
 }) {
+  const intl = useIntl();
   const [form] = Form.useForm();
   const [saving, setSaving] = useState(false);
 
@@ -224,86 +403,165 @@ function CookieModal({
       const values = await form.validateFields();
       setSaving(true);
 
-      let cookies: InstagramCookie[];
-      try {
-        cookies = parseCookieJson(values.cookies);
-      } catch (e: any) {
-        message.error(e?.message || "Invalid cookie JSON.");
+      const cookieRaw: string = (values.cookies ?? "").trim();
+      const cookiesRequired = mode !== "reset";
+
+      if (cookiesRequired && !cookieRaw) {
+        message.error(
+          intl.formatMessage({
+            id: "admin.account_pool.form.cookies_required",
+            defaultMessage: "Please paste the cookie JSON",
+          }),
+        );
+        setSaving(false);
         return;
+      }
+
+      // In reset mode cookies are optional — skip parsing if field is empty
+      let cookiesJson: string | null = null;
+      if (cookieRaw) {
+        const { parsed, error } = parseCookieInput(cookieRaw);
+        if (error || !parsed) {
+          message.error(error ?? intl.formatMessage({ id: "admin.account_pool.messages.invalid_json", defaultMessage: "Invalid cookie input." }));
+          setSaving(false);
+          return;
+        }
+        cookiesJson = JSON.stringify(parsed, null, 2);
+        form.setFieldsValue({ cookies: cookiesJson });
       }
 
       if (mode === "add") {
         const res = await AdminAddPoolAccount({
-          cookies,
+          cookies: cookiesJson!,
           displayName: values.displayName || undefined,
           notes: values.notes || undefined,
         });
         if (res?.success) {
-          message.success("Account added to pool successfully");
-          await onSuccess();
+          message.success(intl.formatMessage({ id: "admin.account_pool.messages.add_success", defaultMessage: "Account added to pool successfully" }));
+          onSuccess();
           onClose();
         } else {
-          message.error(res?.message || "Failed to add account");
+          message.error(res?.message || intl.formatMessage({ id: "admin.account_pool.messages.add_failed", defaultMessage: "Failed to add account" }));
         }
-      } else if (account) {
-        const res = await AdminUpdatePoolCookies(account._id, cookies);
+      } else if (mode === "update" && account) {
+        const res = await AdminUpdatePoolCookies(account._id, cookiesJson!);
         if (res?.success) {
-          message.success("Cookies updated successfully");
-          await onSuccess();
+          message.success(intl.formatMessage({ id: "admin.account_pool.messages.update_success", defaultMessage: "Cookies updated successfully" }));
+          onSuccess();
           onClose();
         } else {
-          message.error(res?.message || "Failed to update cookies");
+          message.error(res?.message || intl.formatMessage({ id: "admin.account_pool.messages.update_failed", defaultMessage: "Failed to update cookies" }));
+        }
+      } else if (mode === "reset" && account) {
+        // 1) Update cookies first if provided
+        if (cookiesJson) {
+          const cookieRes = await AdminUpdatePoolCookies(account._id, cookiesJson);
+          if (!cookieRes?.success) {
+            message.error(cookieRes?.message || intl.formatMessage({ id: "admin.account_pool.messages.update_failed", defaultMessage: "Failed to update cookies" }));
+            setSaving(false);
+            return;
+          }
+        }
+        // 2) Reset failure counters and reactivate
+        const resetRes = await AdminResetPoolAccount(account._id);
+        if (resetRes?.success) {
+          message.success(intl.formatMessage({ id: "admin.account_pool.messages.reset_success", defaultMessage: "Account reset to active" }));
+          onSuccess();
+          onClose();
+        } else {
+          message.error(resetRes?.message || intl.formatMessage({ id: "admin.account_pool.messages.reset_failed", defaultMessage: "Failed to reset account" }));
         }
       }
-    } catch (e: any) {
-      const errorFields = e?.errorFields;
-      if (!errorFields) {
-        message.error(e?.response?.data?.message || e?.message || "Failed to save cookies");
-      }
+    } catch {
+      // form validation errors handled automatically
     } finally {
       setSaving(false);
     }
   };
 
+  const modalTitle =
+    mode === "add"
+      ? intl.formatMessage({ id: "admin.account_pool.modal.add_title", defaultMessage: "Add Pool Account" })
+      : mode === "reset"
+        ? intl.formatMessage({ id: "admin.account_pool.modal.reset_title", defaultMessage: "Reset & Reactivate - {name}" }, { name: account?.displayName ?? "-" })
+        : intl.formatMessage({ id: "admin.account_pool.modal.update_title", defaultMessage: "Update Cookies - {name}" }, { name: account?.displayName ?? "-" });
+
+  const okLabel =
+    mode === "add"
+      ? intl.formatMessage({ id: "admin.account_pool.actions.add_account", defaultMessage: "Add Account" })
+      : mode === "reset"
+        ? intl.formatMessage({ id: "admin.account_pool.actions.reset_reactivate", defaultMessage: "Reset & Reactivate" })
+        : intl.formatMessage({ id: "admin.account_pool.actions.update_cookies", defaultMessage: "Update Cookies" });
+
+  const cookiesRequired = mode !== "reset";
+
   return (
     <Modal
       open={open}
-      title={mode === "add" ? "Add Pool Account" : `Update Cookies — ${account?.displayName}`}
+      title={modalTitle}
       onCancel={onClose}
       onOk={handleOk}
-      okText={mode === "add" ? "Add Account" : "Update Cookies"}
+      okText={okLabel}
       confirmLoading={saving}
       width={640}
       destroyOnClose
     >
-      <Alert
-        type="info"
-        showIcon
-        style={{ marginBottom: 16 }}
-        message="Paste the full JSON array exported from Cookie-Editor extension after logging in to Instagram."
-      />
+      {mode === "reset" && (
+        <Alert
+          type="warning"
+          showIcon
+          style={{ marginBottom: 16 }}
+          message={intl.formatMessage({
+            id: "admin.account_pool.modal.reset_help",
+            defaultMessage:
+              "Paste fresh cookies to replace the expired session, then reset failure counters and reactivate the account. Leave the cookie field empty to only reset the counters.",
+          })}
+        />
+      )}
+      {mode !== "reset" && (
+        <Alert
+          type="info"
+          showIcon
+          style={{ marginBottom: 16 }}
+          message={intl.formatMessage({
+            id: "admin.account_pool.modal.help",
+            defaultMessage:
+              "Paste either the full JSON array from Cookie-Editor, or a raw cookie string (name=value; name2=value2; ...) — both formats are accepted.",
+          })}
+        />
+      )}
       <Form form={form} layout="vertical">
         {mode === "add" && (
           <>
             <Form.Item
               name="displayName"
-              label="Display Name (optional)"
+              label={intl.formatMessage({ id: "admin.account_pool.form.display_name", defaultMessage: "Display Name (optional)" })}
             >
-              <Input placeholder="e.g. Burning Account #1" />
+              <Input placeholder={intl.formatMessage({ id: "admin.account_pool.form.display_name_placeholder", defaultMessage: "e.g. Burning Account #1" })} />
             </Form.Item>
-            <Form.Item name="notes" label="Notes (optional)">
-              <Input placeholder="Any internal note about this account" />
+            <Form.Item
+              name="notes"
+              label={intl.formatMessage({ id: "admin.account_pool.form.notes", defaultMessage: "Notes (optional)" })}
+            >
+              <Input placeholder={intl.formatMessage({ id: "admin.account_pool.form.notes_placeholder", defaultMessage: "Any internal note about this account" })} />
             </Form.Item>
           </>
         )}
         <Form.Item
           name="cookies"
-          label="Cookie JSON"
-          rules={[{ required: true, message: "Please paste the cookie JSON" }]}
+          label={intl.formatMessage({
+            id: "admin.account_pool.form.cookies",
+            defaultMessage: cookiesRequired ? "Cookie JSON" : "New Cookies (optional)",
+          })}
+          rules={
+            cookiesRequired
+              ? [{ required: true, message: intl.formatMessage({ id: "admin.account_pool.form.cookies_required", defaultMessage: "Please paste the cookie JSON" }) }]
+              : []
+          }
         >
           <TextArea
             rows={10}
-            placeholder={`[\n  {"name":"sessionid","value":"123456789:abc","domain":".instagram.com",...},\n  ...\n]`}
+            placeholder={`JSON array:\n[\n  {"name":"sessionid","value":"123456789:abc","domain":".instagram.com",...}\n]\n\nor raw string:\nig_did=...; sessionid=...; csrftoken=...`}
             style={{ fontFamily: "monospace", fontSize: 12 }}
           />
         </Form.Item>
@@ -314,11 +572,12 @@ function CookieModal({
 
 // ─── Main component ───────────────────────────────────────────────────────────
 export default function AccountPoolingManager() {
+  const intl = useIntl();
   const [accounts, setAccounts] = useState<PoolAccount[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<"add" | "update">("add");
+  const [modalMode, setModalMode] = useState<"add" | "update" | "reset">("add");
   const [selectedAccount, setSelectedAccount] = useState<PoolAccount | null>(null);
   const [actionLoading, setActionLoading] = useState<Record<string, string>>({});
 
@@ -331,11 +590,18 @@ export default function AccountPoolingManager() {
         setTotal(res.data?.total ?? 0);
       }
     } catch {
-      if (!silent) message.error("Failed to load pool accounts");
+      if (!silent) {
+        message.error(
+          intl.formatMessage({
+            id: "admin.account_pool.messages.load_failed",
+            defaultMessage: "Failed to load pool accounts",
+          }),
+        );
+      }
     } finally {
       if (!silent) setLoading(false);
     }
-  }, []);
+  }, [intl]);
 
   useEffect(() => {
     fetchAccounts();
@@ -351,38 +617,36 @@ export default function AccountPoolingManager() {
     try {
       const res = await AdminDeletePoolAccount(id);
       if (res?.success) {
-        message.success("Account removed from pool");
+        message.success(
+          intl.formatMessage({
+            id: "admin.account_pool.messages.delete_success",
+            defaultMessage: "Account removed from pool",
+          }),
+        );
         await fetchAccounts(true);
       } else {
-        message.error(res?.message || "Failed to delete");
+        message.error(
+          res?.message ||
+            intl.formatMessage({
+              id: "admin.account_pool.messages.delete_failed",
+              defaultMessage: "Failed to delete",
+            }),
+        );
       }
     } catch (e: any) {
-      message.error(e?.response?.data?.message || "Failed to delete");
-    } finally {
-      clearAction(id);
-    }
-  };
-
-  const handleReset = async (id: string) => {
-    setAction(id, "reset");
-    try {
-      const res = await AdminResetPoolAccount(id);
-      if (res?.success) {
-        message.success("Account reset to active");
-        await fetchAccounts(true);
-      }
-    } catch (e: any) {
-      message.error(e?.response?.data?.message || "Failed to reset");
+      message.error(
+        e?.response?.data?.message ||
+          intl.formatMessage({
+            id: "admin.account_pool.messages.delete_failed",
+            defaultMessage: "Failed to delete",
+          }),
+      );
     } finally {
       clearAction(id);
     }
   };
 
   const openAdd = () => {
-    if (total >= MAX_ACCOUNTS) {
-      message.warning(`Pool is full (${MAX_ACCOUNTS}/${MAX_ACCOUNTS}). Remove an account first.`);
-      return;
-    }
     setModalMode("add");
     setSelectedAccount(null);
     setModalOpen(true);
@@ -394,15 +658,27 @@ export default function AccountPoolingManager() {
     setModalOpen(true);
   };
 
+  const openReset = (account: PoolAccount) => {
+    setModalMode("reset");
+    setSelectedAccount(account);
+    setModalOpen(true);
+  };
+
   const columns: ColumnsType<PoolAccount> = [
     {
-      title: "#",
+      title: intl.formatMessage({
+        id: "admin.account_pool.table.index",
+        defaultMessage: "#",
+      }),
       key: "index",
       width: 42,
       render: (_, __, i) => <Text type="secondary">{i + 1}</Text>,
     },
     {
-      title: "Display Name",
+      title: intl.formatMessage({
+        id: "admin.account_pool.table.display_name",
+        defaultMessage: "Display Name",
+      }),
       key: "displayName",
       render: (_, r) => (
         <Space direction="vertical" size={0}>
@@ -412,13 +688,19 @@ export default function AccountPoolingManager() {
       ),
     },
     {
-      title: "IG User ID",
+      title: intl.formatMessage({
+        id: "admin.account_pool.table.instagram_user_id",
+        defaultMessage: "IG User ID",
+      }),
       dataIndex: "instagramUserId",
       key: "instagramUserId",
       render: (v) => <Text code style={{ fontSize: 11 }}>{v}</Text>,
     },
     {
-      title: "Status",
+      title: intl.formatMessage({
+        id: "admin.account_pool.table.status",
+        defaultMessage: "Status",
+      }),
       key: "status",
       width: 130,
       render: (_, r) => (
@@ -427,32 +709,54 @@ export default function AccountPoolingManager() {
             status={r.isAvailable ? "processing" : "default"}
             color={r.isAvailable ? "green" : "grey"}
           />
-          <Tag color={statusColor[r.status] ?? "default"}>{r.status}</Tag>
+          <Tag color={statusColor[r.status] ?? "default"}>
+            {intl.formatMessage({
+              id: `admin.account_pool.status.${r.status}`,
+              defaultMessage: r.status,
+            })}
+          </Tag>
         </Space>
       ),
     },
     {
-      title: "Proxy",
+      title: intl.formatMessage({
+        id: "admin.account_pool.table.proxy",
+        defaultMessage: "Proxy",
+      }),
       key: "proxy",
       render: (_, r) => {
-        if (!r.proxyUrl) return <Text type="secondary">—</Text>;
+        if (!r.proxyUrl) return <Text type="secondary">-</Text>;
         const match = r.proxyUrl.match(/@(.+)$/);
         const display = match ? match[1] : r.proxyUrl;
         return <Text code style={{ fontSize: 11 }}>{display}</Text>;
       },
     },
     {
-      title: "Requests",
+      title: intl.formatMessage({
+        id: "admin.account_pool.table.requests",
+        defaultMessage: "Requests",
+      }),
       key: "requests",
       width: 90,
       render: (_, r) => (
-        <Tooltip title={`${r.successfulRequests} success / ${r.failedRequests} fail`}>
+        <Tooltip
+          title={intl.formatMessage(
+            {
+              id: "admin.account_pool.table.requests_tooltip",
+              defaultMessage: "{success} success / {failed} fail",
+            },
+            { success: r.successfulRequests, failed: r.failedRequests },
+          )}
+        >
           <Text>{r.totalRequests.toLocaleString()}</Text>
         </Tooltip>
       ),
     },
     {
-      title: "Failures",
+      title: intl.formatMessage({
+        id: "admin.account_pool.table.failures",
+        defaultMessage: "Failures",
+      }),
       key: "failures",
       width: 80,
       render: (_, r) => (
@@ -462,44 +766,83 @@ export default function AccountPoolingManager() {
       ),
     },
     {
-      title: "Last Used",
+      title: intl.formatMessage({
+        id: "admin.account_pool.table.last_used",
+        defaultMessage: "Last Used",
+      }),
       key: "lastUsed",
       width: 110,
       render: (_, r) =>
         r.lastUsedAt
-          ? <Text type="secondary" style={{ fontSize: 11 }}>{new Date(r.lastUsedAt).toLocaleDateString()}</Text>
-          : <Text type="secondary">Never</Text>,
+          ? (
+              <Text type="secondary" style={{ fontSize: 11 }}>
+                {intl.formatDate(new Date(r.lastUsedAt), {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                })}
+              </Text>
+            )
+          : (
+              <Text type="secondary">
+                {intl.formatMessage({
+                  id: "admin.account_pool.table.never",
+                  defaultMessage: "Never",
+                })}
+              </Text>
+            ),
     },
     {
-      title: "Actions",
+      title: intl.formatMessage({
+        id: "admin.account_pool.table.actions",
+        defaultMessage: "Actions",
+      }),
       key: "actions",
       width: 180,
       render: (_, r) => {
         const busy = actionLoading[r._id];
         return (
           <Space>
-            <Tooltip title="Replace cookies">
+            <Tooltip
+              title={intl.formatMessage({
+                id: "admin.account_pool.actions.replace_cookies",
+                defaultMessage: "Replace cookies",
+              })}
+            >
               <Button
                 size="small"
                 icon={<SyncOutlined spin={busy === "update"} />}
                 onClick={() => openUpdateCookies(r)}
                 loading={busy === "update"}
               >
-                Cookies
+                {intl.formatMessage({
+                  id: "admin.account_pool.actions.cookies",
+                  defaultMessage: "Cookies",
+                })}
               </Button>
             </Tooltip>
-            <Tooltip title="Reset failures & reactivate">
+            <Tooltip
+              title={intl.formatMessage({
+                id: "admin.account_pool.actions.reset_reactivate",
+                defaultMessage: "Reset failures and reactivate",
+              })}
+            >
               <Button
                 size="small"
                 icon={<ReloadOutlined />}
-                onClick={() => handleReset(r._id)}
-                loading={busy === "reset"}
+                onClick={() => openReset(r)}
               />
             </Tooltip>
             <Popconfirm
-              title="Remove this account from the pool?"
+              title={intl.formatMessage({
+                id: "admin.account_pool.confirm.remove_one",
+                defaultMessage: "Remove this account from the pool?",
+              })}
               onConfirm={() => handleDelete(r._id)}
-              okText="Remove"
+              okText={intl.formatMessage({
+                id: "admin.account_pool.actions.remove",
+                defaultMessage: "Remove",
+              })}
               okButtonProps={{ danger: true }}
             >
               <Button
@@ -522,23 +865,37 @@ export default function AccountPoolingManager() {
     <div style={{ padding: "24px 32px", maxWidth: 1200 }}>
       <Row justify="space-between" align="middle" style={{ marginBottom: 8 }}>
         <Col>
-          <Title level={3} style={{ margin: 0 }}>Account Pooling</Title>
+          <Title level={3} style={{ margin: 0 }}>
+            {intl.formatMessage({
+              id: "admin.account_pool.title",
+              defaultMessage: "Account Pooling",
+            })}
+          </Title>
           <Text type="secondary">
-            Manage Instagram scraping accounts. Each account uses a dedicated proxy port.
+            {intl.formatMessage({
+              id: "admin.account_pool.subtitle",
+              defaultMessage:
+                "Manage Instagram scraping accounts. Each account uses a dedicated proxy port.",
+            })}
           </Text>
         </Col>
         <Col>
           <Space>
             <Button icon={<ReloadOutlined />} onClick={() => fetchAccounts()}>
-              Refresh
+              {intl.formatMessage({
+                id: "admin.account_pool.actions.refresh",
+                defaultMessage: "Refresh",
+              })}
             </Button>
             <Button
               type="primary"
               icon={<PlusOutlined />}
               onClick={openAdd}
-              disabled={total >= MAX_ACCOUNTS}
             >
-              Add Account
+              {intl.formatMessage({
+                id: "admin.account_pool.actions.add_account",
+                defaultMessage: "Add Account",
+              })}
             </Button>
           </Space>
         </Col>
@@ -552,14 +909,26 @@ export default function AccountPoolingManager() {
           <Card size="small" style={{ minWidth: 120, textAlign: "center" }}>
             <Text strong style={{ fontSize: 22 }}>{total}</Text>
             <br />
-            <Text type="secondary" style={{ fontSize: 12 }}>/ {MAX_ACCOUNTS} accounts</Text>
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              {intl.formatMessage(
+                {
+                  id: "admin.account_pool.summary.accounts_total",
+                  defaultMessage: "accounts",
+                },
+              )}
+            </Text>
           </Card>
         </Col>
         <Col>
           <Card size="small" style={{ minWidth: 120, textAlign: "center", borderColor: "#52c41a44" }}>
             <Text strong style={{ fontSize: 22, color: "#52c41a" }}>{activeCount}</Text>
             <br />
-            <Text type="secondary" style={{ fontSize: 12 }}>active</Text>
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              {intl.formatMessage({
+                id: "admin.account_pool.summary.active",
+                defaultMessage: "active",
+              })}
+            </Text>
           </Card>
         </Col>
         {errorCount > 0 && (
@@ -567,7 +936,12 @@ export default function AccountPoolingManager() {
             <Card size="small" style={{ minWidth: 120, textAlign: "center", borderColor: "#ff4d4f44" }}>
               <Text strong style={{ fontSize: 22, color: "#ff4d4f" }}>{errorCount}</Text>
               <br />
-              <Text type="secondary" style={{ fontSize: 12 }}>need attention</Text>
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                {intl.formatMessage({
+                  id: "admin.account_pool.summary.need_attention",
+                  defaultMessage: "need attention",
+                })}
+              </Text>
             </Card>
           </Col>
         )}
@@ -580,9 +954,20 @@ export default function AccountPoolingManager() {
       <Card
         title={
           <Space>
-            <Text strong>Pool Accounts</Text>
-            <Tag color={total >= MAX_ACCOUNTS ? "red" : "blue"}>
-              {total} / {MAX_ACCOUNTS}
+            <Text strong>
+              {intl.formatMessage({
+                id: "admin.account_pool.table.title",
+                defaultMessage: "Pool Accounts",
+              })}
+            </Text>
+            <Tag color="blue">
+              {intl.formatMessage(
+                {
+                  id: "admin.account_pool.table.total_unlimited",
+                  defaultMessage: "{total} / unlimited",
+                },
+                { total },
+              )}
             </Tag>
           </Space>
         }
@@ -598,7 +983,21 @@ export default function AccountPoolingManager() {
             emptyText: (
               <Space direction="vertical" style={{ padding: "24px 0", textAlign: "center" }}>
                 <SafetyCertificateOutlined style={{ fontSize: 32, color: "#d9d9d9" }} />
-                <Text type="secondary">No pool accounts yet. Click &quot;Add Account&quot; to get started.</Text>
+                <Text type="secondary">
+                  {intl.formatMessage(
+                    {
+                      id: "admin.account_pool.empty",
+                      defaultMessage:
+                        'No pool accounts yet. Click "{action}" to get started.',
+                    },
+                    {
+                      action: intl.formatMessage({
+                        id: "admin.account_pool.actions.add_account",
+                        defaultMessage: "Add Account",
+                      }),
+                    },
+                  )}
+                </Text>
               </Space>
             ),
           }}
