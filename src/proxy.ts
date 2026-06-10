@@ -7,10 +7,15 @@ const PUBLIC_ROUTES = [
   "/auth/signin",
   "/auth/signup",
   "/auth/forgot-password",
+  "/auth/otp",
+  "/auth/reset-password",
   "/auth/reset-password/",
   "/plans",
   "/",
 ];
+
+// USER-role routes that don't require an active subscription
+const SUBSCRIPTION_EXEMPT_PREFIXES = ["/plans", "/billings", "/onboarding"];
 
 const ALWAYS_PUBLIC = [
   /^\/_next\//,
@@ -71,6 +76,32 @@ export async function proxy(req: NextRequest) {
   const isOnboardingCompleted = Boolean(session?.data?.is_onboarding_completed ?? session?.is_onboarding_completed);
   if (!isOnboardingCompleted && !pathname.startsWith("/onboarding")) {
     return redirectTo(req, "/onboarding", pathname + search);
+  }
+
+  // Subscription check – USER role only, skip exempt pages
+  if (
+    role === "USER" &&
+    !SUBSCRIPTION_EXEMPT_PREFIXES.some(
+      (p) => pathname === p || pathname.startsWith(p + "/")
+    )
+  ) {
+    const BASE_URL =
+      process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:4000";
+    try {
+      const subRes = await fetch(`${BASE_URL}/api/billing/subscription`, {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: "no-store",
+      });
+      if (!subRes.ok) {
+        return NextResponse.redirect(new URL("/plans", req.url));
+      }
+      const subJson = await subRes.json();
+      if (!subJson?.data) {
+        return NextResponse.redirect(new URL("/plans", req.url));
+      }
+    } catch {
+      return NextResponse.redirect(new URL("/plans", req.url));
+    }
   }
 
   // ✅ IMPORTANT: your routes are /dashboard/a/[id] and /dashboard/u/[id]

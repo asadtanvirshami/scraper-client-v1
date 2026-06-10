@@ -71,10 +71,6 @@ const AnalysisPlatformPage = ({ platform }: AnalysisPlatformPageProps) => {
       />
 
       <div className="mb-4">
-        <Title level={4} className="!mb-1">
-          <PlatformIcon style={{ marginRight: 8 }} />
-          {intl.formatMessage(platformInfo.title)}
-        </Title>
         {!isLinkedIn ? (
           <Text type="secondary">
             <FormattedMessage

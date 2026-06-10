@@ -152,10 +152,16 @@ const CampaignsDashboard = () => {
         <div>
           <Title level={3} className="!mb-1">
             <MailOutlined style={{ marginRight: 10, color: token.colorPrimary }} />
-            Campaigns
+            {formatMessage({
+              id: "campaigns.page.title",
+              defaultMessage: "Campaigns",
+            })}
           </Title>
           <Text type="secondary">
-            Manage your email campaigns, track opens and clicks.
+            {formatMessage({
+              id: "campaigns.page.subtitle",
+              defaultMessage: "Manage your email campaigns, track opens and clicks.",
+            })}
           </Text>
         </div>
         <Button
@@ -170,7 +176,10 @@ const CampaignsDashboard = () => {
             boxShadow: "0 4px 12px rgba(139,92,246,0.35)",
           }}
         >
-          New Campaign
+          {formatMessage({
+            id: "campaigns.page.new_campaign",
+            defaultMessage: "New Campaign",
+          })}
         </Button>
       </div>
 
@@ -179,7 +188,10 @@ const CampaignsDashboard = () => {
         <Col xs={12} sm={6}>
           <StatCard
             icon={<BarChartOutlined />}
-            title="Total Campaigns"
+            title={formatMessage({
+              id: "campaigns.insights.total_campaigns",
+              defaultMessage: "Total Campaigns",
+            })}
             value={stats.total_campaigns ?? 0}
             color="#8b5cf6"
             loading={statsLoading}
@@ -188,7 +200,10 @@ const CampaignsDashboard = () => {
         <Col xs={12} sm={6}>
           <StatCard
             icon={<TeamOutlined />}
-            title="Total Recipients"
+            title={formatMessage({
+              id: "campaigns.insights.total_recipients",
+              defaultMessage: "Total Recipients",
+            })}
             value={stats.total_recipients ?? 0}
             color="#0ea5e9"
             loading={statsLoading}
@@ -197,7 +212,10 @@ const CampaignsDashboard = () => {
         <Col xs={12} sm={6}>
           <StatCard
             icon={<SendOutlined />}
-            title="Emails Sent"
+            title={formatMessage({
+              id: "campaigns.insights.emails_sent",
+              defaultMessage: "Emails Sent",
+            })}
             value={stats.total_sent ?? 0}
             color="#22c55e"
             loading={statsLoading}
@@ -206,7 +224,10 @@ const CampaignsDashboard = () => {
         <Col xs={12} sm={6}>
           <StatCard
             icon={<CheckCircleOutlined />}
-            title="Delivery Rate"
+            title={formatMessage({
+              id: "campaigns.insights.delivery_rate",
+              defaultMessage: "Delivery Rate",
+            })}
             value={
               stats.total_recipients > 0
                 ? Math.round((stats.total_sent / stats.total_recipients) * 100)
@@ -236,14 +257,20 @@ const CampaignsDashboard = () => {
                 onPressEnter={handleSearch}
               />
               <Button type="primary" onClick={handleSearch}>
-                Search
+                {formatMessage({
+                  id: "commons.search",
+                  defaultMessage: "Search",
+                })}
               </Button>
             </Space.Compact>
           </Col>
 
           <Col xs={24} sm={8} md={6}>
             <Select
-              placeholder="Filter by status"
+              placeholder={formatMessage({
+                id: "campaigns.dashboard.filter_status",
+                defaultMessage: "Filter by status",
+              })}
               allowClear
               style={{ width: "100%" }}
               onChange={handleStatusChange}
@@ -252,7 +279,10 @@ const CampaignsDashboard = () => {
               {STATUS_OPTIONS.map((s) => (
                 <Option key={s.value} value={s.value}>
                   <Tag color={s.color} style={{ marginRight: 6, borderRadius: 4 }}>
-                    {s.label}
+                    {formatMessage({
+                      id: `campaigns.status.${s.value}`,
+                      defaultMessage: s.label,
+                    })}
                   </Tag>
                 </Option>
               ))}

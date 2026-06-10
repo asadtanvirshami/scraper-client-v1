@@ -37,7 +37,6 @@
       "user": "Workspace"
     }
   },
-
   "admin": {
     "panel_title": "Administration Panel",
     "panel_subtitle": "Monitor users, access, and system activity.",
@@ -149,9 +148,136 @@
         "delete_one": "Delete this user?",
         "delete_selected": "Delete {count} selected user(s)?"
       }
+    },
+    "account_pool": {
+      "title": "Account Pooling",
+      "subtitle": "Manage Instagram scraping accounts. Each account uses a dedicated proxy port.",
+      "empty": "No pool accounts yet. Click \"{action}\" to get started.",
+      "summary": {
+        "accounts_total": "accounts",
+        "active": "active",
+        "need_attention": "need attention"
+      },
+      "instructions": {
+        "title": "How to add an Instagram pool account",
+        "steps": {
+          "install": {
+            "title": "Install the cookie extraction extension",
+            "before_link": "Install",
+            "after_link": "(or similar) from the Chrome Web Store. It exports cookies as JSON."
+          },
+          "login": {
+            "title": "Log in to a dedicated Instagram \"burning\" account",
+            "description": "Use a throwaway Instagram account, not your personal or client accounts. Open Instagram in Chrome and log in fully."
+          },
+          "export": {
+            "title": "Export the session cookies",
+            "before_export": "Click the Cookie-Editor extension icon, then click",
+            "export_label": "Export",
+            "before_json": "and choose",
+            "export_json_label": "Export as JSON",
+            "after_json": "The full cookie array is copied to your clipboard."
+          },
+          "save": {
+            "title": "Paste and save below",
+            "before_action": "Click",
+            "after_action": "paste the JSON array into the text area, give it a display name, and save. The proxy is assigned automatically."
+          }
+        },
+        "notes": {
+          "title": "Important notes",
+          "max_accounts": "Unlimited pool accounts can be added.",
+          "proxy_assignment": "Each account is automatically assigned a dedicated proxy port (round-robin from the configured proxy pool).",
+          "real_account_warning": "Do {notLabel} use your real Instagram account. These accounts may get rate-limited or suspended during heavy scraping.",
+          "not_label": "not",
+          "cookies_expire_prefix": "Cookies expire when the Instagram session ends. Replace them here whenever an account shows",
+          "or_label": "or"
+        }
+      },
+      "form": {
+        "display_name": "Display Name (optional)",
+        "display_name_placeholder": "e.g. Burning Account #1",
+        "notes": "Notes (optional)",
+        "notes_placeholder": "Any internal note about this account",
+        "cookies": "Cookie JSON",
+        "cookies_required": "Please paste the cookie JSON"
+      },
+      "modal": {
+        "add_title": "Add Pool Account",
+        "update_title": "Update Cookies - {name}",
+        "help": "Paste the full JSON array exported from the Cookie-Editor extension after logging in to Instagram."
+      },
+      "table": {
+        "title": "Pool Accounts",
+        "index": "#",
+        "display_name": "Display Name",
+        "instagram_user_id": "IG User ID",
+        "status": "Status",
+        "proxy": "Proxy",
+        "requests": "Requests",
+        "requests_tooltip": "{success} success / {failed} fail",
+        "failures": "Failures",
+        "last_used": "Last Used",
+        "never": "Never",
+        "actions": "Actions",
+        "total_unlimited": "{total} / unlimited"
+      },
+      "actions": {
+        "refresh": "Refresh",
+        "add_account": "Add Account",
+        "update_cookies": "Update Cookies",
+        "replace_cookies": "Replace cookies",
+        "cookies": "Cookies",
+        "reset_reactivate": "Reset failures and reactivate",
+        "remove": "Remove"
+      },
+      "confirm": {
+        "remove_one": "Remove this account from the pool?"
+      },
+      "status": {
+        "active": "active",
+        "inactive": "inactive",
+        "rate_limited": "rate_limited",
+        "suspended": "suspended",
+        "error": "error"
+      },
+      "messages": {
+        "load_failed": "Failed to load pool accounts",
+        "invalid_json": "Invalid JSON. Paste the raw cookie array exported by Cookie-Editor.",
+        "expected_array": "Expected a JSON array of cookies.",
+        "add_success": "Account added to pool successfully",
+        "add_failed": "Failed to add account",
+        "update_success": "Cookies updated successfully",
+        "update_failed": "Failed to update cookies",
+        "delete_success": "Account removed from pool",
+        "delete_failed": "Failed to delete",
+        "reset_success": "Account reset to active",
+        "reset_failed": "Failed to reset",
+        "pool_full": "The account pool is unlimited."
+      }
+    },
+    "billing_management": {
+      "title": "Billing Management",
+      "subtitle": "Manage subscriptions, issue refunds, and control promotional codes",
+      "tabs": {
+        "subscriptions": "Subscriptions",
+        "refunds": "Refunds",
+        "promo_codes": "Promo Codes"
+      },
+      "subscriptions": {
+        "search_placeholder": "Search by email or name...",
+        "filter_status": "Filter by status",
+        "columns": {
+          "user": "User",
+          "plan": "Plan",
+          "status": "Status",
+          "period": "Period",
+          "stripe_id": "Stripe ID",
+          "actions": "Actions"
+        }
+      }
     }
   },
-
   "onboarding": {
     "title": "Welcome to DataHarvX!",
     "subtitle": "Let's get you set up in just a few steps.",
@@ -186,7 +312,6 @@
       "business_website_invalid": "Please enter a valid website URL (starting with http:// or https://)"
     }
   },
-
   "auth": {
     "hero": {
       "badge": "DataHarvX workspace",
@@ -230,7 +355,6 @@
         "password_too_short": "Password must be at least 8 characters long."
       }
     },
-
     "sign_up": {
       "sign_up_with_email": "Sign up with email",
       "create_account_description": "Create your workspace and start building a cleaner outreach pipeline.",
@@ -254,7 +378,6 @@
         "password_too_short": "Password must be at least 8 characters long."
       }
     },
-
     "forgot_password": {
       "title": "Forgot Password",
       "description": "We will send a one-time password to your registered email so you can reset access securely.",
@@ -268,7 +391,6 @@
         "invalid_email_format": "The email format is invalid."
       }
     },
-
     "otp": {
       "title": "Verify OTP",
       "description": "Enter the six-digit code sent to your email to continue.",
@@ -277,30 +399,24 @@
       "resend_code": "Resend OTP",
       "back_to_signin": "Back to Login"
     },
-
     "reset_password": {
       "title": "Reset Password",
       "description": "Create a new password to secure your account and return to your workspace.",
       "buttonCTA": "Reset Password",
       "success_message": "Password reset successfully.",
-
       "otp": "One-Time Password (OTP)",
       "otp_placeholder": "Enter OTP",
       "otp_required": "OTP is required.",
       "otp_length": "OTP must be 6 digits.",
       "otp_numeric": "OTP must contain only numbers.",
-
       "new_password": "New Password",
       "new_password_placeholder": "Enter new password",
-
       "confirm_password": "Confirm Password",
       "confirm_password_placeholder": "Confirm new password",
-
       "password_required": "Password is required.",
       "password_too_short": "Password must be at least 8 characters long.",
       "password_mismatch": "Passwords do not match."
     },
-
     "messages": {
       "errors": {
         "user_not_found": "User not found",
@@ -332,12 +448,16 @@
       }
     }
   },
-
   "campaigns": {
     "title": "Email Campaigns",
     "create": "Create Campaign",
     "edit": "Edit Campaign",
-    "view": "View Campaign",
+    "view": {
+      "empty": "No campaign data",
+      "send_now": "Send Now",
+      "send_success": "Campaign sent successfully",
+      "send_error": "Failed to send campaign"
+    },
     "dashboard": {
       "title": "Your Campaigns",
       "create": "Create Campaign",
@@ -360,12 +480,6 @@
       "delete_desc": "Are you sure you want to delete this campaign?",
       "delete_success": "Campaign deleted successfully",
       "delete_error": "Failed to delete campaign"
-    },
-    "view": {
-      "empty": "No campaign data",
-      "send_now": "Send Now",
-      "send_success": "Campaign sent successfully",
-      "send_error": "Failed to send campaign"
     },
     "insights": {
       "title": "Campaign Insights",
@@ -501,9 +615,13 @@
       "campaign_settings_description": "Choose campaign type, status, and schedule delivery time.",
       "targeting_description": "Select recipients for your campaign. Choose specific leads or entire folders.",
       "tracking_description": "Enable email tracking to monitor campaign performance and engagement."
+    },
+    "page": {
+      "title": "Campaigns",
+      "subtitle": "Manage your email campaigns, track opens and clicks.",
+      "new_campaign": "New Campaign"
     }
   },
-
   "commons": {
     "name": "Name",
     "email": "Email",
@@ -567,7 +685,6 @@
     "select_all": "Select all",
     "clear_selection": "Clear selection"
   },
-
   "support": {
     "bug": {
       "title": "Report a bug",
@@ -595,7 +712,6 @@
     },
     "max_length": "Maximum {max} characters."
   },
-
   "feedback": {
     "auto_modal": {
       "title": "We'd Love Your Feedback!",
@@ -604,7 +720,6 @@
       "submit": "Submit Feedback"
     }
   },
-
   "analysis": {
     "home": {
       "title": "Analysis",
@@ -767,6 +882,7 @@
         "total": "{count} total",
         "pagination_total": "{count} leads",
         "empty": "No leads found for this job yet.",
+        "has_contacts": "Has Contacts (Email/Phone)",
         "table": {
           "avatar": "Avatar",
           "username": "Username",
@@ -780,10 +896,40 @@
           "private_value": "Private",
           "public_value": "Public"
         }
+      },
+      "notes": {
+        "title": "Job Lifecycle Notes",
+        "subtitle": "A job moves through these states: Queued, Active, Paused, Completed, or Failed.",
+        "state_definitions_title": "State definitions",
+        "important_behavior_title": "Important behavior",
+        "why_jobs_fail_title": "Why jobs can fail",
+        "states": {
+          "queued": "Queued",
+          "active": "Active",
+          "paused": "Paused",
+          "completed": "Completed",
+          "failed": "Failed"
+        },
+        "definitions": {
+          "queued": "Queued: Waiting to be processed.",
+          "active": "Active: Currently running.",
+          "paused": "Paused: Temporarily stopped and resumable from the last saved cursor/checkpoint.",
+          "completed": "Completed: Finished successfully (final state).",
+          "failed": "Failed: Stopped due to an error (may or may not be recoverable) but you can retry the job."
+        },
+        "behavior": {
+          "paused_not_completed": "Paused is not a completed state.",
+          "paused_resume": "A paused job should show a Resume action.",
+          "completed_no_resume": "Completed jobs should not show Resume."
+        },
+        "failures": {
+          "rate_limits": "Rate limits or temporary blocks (429).",
+          "auth": "Session or cookie/auth issues (expired session, challenge required).",
+          "network": "Network/proxy timeouts or connection failures."
+        }
       }
     }
   },
-
   "header": {
     "breadcrumbs": {
       "app": "App",
@@ -808,7 +954,6 @@
       "sign_out": "Sign out"
     }
   },
-
   "leads": {
     "page": {
       "title": "Leads",
@@ -991,7 +1136,6 @@
         "folder_placeholder": "Choose a folder",
         "folder_required": "Please select a folder",
         "username": "Instagram Username",
-        "username": "Instagram Username",
         "username_placeholder": "e.g., filmdirectorbrucemac",
         "username_required": "Please enter a username",
         "type": "Scrape Type",
@@ -1010,7 +1154,6 @@
       "has_contacts": "Has Contacts"
     }
   },
-
   "folders": {
     "title": "Folders",
     "create": "Create Folder",
@@ -1061,7 +1204,6 @@
       "updatedAt": "Updated At"
     }
   },
-
   "dashboard": {
     "title": "Dashboard",
     "subtitle": "Track performance and leads activity.",
@@ -1091,20 +1233,19 @@
       }
     }
   },
-
   "errors": {
+    "404": {
+      "title": "Page not found",
+      "subtitle": "The page you’re looking for doesn’t exist or has been moved.",
+      "go_signin": "Go to sign in",
+      "go_home": "Home"
+    },
     "global": {
       "title": "Something went wrong",
       "subtitle": "An unexpected error occurred. Try again.",
       "try_again": "Try again",
       "go_home": "Go home",
       "details": "Error details:"
-    },
-    "404": {
-      "title": "Page not found",
-      "subtitle": "The page you’re looking for doesn’t exist or has been moved.",
-      "go_signin": "Go to sign in",
-      "go_home": "Home"
     }
   },
   "emails": {
@@ -1245,9 +1386,14 @@
     },
     "errors": {
       "required": "This field is required."
+    },
+    "navigation": {
+      "title": "Navigation",
+      "sidebar": "Sidebar",
+      "deck": "Deck",
+      "helpText": "Choose the command sidebar or floating bottom deck for this browser."
     }
   },
-
   "profile": {
     "title": "Profile",
     "avatar": "Profile picture",
@@ -1264,7 +1410,6 @@
       "invalidEmail": "Invalid email format."
     }
   },
-
   "password_and_security": {
     "title": "Password and security",
     "description": "Reset your password securely by requesting a one-time password (OTP) sent to your registered email address.",
@@ -1282,7 +1427,6 @@
       "otpFailed": "Failed to send OTP. Please try again."
     }
   },
-
   "notifications": {
     "title": "Notifications",
     "empty": "You have no notifications.",
@@ -1300,7 +1444,6 @@
       "info": "info"
     }
   },
-
   "insights": {
     "cards": {
       "total_leads": {
@@ -1335,7 +1478,6 @@
       "today": "today"
     }
   },
-
   "scraper": {
     "card": {
       "title": "Start Scraping",
@@ -1362,6 +1504,120 @@
     "status": {
       "running": "RUNNING",
       "ready": "READY"
+    }
+  },
+  "billing": {
+    "title": "Billing & Subscription",
+    "subtitle": "Manage your plan, credits, and payment details",
+    "portal": "Billing Portal",
+    "current_plan": "Current Plan",
+    "no_plan": "No Plan",
+    "status": {
+      "trialing": "Free Trial",
+      "active": "Active",
+      "past_due": "Past Due",
+      "canceled": "Canceled",
+      "paused": "Paused",
+      "incomplete": "Incomplete",
+      "incomplete_expired": "Expired",
+      "unpaid": "Unpaid"
+    },
+    "period": "{start} ? {end}",
+    "trial_ends_on": "Trial ends {date}",
+    "cancels_on": "Cancels {date}",
+    "email_accounts": "Email Accounts",
+    "campaigns": "Campaigns",
+    "credits_per_month": "Credits/mo",
+    "scraping_credits": "Scraping Credits",
+    "credit_tooltip": "1 credit = 1 lead scraped",
+    "unlimited_credits": "? Unlimited credits",
+    "used_of_total": "{used} used of {total}",
+    "left": "{count} left",
+    "running_low": "Running low",
+    "manage_billing_invoices": "Manage Billing & Invoices",
+    "cancel_subscription": "Cancel Subscription",
+    "no_active_subscription": "No active subscription",
+    "choose_plan": "Choose a Plan",
+    "free_trial_note": "All plans include a 14-day free trial",
+    "monthly": "Monthly",
+    "annual": "Annual",
+    "annual_with_discount": "Annual (10% off)",
+    "free": "Free",
+    "no_card_required": "No card required",
+    "billed_monthly": "Billed monthly",
+    "billed_yearly": "Billed {price}/year",
+    "save_per_year": "Save {amount}/yr",
+    "your_plan": "YOUR PLAN",
+    "active_trial": "Active Trial",
+    "start_free_trial": "Start Free Trial",
+    "subscribe_now": "Subscribe Now",
+    "upgrade": "Upgrade",
+    "downgrade": "Downgrade",
+    "subscribe_to_plan": "Subscribe to {plan}",
+    "proceed_checkout": "Proceed to Checkout",
+    "plan_label": "Plan",
+    "billing_label": "Billing",
+    "price_label": "Price",
+    "you_save": "You save",
+    "coupon_code_optional": "Coupon code (optional)",
+    "coupon_placeholder": "e.g. SUMMER25",
+    "apply": "Apply",
+    "coupon_help": "Coupon codes are validated on the Stripe checkout page.",
+    "upgrade_to": "Upgrade to {plan}",
+    "downgrade_to": "Downgrade to {plan}",
+    "confirm_upgrade": "Confirm Upgrade",
+    "confirm_downgrade": "Confirm Downgrade",
+    "upgrade_notice": "You will be upgraded to {plan} immediately. Prorated charges will appear on your next invoice.",
+    "downgrade_notice": "You will be downgraded to {plan} at the end of your current billing period. You retain your current plan access until then.",
+    "keep_subscription": "Keep Subscription",
+    "yes_cancel": "Yes, Cancel",
+    "cancel_confirmation_title": "Cancel Subscription",
+    "cancel_confirmation_body": "Are you sure you want to cancel? You will retain access until the end of your current billing period and will not be charged again.",
+    "inactive_title": "Subscription inactive",
+    "inactive_message": "Scraping and campaign features are locked.",
+    "subscribe": "Subscribe",
+    "trial_end_alert": "Your 14-day free trial ends {date}. Upgrade to keep full access.",
+    "cancel_pending_alert": "Subscription will cancel on {date}. Reactivate via the billing portal.",
+    "plans": {
+      "free_trial": {
+        "name": "Free Trial",
+        "badge": "14 DAYS FREE",
+        "features": {
+          "credits": "100 profile credits",
+          "smtp": "1 SMTP domain",
+          "campaigns": "Up to 3 campaigns",
+          "support": "14-day trial"
+        }
+      },
+      "basic": {
+        "name": "Basic",
+        "features": {
+          "credits": "500 profile credits / month",
+          "smtp": "1 SMTP domain",
+          "campaigns": "Up to 3 campaigns",
+          "support": "Email support"
+        }
+      },
+      "standard": {
+        "name": "Standard",
+        "badge": "MOST POPULAR",
+        "features": {
+          "credits": "2,000 profile credits / month",
+          "smtp": "2 SMTP domains",
+          "campaigns": "Unlimited campaigns",
+          "support": "Priority support"
+        }
+      },
+      "premium": {
+        "name": "Premium",
+        "badge": "MORE VALUE",
+        "features": {
+          "credits": "10,000 profile credits / month",
+          "smtp": "Unlimited SMTP domains",
+          "campaigns": "Unlimited campaigns",
+          "support": "Dedicated support"
+        }
+      }
     }
   }
 }

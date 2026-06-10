@@ -26,7 +26,7 @@ const ForgotPassForm: React.FC = () => {
     >
       <Form.Item
         name="email"
-        label={<span className="text-sm font-medium text-gray-700 dark:text-white/82"><FormattedMessage id="auth.common.email_label" /></span>}
+        label={<span className="text-sm font-medium text-white/82"><FormattedMessage id="auth.common.email_label" /></span>}
         rules={[
           {
             required: true,
@@ -43,9 +43,9 @@ const ForgotPassForm: React.FC = () => {
         ]}
       >
         <Input
-          prefix={<MailOutlined className="mr-2 text-gray-400 dark:text-white/35" />}
+          prefix={<MailOutlined className="mr-2 text-white/35" />}
           placeholder={intl.formatMessage({ id: "auth.common.enter_email_placeholder" })}
-          className="!h-13 !rounded-2xl !border-gray-200 !bg-white !px-3 !text-gray-900 placeholder:!text-gray-400 hover:!border-gray-300 focus:!border-gray-400 focus:!shadow-none dark:!border-white/10 dark:!bg-[#1b1b21] dark:!text-white dark:placeholder:!text-white/26 dark:hover:!border-white/18 dark:focus:!border-white/22"
+          className="!h-13 !rounded-2xl !border-white/10 !bg-[#1b1b21] !px-3 !text-white placeholder:!text-white/26 hover:!border-white/18 focus:!border-white/22 focus:!shadow-none"
         />
       </Form.Item>
 
@@ -62,9 +62,9 @@ const ForgotPassForm: React.FC = () => {
       </div>
 
       <div className="text-center mt-6">
-        <Text className="text-sm text-gray-500 dark:text-white/58">
+        <Text className="text-sm text-white/58">
           <FormattedMessage id="auth.forgot_password.remember_password_prompt" />{" "}
-          <Link href="/auth/signin" className="!text-gray-900 hover:!text-gray-700 dark:!text-white dark:hover:!text-white/80">
+          <Link href="/auth/signin" className="!text-white hover:!text-white/80">
             <FormattedMessage id="auth.common.sign_in_action" />
           </Link>
         </Text>
