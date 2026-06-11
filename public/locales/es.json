@@ -899,7 +899,8 @@
         "resumed": "Scraping reanudado",
         "resume_failed": "No se pudo reanudar el scraping",
         "deleted": "Trabajo de scraping eliminado",
-        "delete_failed": "No se pudo eliminar el trabajo de scraping"
+        "delete_failed": "No se pudo eliminar el trabajo de scraping",
+        "go_to_manager": "Ir al administrador de análisis"
       },
       "stats": {
         "profiles_fetched": "Perfiles obtenidos",

@@ -827,7 +827,8 @@
         "resumed": "Scraping resumed",
         "resume_failed": "Failed to resume scraping",
         "deleted": "Scraping job deleted",
-        "delete_failed": "Failed to delete scraping job"
+        "delete_failed": "Failed to delete scraping job",
+        "go_to_manager": "Go to Analysis Manager"
       },
       "stats": {
         "profiles_fetched": "Profiles Fetched",

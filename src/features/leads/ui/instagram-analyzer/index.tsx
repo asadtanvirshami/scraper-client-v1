@@ -15,31 +15,20 @@ import {
   Switch,
   Tag,
   Tooltip,
-  Statistic,
   Modal,
-  message,
 } from "antd";
 import {
   InstagramOutlined,
   LoadingOutlined,
   TwitterOutlined,
   LinkedinOutlined,
-  PauseCircleOutlined,
-  CaretRightOutlined,
-  DeleteOutlined,
-  InfoCircleOutlined,
   WarningOutlined,
-  TeamOutlined,
-  SaveOutlined,
+  AppstoreOutlined,
 } from "@ant-design/icons";
 import { FormattedMessage, useIntl } from "react-intl";
+import { useRouter } from "next/navigation";
 
-import {
-  GetScrapeFollowersJobStatus,
-  PauseScrapeFollowersJob,
-  ResumeScrapeFollowersJob,
-  DeleteScrapeFollowersJob,
-} from "@/api/api_calls/scrapper";
+import { GetScrapeFollowersJobStatus } from "@/api/api_calls/scrapper";
 import { useUserInfo } from "@/helpers/use-user";
 import { useFetchFolders } from "@/features/folders/hooks/queries";
 import { useScrapeFollowersOrFollowing } from "@/features/scraper/hooks";
@@ -71,6 +60,7 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
   showProfileAvatar = false,
 }) => {
   const intl = useIntl();
+  const router = useRouter();
   const { id } = useUserInfo();
   const [form] = Form.useForm();
 
@@ -145,9 +135,6 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
   const [activeJobState, setActiveJobState] = useState<string | null>(null);
   const [activeJobPaused, setActiveJobPaused] = useState(false);
-  const [controlLoading, setControlLoading] = useState<
-    "pause" | "resume" | "delete" | null
-  >(null);
 
   const { subscription } = useSubscriptionState();
   const creditsRemaining = subscription
@@ -298,13 +285,6 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
     Boolean(activeJobId) &&
     !TERMINAL_JOB_STATES.has(activeJobState || "") &&
     !activeJobPaused;
-  const canPause =
-    Boolean(activeJobId) &&
-    !activeJobPaused &&
-    !TERMINAL_JOB_STATES.has(activeJobState || "") &&
-    controlLoading === null;
-  const canResume = Boolean(activeJobId) && activeJobPaused;
-  const canDelete = Boolean(activeJobId) && controlLoading === null;
 
   useEffect(() => {
     if (!activeJobId) {
@@ -440,87 +420,6 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
       }
     } catch (error) {
       console.error("Scraping error:", error);
-    }
-  };
-
-  const handlePauseJob = async () => {
-    if (!activeJobId) return;
-    try {
-      setControlLoading("pause");
-      const response = await PauseScrapeFollowersJob(activeJobId);
-      const job = response?.data?.job;
-      setActiveJobState(String(job?.state || activeJobState || "").toLowerCase() || null);
-      setActiveJobPaused(Boolean(job?.control?.paused));
-      message.success(
-        intl.formatMessage({
-          id: "analysis.analyzer.actions.paused",
-          defaultMessage: "Scraping paused",
-        }),
-      );
-    } catch (error: any) {
-      message.error(
-        error?.response?.data?.message ||
-          intl.formatMessage({
-            id: "analysis.analyzer.actions.pause_failed",
-            defaultMessage: "Failed to pause scraping",
-          }),
-      );
-    } finally {
-      setControlLoading(null);
-    }
-  };
-
-  const handleResumeJob = async () => {
-    if (!activeJobId) return;
-    try {
-      setControlLoading("resume");
-      const response = await ResumeScrapeFollowersJob(activeJobId);
-      const job = response?.data?.job;
-      setActiveJobState(String(job?.state || activeJobState || "").toLowerCase() || null);
-      setActiveJobPaused(Boolean(job?.control?.paused));
-      message.success(
-        intl.formatMessage({
-          id: "analysis.analyzer.actions.resumed",
-          defaultMessage: "Scraping resumed",
-        }),
-      );
-    } catch (error: any) {
-      message.error(
-        error?.response?.data?.message ||
-          intl.formatMessage({
-            id: "analysis.analyzer.actions.resume_failed",
-            defaultMessage: "Failed to resume scraping",
-          }),
-      );
-    } finally {
-      setControlLoading(null);
-    }
-  };
-
-  const handleDeleteJob = async () => {
-    if (!activeJobId) return;
-    try {
-      setControlLoading("delete");
-      await DeleteScrapeFollowersJob(activeJobId);
-      setActiveJobId(null);
-      setActiveJobState(null);
-      setActiveJobPaused(false);
-      message.success(
-        intl.formatMessage({
-          id: "analysis.analyzer.actions.deleted",
-          defaultMessage: "Scraping job deleted",
-        }),
-      );
-    } catch (error: any) {
-      message.error(
-        error?.response?.data?.message ||
-          intl.formatMessage({
-            id: "analysis.analyzer.actions.delete_failed",
-            defaultMessage: "Failed to delete scraping job",
-          }),
-      );
-    } finally {
-      setControlLoading(null);
     }
   };
 
@@ -762,39 +661,15 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
                   </Button>
                   {statusChip}
                   {activeJobId && (
-                    <Space size={10} wrap>
-                      <Button
-                        icon={<PauseCircleOutlined />}
-                        onClick={handlePauseJob}
-                        disabled={!canPause}
-                        loading={controlLoading === "pause"}
-                      >
-                        <FormattedMessage
-                          id="analysis.analyzer.actions.pause"
-                          defaultMessage="Pause"
-                        />
-                      </Button>
-                      <Button
-                        icon={<CaretRightOutlined />}
-                        onClick={handleResumeJob}
-                        disabled={!canResume}
-                        loading={controlLoading === "resume"}
-                      >
-                        <FormattedMessage
-                          id="analysis.analyzer.actions.resume"
-                          defaultMessage="Resume"
-                        />
-                      </Button>
-                      <Button
-                        danger
-                        icon={<DeleteOutlined />}
-                        onClick={handleDeleteJob}
-                        disabled={!canDelete}
-                        loading={controlLoading === "delete"}
-                      >
-                        <FormattedMessage id="commons.delete" defaultMessage="Delete" />
-                      </Button>
-                    </Space>
+                    <Button
+                      icon={<AppstoreOutlined />}
+                      onClick={() => router.push("/analysis/scrape-jobs")}
+                    >
+                      <FormattedMessage
+                        id="analysis.analyzer.actions.go_to_manager"
+                        defaultMessage="Go to Analysis Manager"
+                      />
+                    </Button>
                   )}
                 </Space>
               </Form.Item>
@@ -802,52 +677,6 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
             </div>
           </Card>
         </Col>
-
-        {/* ── Real-time scrape stats ── */}
-        {(totalScraped !== null || liveCount !== null) && (
-          <Col xs={24}>
-            <Row gutter={[16, 16]}>
-              <Col xs={24} sm={12}>
-                <Card bodyStyle={{ padding: "16px 20px" }} bordered>
-                  <Statistic
-                    title={
-                      <Space size={6}>
-                        <TeamOutlined style={{ color: "#1677ff" }} />
-                        <span>
-                          <FormattedMessage
-                            id="analysis.analyzer.stats.profiles_analyzed"
-                            defaultMessage="Profiles Analyzed"
-                          />
-                        </span>
-                      </Space>
-                    }
-                    value={totalScraped ?? 0}
-                    valueStyle={{ color: "#1677ff", fontWeight: 700 }}
-                  />
-                </Card>
-              </Col>
-              <Col xs={24} sm={12}>
-                <Card bodyStyle={{ padding: "16px 20px" }} bordered>
-                  <Statistic
-                    title={
-                      <Space size={6}>
-                        <SaveOutlined style={{ color: "#52c41a" }} />
-                        <span>
-                          <FormattedMessage
-                            id="analysis.analyzer.stats.profiles_enriched"
-                            defaultMessage="Profiles Enriched"
-                          />
-                        </span>
-                      </Space>
-                    }
-                    value={liveCount ?? 0}
-                    valueStyle={{ color: "#52c41a", fontWeight: 700 }}
-                  />
-                </Card>
-              </Col>
-            </Row>
-          </Col>
-        )}
 
         <Col xs={24}>
           <Card
