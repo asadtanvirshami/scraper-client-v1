@@ -1,20 +1,22 @@
-// app/page.tsx
+// app/error.tsx
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Card, Spin, Typography, Space } from "antd";
+import { Button, Card, Result, Space } from "antd";
 import { useIntl } from "react-intl";
 
-const { Title, Text } = Typography;
-
-export default function Home() {
-  const router = useRouter();
+export default function GlobalError({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
   const intl = useIntl();
 
   useEffect(() => {
-    router.replace("/auth/signin");
-  }, [router]);
+    console.error(error);
+  }, [error]);
 
   return (
     <div
@@ -26,26 +28,34 @@ export default function Home() {
         background: "var(--antd-color-bg-layout, #f5f5f5)",
       }}
     >
-      <Card style={{ width: "min(520px, 100%)", borderRadius: 16 }}>
-        <Space direction="vertical" size={12} style={{ width: "100%" }}>
-          <Title level={4} style={{ margin: 0 }}>
-            {intl.formatMessage({
-              id: "commons.redirecting_title",
-              defaultMessage: "Redirecting",
-            })}
-          </Title>
-
-          <Text type="secondary">
-            {intl.formatMessage({
-              id: "commons.redirecting_signin",
-              defaultMessage: "Redirecting to sign in…",
-            })}
-          </Text>
-
-          <div style={{ display: "flex", justifyContent: "center", padding: "12px 0" }}>
-            <Spin size="large" />
-          </div>
-        </Space>
+      <Card style={{ width: "min(720px, 100%)", borderRadius: 16 }}>
+        <Result
+          status="error"
+          title={intl.formatMessage({
+            id: "errors.500.title",
+            defaultMessage: "Something went wrong",
+          })}
+          subTitle={intl.formatMessage({
+            id: "errors.500.subtitle",
+            defaultMessage: "An unexpected error occurred. You can try again or go back to the dashboard.",
+          })}
+          extra={
+            <Space wrap>
+              <Button type="primary" onClick={() => reset()}>
+                {intl.formatMessage({
+                  id: "errors.500.try_again",
+                  defaultMessage: "Try again",
+                })}
+              </Button>
+              <Button href="/">
+                {intl.formatMessage({
+                  id: "errors.500.go_home",
+                  defaultMessage: "Go to dashboard",
+                })}
+              </Button>
+            </Space>
+          }
+        />
       </Card>
     </div>
   );
