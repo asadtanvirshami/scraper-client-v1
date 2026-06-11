@@ -18,7 +18,7 @@ const CreditsBadge: React.FC = () => {
 
   if (!subscription) return null;
 
-  const { credits_used, credits_total, plan_id } = subscription;
+  const { credits_used = 0, credits_total = 0, plan_id } = subscription;
   const remaining = Math.max(0, credits_total - credits_used);
   const pct = credits_total > 0 ? Math.min(100, (credits_used / credits_total) * 100) : 0;
   const strokeColor = pct >= 90 ? "#ef4444" : pct >= 70 ? "#f59e0b" : "#10b981";
