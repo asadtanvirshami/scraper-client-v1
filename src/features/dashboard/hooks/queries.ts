@@ -9,11 +9,26 @@ export type DashboardParams = {
 };
 
 export const useFetchDashboard = (params?: DashboardParams,) => {
+  const userId = params?.user_id || "";
+  const days = params?.days ?? null;
+  const dateFrom = params?.dateFrom ?? null;
+  const dateTo = params?.dateTo ?? null;
+
   const query = useQuery({
-    queryKey: ["dashboard", params], // ✅ refetch when params change
-    queryFn: () => fetchDashboard(params ?? {}),
+    queryKey: ["dashboard", userId, days, dateFrom, dateTo],
+    queryFn: () => fetchDashboard({
+      user_id: userId,
+      ...(days ? { days } : {}),
+      ...(dateFrom ? { dateFrom } : {}),
+      ...(dateTo ? { dateTo } : {}),
+    }),
+    enabled: Boolean(userId),
     refetchOnWindowFocus: false,
-    placeholderData: keepPreviousData, // ✅ keeps layout stable
+    refetchOnReconnect: false,
+    staleTime: 2 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 1,
+    placeholderData: keepPreviousData,
   });
 
   return {

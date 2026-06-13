@@ -39,6 +39,7 @@ import {
   AdminUpdatePoolCookies,
   AdminDeletePoolAccount,
   AdminResetPoolAccount,
+  AdminRefreshAllPoolAccounts,
   type PoolAccount,
 } from "@/api/api_calls/account-pool";
 import { useIntl } from "react-intl";
@@ -580,6 +581,7 @@ export default function AccountPoolingManager() {
   const [modalMode, setModalMode] = useState<"add" | "update" | "reset">("add");
   const [selectedAccount, setSelectedAccount] = useState<PoolAccount | null>(null);
   const [actionLoading, setActionLoading] = useState<Record<string, string>>({});
+  const [refreshAllLoading, setRefreshAllLoading] = useState(false);
 
   const fetchAccounts = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
@@ -662,6 +664,41 @@ export default function AccountPoolingManager() {
     setModalMode("reset");
     setSelectedAccount(account);
     setModalOpen(true);
+  };
+
+  const handleRefreshAll = async () => {
+    setRefreshAllLoading(true);
+    try {
+      const res = await AdminRefreshAllPoolAccounts();
+      if (res?.success) {
+        message.success(
+          res.message ||
+            intl.formatMessage({
+              id: "admin.account_pool.messages.refresh_all_success",
+              defaultMessage: "All pool accounts refreshed",
+            }),
+        );
+        await fetchAccounts(true);
+      } else {
+        message.error(
+          res?.message ||
+            intl.formatMessage({
+              id: "admin.account_pool.messages.refresh_all_failed",
+              defaultMessage: "Failed to refresh pool accounts",
+            }),
+        );
+      }
+    } catch (e: any) {
+      message.error(
+        e?.response?.data?.message ||
+          intl.formatMessage({
+            id: "admin.account_pool.messages.refresh_all_failed",
+            defaultMessage: "Failed to refresh pool accounts",
+          }),
+      );
+    } finally {
+      setRefreshAllLoading(false);
+    }
   };
 
   const columns: ColumnsType<PoolAccount> = [
@@ -881,10 +918,21 @@ export default function AccountPoolingManager() {
         </Col>
         <Col>
           <Space>
-            <Button icon={<ReloadOutlined />} onClick={() => fetchAccounts()}>
+            <Button icon={<ReloadOutlined />} onClick={() => fetchAccounts()} loading={loading}>
               {intl.formatMessage({
                 id: "admin.account_pool.actions.refresh",
                 defaultMessage: "Refresh",
+              })}
+            </Button>
+            <Button
+              icon={<SyncOutlined spin={refreshAllLoading} />}
+              onClick={handleRefreshAll}
+              loading={refreshAllLoading}
+              disabled={loading}
+            >
+              {intl.formatMessage({
+                id: "admin.account_pool.actions.refresh_all",
+                defaultMessage: "Refresh All",
               })}
             </Button>
             <Button

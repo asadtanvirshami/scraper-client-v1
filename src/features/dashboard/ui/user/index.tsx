@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from "react";
 import { Col, Row } from "antd";
 import Spinner from "@/components/ui (generic)/spinner";
-import dayjs, { Dayjs } from "dayjs";
+import type { Dayjs } from "dayjs";
 import { useIntl } from "react-intl";
 import { useFetchDashboard } from "../../hooks/queries";
 
@@ -48,8 +48,6 @@ const UserLayout = ({ id }: { id: string }) => {
     null,
     null,
   ]);
-  const todayStr = dayjs().format("YYYY-MM-DD");
-
   // ✅ params driven by range OR preset
   const params = useMemo(() => {
     const [from, to] = range;
@@ -63,23 +61,13 @@ const UserLayout = ({ id }: { id: string }) => {
     }
 
     return { days: PRESET_TO_DAYS[preset], user_id: id ?? "" };
-  }, [range, preset]);
-
-  const isTodayOnly = useMemo(() => {
-    const [from, to] = range;
-    if (!from || !to) return true;
-    return (
-      from.format("YYYY-MM-DD") === todayStr &&
-      to.format("YYYY-MM-DD") === todayStr
-    );
-  }, [range, todayStr]);
+  }, [range, preset, id]);
 
   // query (NOW affects everything)
-  const { data, isLoading, isFetching } = useFetchDashboard(params);
-  console.log(data);
+  const { data, isLoading } = useFetchDashboard(params);
 
   // full page spinner only on first load
-  if (isLoading && isTodayOnly) return <Spinner size="large" />;
+  if (isLoading && !data) return <Spinner size="large" />;
 
   // use filtered data directly
   const totals = data?.data?.totals;
@@ -87,7 +75,7 @@ const UserLayout = ({ id }: { id: string }) => {
   const charts = data?.data?.charts;
 
   // loading on refetch
-  const loading = isTodayOnly ? isLoading : isFetching;
+  const loading = isLoading && !data;
 
   const isCustomRange = Boolean(range?.[0] && range?.[1]);
   const presetDays = PRESET_TO_DAYS[preset];
@@ -192,7 +180,7 @@ const UserLayout = ({ id }: { id: string }) => {
             user_id={id}
             showFilters={false}
             total={data?.data?.recent?.leads?.length ?? 0}
-            loading={isFetching}
+            loading={loading}
             value={{
               search: "",
               type: "",
@@ -206,7 +194,7 @@ const UserLayout = ({ id }: { id: string }) => {
         </Col>
         <Col xs={24} sm={24} md={24} lg={12} xl={12}>
           <CampaignsTable
-            loading={isFetching}
+            loading={loading}
             data={data?.data?.recent?.campaigns}
             showFilters={false}
           />
@@ -217,7 +205,7 @@ const UserLayout = ({ id }: { id: string }) => {
       <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
         <Col xs={24}>
           <FolderTable
-            loading={isFetching}
+            loading={loading}
             data={data?.data?.recent?.folders}
             showFilters={false}
           />

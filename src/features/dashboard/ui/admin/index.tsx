@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from "react";
 import { Col, Row } from "antd";
 import Spinner from "@/components/ui (generic)/spinner";
-import dayjs, { Dayjs } from "dayjs";
+import type { Dayjs } from "dayjs";
 import { useIntl } from "react-intl";
 
 import { useFetchDashboard } from "@/features/dashboard/hooks/queries";
@@ -50,8 +50,6 @@ const AdminLayout = ({ id }: { id: string }) => {
     null,
   ]);
 
-  const todayStr = dayjs().format("YYYY-MM-DD");
-
   // ✅ params driven by range OR preset (same as UserLayout)
   const params = useMemo(() => {
     const [from, to] = range;
@@ -67,20 +65,11 @@ const AdminLayout = ({ id }: { id: string }) => {
     return { days: PRESET_TO_DAYS[preset], user_id: id ?? "" };
   }, [range, preset, id]);
 
-  const isTodayOnly = useMemo(() => {
-    const [from, to] = range;
-    if (!from || !to) return true;
-    return (
-      from.format("YYYY-MM-DD") === todayStr &&
-      to.format("YYYY-MM-DD") === todayStr
-    );
-  }, [range, todayStr]);
-
   // ✅ query (NOW affects everything)
-  const { data, isLoading, isFetching } = useFetchDashboard(params);
+  const { data, isLoading } = useFetchDashboard(params);
 
   // ✅ full page spinner only on first load
-  if (isLoading && isTodayOnly) return <Spinner size="large" />;
+  if (isLoading && !data) return <Spinner size="large" />;
 
   const totals = data?.data?.totals;
   const insights = data?.data?.insights;
@@ -88,7 +77,7 @@ const AdminLayout = ({ id }: { id: string }) => {
   const recent = data?.data?.recent;
 
   // ✅ loading on refetch (same as UserLayout)
-  const loading = isTodayOnly ? isLoading : isFetching;
+  const loading = isLoading && !data;
 
   // ✅ central handlers (same as UserLayout)
   const handlePreset = (p: PresetKey) => {
@@ -150,7 +139,7 @@ const AdminLayout = ({ id }: { id: string }) => {
           <UsersTableServer
             data={recentUsers}
             total={recentUsers.length}
-            loading={isFetching}
+            loading={loading}
             showFilters={false}
             onFetch={() => {}}
             value={{
@@ -172,7 +161,7 @@ const AdminLayout = ({ id }: { id: string }) => {
           <BugsTableServer
             bugs={recentBugs}
             total={recentBugs.length}
-            loading={isFetching}
+            loading={loading}
             showFilters={false}
             disableStatusChange={true}
             showSelect={false}
@@ -190,7 +179,7 @@ const AdminLayout = ({ id }: { id: string }) => {
           <FeedbacksTableServer
             feedbacks={recentFeedbacks}
             total={recentFeedbacks.length}
-            loading={isFetching}
+            loading={loading}
             showFilters={false}
             disableStatusChange={true}
             showSelect={false}

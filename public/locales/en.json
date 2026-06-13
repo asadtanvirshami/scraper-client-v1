@@ -828,7 +828,10 @@
         "resume_failed": "Failed to resume scraping",
         "deleted": "Scraping job deleted",
         "delete_failed": "Failed to delete scraping job",
-        "go_to_manager": "Go to Analysis Manager"
+        "go_to_manager": "Go to Analysis Manager",
+        "retry": "Retry",
+        "retry_started": "Retrying job",
+        "retry_failed": "Failed to retry job"
       },
       "stats": {
         "profiles_fetched": "Profiles Fetched",
@@ -863,7 +866,10 @@
         "paused": "Job paused",
         "pause_failed": "Failed to pause job",
         "resumed": "Job resumed",
+        "resuming": "Resuming job",
         "resume_failed": "Failed to resume job",
+        "retry": "Retry",
+        "retrying": "Retrying job",
         "deleted": "Job deleted",
         "delete_failed": "Failed to delete job"
       },
