@@ -80,6 +80,13 @@ export async function AdminResetPoolAccount(
   return data;
 }
 
+export async function AdminRefreshAllPoolAccounts(): Promise<GenericResponse> {
+  const { data } = await api.post(
+    apiEndpoints.adminAccountPool.refreshAll,
+  );
+  return data;
+}
+
 export async function AdminDeletePoolAccount(
   id: string,
 ): Promise<GenericResponse> {

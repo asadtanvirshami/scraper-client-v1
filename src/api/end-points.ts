@@ -251,6 +251,7 @@ export const apiEndpoints = {
   adminAccountPool: {
     list: "/admin/account-pool",
     add: "/admin/account-pool",
+    refreshAll: "/admin/account-pool/refresh-all",
     update: (id: string) => `/admin/account-pool/${id}`,
     updateCookies: (id: string) => `/admin/account-pool/${id}/cookies`,
     reset: (id: string) => `/admin/account-pool/${id}/reset`,

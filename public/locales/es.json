@@ -900,7 +900,10 @@
         "resume_failed": "No se pudo reanudar el scraping",
         "deleted": "Trabajo de scraping eliminado",
         "delete_failed": "No se pudo eliminar el trabajo de scraping",
-        "go_to_manager": "Ir al administrador de análisis"
+        "go_to_manager": "Ir al administrador de análisis",
+        "retry": "Reintentar",
+        "retry_started": "Reintentando trabajo",
+        "retry_failed": "No se pudo reintentar el trabajo"
       },
       "stats": {
         "profiles_fetched": "Perfiles obtenidos",
@@ -935,7 +938,10 @@
         "paused": "Trabajo pausado",
         "pause_failed": "No se pudo pausar el trabajo",
         "resumed": "Trabajo reanudado",
+        "resuming": "Reanudando trabajo",
         "resume_failed": "No se pudo reanudar el trabajo",
+        "retry": "Reintentar",
+        "retrying": "Reintentando trabajo",
         "deleted": "Trabajo eliminado",
         "delete_failed": "No se pudo eliminar el trabajo"
       },

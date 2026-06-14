@@ -39,22 +39,15 @@ import {
 import { FetchAllLeadsList } from "@/api/api_calls/leads";
 import { useUserInfo } from "@/helpers/use-user";
 import { useSocket } from "@/hooks/use-socket";
+import { formatScrapeJobError, isTransientRelationshipFetchError } from "./error-format";
 
 const { Title, Text } = Typography;
 
 const TERMINAL_STATES = new Set(["completed", "failed"]);
-const HIDDEN_FAILED_REASONS = new Set(["failed-to-analyze"]);
 
-const formatFailedReason = (failedReason: string | null) => {
-  if (!failedReason) return null;
-
-  const normalizedReason = failedReason.trim().toLowerCase();
-  if (HIDDEN_FAILED_REASONS.has(normalizedReason)) {
-    return null;
-  }
-
-  return failedReason;
-};
+// How long to keep a just-acted-on job (pause/resume) pinned in the list even
+// if the queue backend transiently omits it during its remove+re-add cycle.
+const ACTION_GRACE_MS = 15000;
 
 const stateTag = (
   intl: ReturnType<typeof useIntl>,
@@ -81,6 +74,7 @@ const stateTag = (
           })}
         </Tag>
       );
+    case "queued":
     case "waiting":
     case "delayed":
     case "prioritized":
@@ -117,12 +111,15 @@ const stateTag = (
 interface ScrapeJob {
   id: string;
   state: string;
+  status?: string;
   timestamp: number;
   processedOn: number | null;
   finishedOn: number | null;
   failedReason: string | null;
   progress: number;
   control: { paused: boolean; pausedAt: string | null };
+  pipeline?: { paused?: boolean; status?: string } | null;
+  scrape_job?: { status?: string } | null;
   result: any;
   data: {
     targetUsername: string;
@@ -131,6 +128,30 @@ interface ScrapeJob {
     user_id: string;
   };
 }
+
+const isJobPaused = (job: ScrapeJob) =>
+  Boolean(
+    job.control?.paused ||
+      job.state === "paused" ||
+      job.status === "PAUSED" ||
+      job.pipeline?.paused ||
+      job.scrape_job?.status === "PAUSED",
+  );
+
+// A transient fetch failure (temporary upstream/session issue) is not a real
+// dead-end. We present these as "Queued" with a Retry action rather than a
+// scary "Failed", since re-running the job typically succeeds.
+const isTransientQueued = (job: ScrapeJob) =>
+  job.state === "failed" && isTransientRelationshipFetchError(job.failedReason);
+
+// State used purely for display. Transient fetch failures are shown as queued;
+// everything else (including the rate-budget exhaustion case) keeps its real
+// state so a genuine "Failed" is still surfaced.
+const getDisplayState = (job: ScrapeJob) =>
+  isTransientQueued(job) ? "queued" : job.state;
+
+// Both transient (shown as queued) and genuinely failed jobs offer a Retry.
+const canRetryJob = (job: ScrapeJob) => job.state === "failed";
 
 // ── Leads sub-table rendered when a job row is expanded ──────────────────────
 function JobLeadsTable({
@@ -412,7 +433,30 @@ export default function ScrapeJobsManager() {
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState<Record<string, string>>({});
   const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // jobId -> timestamp of the last pause/resume action, used to keep a row
+  // visible while the queue backend settles (eventual consistency).
+  const recentActionRef = useRef<Map<string, number>>(new Map());
   const socket = useSocket(userId);
+
+  // Optimistically patch a single job row so pause/resume reflect instantly and
+  // the row never flickers out of the list.
+  const patchJob = useCallback(
+    (
+      jobId: string,
+      patch: Omit<Partial<ScrapeJob>, "control"> & {
+        control?: Partial<ScrapeJob["control"]>;
+      },
+    ) => {
+      setJobs((prev) =>
+        prev.map((j) =>
+          j.id === jobId
+            ? { ...j, ...patch, control: { ...j.control, ...(patch.control ?? {}) } }
+            : j,
+        ),
+      );
+    },
+    [],
+  );
 
   // live per-job profile counts keyed as "targetUsername:type"
   const [liveJobCounts, setLiveJobCounts] = useState<
@@ -442,9 +486,27 @@ export default function ScrapeJobsManager() {
     if (!silent) setLoading(true);
     try {
       const res = await ListScrapeFollowersJobs({ page: p, limit: 20 });
-      const d = res?.data;
-      setJobs(d?.jobs ?? []);
-      setTotal(d?.total ?? 0);
+      const serverJobs: ScrapeJob[] = res?.data?.jobs ?? [];
+      const serverTotal: number = res?.data?.total ?? serverJobs.length;
+
+      setJobs((prev) => {
+        const now = Date.now();
+        for (const [id, ts] of recentActionRef.current) {
+          if (now - ts > ACTION_GRACE_MS) recentActionRef.current.delete(id);
+        }
+        const serverIds = new Set(serverJobs.map((j) => j.id));
+        // Keep recently paused/resumed jobs that the queue backend is briefly
+        // omitting (remove + re-add cycle) so they don't disappear until reload.
+        const preserved = prev.filter(
+          (j) => !serverIds.has(j.id) && recentActionRef.current.has(j.id),
+        );
+        if (!preserved.length) return serverJobs;
+        // Keep newest-first ordering so a preserved row doesn't jump position.
+        return [...serverJobs, ...preserved].sort(
+          (a, b) => (b.timestamp || 0) - (a.timestamp || 0),
+        );
+      });
+      setTotal(serverTotal);
     } catch {
       if (!silent) {
         message.error(
@@ -465,7 +527,12 @@ export default function ScrapeJobsManager() {
   }, [page, fetchJobs]);
 
   useEffect(() => {
-    const hasLive = jobs.some((j) => !TERMINAL_STATES.has(j.state));
+    // Only poll while a job can actually change state. Paused jobs sit idle
+    // (resumable on demand) and terminal jobs are done — polling those just
+    // hammers the queue backend with no benefit.
+    const hasLive = jobs.some(
+      (j) => !TERMINAL_STATES.has(j.state) && !isJobPaused(j),
+    );
     if (!hasLive) {
       if (pollRef.current) clearTimeout(pollRef.current);
       return;
@@ -483,6 +550,9 @@ export default function ScrapeJobsManager() {
 
   const handlePause = async (jobId: string) => {
     setJobAction(jobId, "pause");
+    // Optimistically pin the row as paused so it stays visible immediately.
+    patchJob(jobId, { state: "paused", status: "PAUSED", control: { paused: true } });
+    recentActionRef.current.set(jobId, Date.now());
     try {
       await PauseScrapeFollowersJob(jobId);
       message.success(
@@ -500,18 +570,35 @@ export default function ScrapeJobsManager() {
             defaultMessage: "Failed to pause job",
           }),
       );
+      // Revert the optimistic patch on failure.
+      await fetchJobs(page, true);
     } finally { clearJobAction(jobId); }
   };
 
   const handleResume = async (jobId: string) => {
+    const isRetry = jobs.find((j) => j.id === jobId)?.state === "failed";
     setJobAction(jobId, "resume");
+    // Optimistically re-queue the row (and clear any prior error) so it stays
+    // visible and reflects the action instantly.
+    patchJob(jobId, {
+      state: "waiting",
+      status: "QUEUED",
+      failedReason: null,
+      control: { paused: false },
+    });
+    recentActionRef.current.set(jobId, Date.now());
     try {
       await ResumeScrapeFollowersJob(jobId);
-      message.success(
-        intl.formatMessage({
-          id: "analysis.scrape_jobs.actions.resumed",
-          defaultMessage: "Job resumed",
-        }),
+      message.info(
+        isRetry
+          ? intl.formatMessage({
+              id: "analysis.scrape_jobs.actions.retrying",
+              defaultMessage: "Retrying job",
+            })
+          : intl.formatMessage({
+              id: "analysis.scrape_jobs.actions.resuming",
+              defaultMessage: "Resuming job",
+            }),
       );
       await fetchJobs(page, true);
     } catch (e: any) {
@@ -522,6 +609,8 @@ export default function ScrapeJobsManager() {
             defaultMessage: "Failed to resume job",
           }),
       );
+      // Revert the optimistic patch on failure.
+      await fetchJobs(page, true);
     } finally { clearJobAction(jobId); }
   };
 
@@ -582,7 +671,7 @@ export default function ScrapeJobsManager() {
       }),
       key: "status",
       width: 120,
-      render: (_, r) => stateTag(intl, r.state, r.control?.paused),
+      render: (_, r) => stateTag(intl, getDisplayState(r), isJobPaused(r)),
     },
     // {
     //   title: intl.formatMessage({
@@ -666,7 +755,7 @@ export default function ScrapeJobsManager() {
       key: "error",
       ellipsis: true,
       render: (_, r) => {
-        const failedReason = formatFailedReason(r.failedReason);
+        const failedReason = formatScrapeJobError(r.failedReason);
 
         return failedReason ? (
           <Tooltip title={failedReason}>
@@ -684,7 +773,7 @@ export default function ScrapeJobsManager() {
       width: 160,
       render: (_, r) => {
         const isTerminal = TERMINAL_STATES.has(r.state);
-        const isPaused = r.control?.paused;
+        const isPaused = isJobPaused(r);
         const busy = actionLoading[r.id];
         return (
           <Space size={6}>
@@ -702,18 +791,23 @@ export default function ScrapeJobsManager() {
                 })}
               </Button>
             )}
-            {!isTerminal && isPaused && (
+            {((!isTerminal && isPaused) || canRetryJob(r)) && (
               <Button
                 size="small"
-                icon={<CaretRightOutlined />}
+                icon={canRetryJob(r) ? <ReloadOutlined /> : <CaretRightOutlined />}
                 loading={busy === "resume"}
                 disabled={!!busy}
                 onClick={() => handleResume(r.id)}
               >
-                {intl.formatMessage({
-                  id: "analysis.scrape_jobs.actions.resume",
-                  defaultMessage: "Resume",
-                })}
+                {canRetryJob(r)
+                  ? intl.formatMessage({
+                      id: "analysis.scrape_jobs.actions.retry",
+                      defaultMessage: "Retry",
+                    })
+                  : intl.formatMessage({
+                      id: "analysis.scrape_jobs.actions.resume",
+                      defaultMessage: "Resume",
+                    })}
               </Button>
             )}
             {!r.state.includes("active") && (
@@ -779,7 +873,7 @@ export default function ScrapeJobsManager() {
               />
             </Text>
             <div style={{ fontSize: 22, fontWeight: 700, color: "#52c41a" }}>
-              {jobs.filter((j) => j.state === "active").length}
+              {jobs.filter((j) => j.state === "active" && !isJobPaused(j)).length}
             </div>
           </Card>
         </Col>
