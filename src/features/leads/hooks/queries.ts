@@ -20,10 +20,14 @@ export const useFetchLeadsSummary = (params?: LeadsSummaryParams) => {
   };
 };
 
-export const useFetchLeadsList = (params?: LeadsListParams) => {
+export const useFetchLeadsList = (
+  params?: LeadsListParams & { enabled?: boolean },
+) => {
+  const { enabled = true, ...queryParams } = params ?? {};
   const query = useQuery({
-    queryKey: ["leads", "list", params],
-    queryFn: () => FetchAllLeadsList(params as any ?? {}),
+    queryKey: ["leads", "list", queryParams],
+    queryFn: () => FetchAllLeadsList(queryParams as any),
+    enabled,
     refetchOnWindowFocus: false,
     placeholderData: keepPreviousData,
   });

@@ -22,7 +22,7 @@ const AutoFeedbackModal = () => {
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      await createFeedback.mutateAsync({
+      const response = await createFeedback.mutateAsync({
         user_id: user_id as any,
         feedback: values.feedback.trim(),
       });
@@ -33,7 +33,15 @@ const AutoFeedbackModal = () => {
       );
 
       clearSnooze();
-      dispatch(updateProfile({ ...user, is_feedback_completed: true }));
+      if (user) {
+        dispatch(
+          updateProfile({
+            ...user,
+            ...(response?.data?.user || {}),
+            is_feedback_completed: true,
+          }),
+        );
+      }
       form.resetFields();
     } catch (e: any) {
       if (e?.errorFields) return; // antd validation

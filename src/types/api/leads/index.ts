@@ -38,6 +38,7 @@ export type LeadsListParams = {
   folder_id?: string;
   is_converted?: boolean | undefined;
   scrape_status?: boolean;
+  scrape_id?: string;
   scraped_from_username?: string;
   has_contacts?: boolean;
 };

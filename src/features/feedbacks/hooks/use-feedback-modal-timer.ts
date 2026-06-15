@@ -5,6 +5,7 @@ import { useUserInfo } from "@/helpers/use-user";
 
 const INITIAL_DELAY = 60 * 1000; // 1 minute after the signed-in user is loaded
 const STORAGE_KEY_PREFIX = "feedback_modal_shown";
+const COMPLETED_STORAGE_KEY_PREFIX = "feedback_completed";
 
 interface UseFeedbackModalTimerReturn {
   shouldShowModal: boolean;
@@ -33,6 +34,11 @@ export const useFeedbackModalTimer = (): UseFeedbackModalTimerReturn => {
     }
 
     const storageKey = `${STORAGE_KEY_PREFIX}_${user_id}`;
+    const completedKey = `${COMPLETED_STORAGE_KEY_PREFIX}_${user_id}`;
+    if (localStorage.getItem(completedKey) === "true") {
+      return;
+    }
+
     if (sessionStorage.getItem(storageKey) === "true") {
       return;
     }
@@ -61,6 +67,7 @@ export const useFeedbackModalTimer = (): UseFeedbackModalTimerReturn => {
   const clearSnooze = useCallback(() => {
     if (user_id) {
       sessionStorage.setItem(`${STORAGE_KEY_PREFIX}_${user_id}`, "true");
+      localStorage.setItem(`${COMPLETED_STORAGE_KEY_PREFIX}_${user_id}`, "true");
     }
     setShouldShowModal(false);
   }, [user_id]);

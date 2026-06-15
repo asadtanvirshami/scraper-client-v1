@@ -19,7 +19,6 @@ import {
   LoadingOutlined,
 } from "@ant-design/icons";
 import { FormattedMessage, useIntl } from "react-intl";
-import { useQueryClient } from "@tanstack/react-query";
 
 import { useUserInfo } from "@/helpers/use-user";
 import { useFetchFolders } from "@/features/folders/hooks/queries";
@@ -81,7 +80,6 @@ const extractProfileIdentifier = (profileUrl: string): string => {
 
 const AnalysisProfileExtractor = ({ platform, compact = false }: ProfileExtractorProps) => {
   const intl = useIntl();
-  const queryClient = useQueryClient();
   const { id: userId } = useUserInfo();
   const [form] = Form.useForm();
 
@@ -101,8 +99,9 @@ const AnalysisProfileExtractor = ({ platform, compact = false }: ProfileExtracto
   const [submittedProfile, setSubmittedProfile] = useState("");
   const [hasStarted, setHasStarted] = useState(false);
   const [pollUntil, setPollUntil] = useState(0);
-  const [pollTick, setPollTick] = useState(0);
-  void pollTick;
+  const [scrapeStatus, setScrapeStatus] = useState<
+    "idle" | "pending" | "completed"
+  >("idle");
 
   const instagramScraper = useScrapeInstagram();
   const linkedInScraper = useScrapeLinkedIn();
@@ -128,7 +127,6 @@ const AnalysisProfileExtractor = ({ platform, compact = false }: ProfileExtracto
     };
 
     if (!hasStarted) {
-      params.scraped_from_username = "__analysis_profile_placeholder__";
       return params;
     }
 
@@ -151,35 +149,27 @@ const AnalysisProfileExtractor = ({ platform, compact = false }: ProfileExtracto
     submittedProfile,
   ]);
 
-  const leadsQuery = useFetchLeadsList(leadsParams);
+  const leadsQuery = useFetchLeadsList({
+    ...leadsParams,
+    enabled: Boolean(userId && hasStarted),
+  });
 
   useEffect(() => {
     if (pollUntil <= Date.now()) return;
-
-    const ticker = window.setInterval(() => setPollTick((value) => value + 1), 250);
-    return () => window.clearInterval(ticker);
-  }, [pollUntil]);
-
-  useEffect(() => {
-    if (pollUntil <= Date.now()) return;
-
-    leadsQuery.refetch?.();
 
     const interval = window.setInterval(() => {
       leadsQuery.refetch?.();
-      queryClient.invalidateQueries({ queryKey: ["leads", "list"] });
     }, 5_000);
 
     const timeout = window.setTimeout(() => {
       window.clearInterval(interval);
-      queryClient.invalidateQueries({ queryKey: ["leads", "list"] });
     }, Math.max(0, pollUntil - Date.now()));
 
     return () => {
       window.clearInterval(interval);
       window.clearTimeout(timeout);
     };
-  }, [pollUntil, leadsQuery.refetch, queryClient]);
+  }, [pollUntil, leadsQuery.refetch]);
 
   const handleSubmit = useCallback(
     async (values: { profile_url: string; folder_id: string }) => {
@@ -213,10 +203,17 @@ const AnalysisProfileExtractor = ({ platform, compact = false }: ProfileExtracto
             folder_id: folderId,
           });
 
+      const responseStatus = String(
+        (response as any)?.data?.status || "",
+      ).toUpperCase();
       setScrapeId(extractScrapeId(response));
       setHasStarted(true);
-      setPollUntil(Date.now() + 20_000);
-      leadsQuery.refetch?.();
+      setScrapeStatus(responseStatus === "COMPLETED" ? "completed" : "pending");
+      setPollUntil(
+        responseStatus === "COMPLETED"
+          ? Date.now() + 1_000
+          : Date.now() + (isLinkedIn ? 180_000 : 20_000),
+      );
     },
     [
       userId,
@@ -224,7 +221,6 @@ const AnalysisProfileExtractor = ({ platform, compact = false }: ProfileExtracto
       isLinkedIn,
       linkedInScraper,
       instagramScraper,
-      leadsQuery,
     ],
   );
 
@@ -390,29 +386,45 @@ const AnalysisProfileExtractor = ({ platform, compact = false }: ProfileExtracto
                 showIcon
               />
             ) : (
-              <LeadsTableServer
-                user_id={userId ?? ""}
-                folder_id={selectedFolderId || undefined}
-                leads={(leadsQuery.data as any)?.data ?? []}
-                total={(leadsQuery.data as any)?.pagination?.total ?? 0}
-                loading={leadsQuery.isFetching || isSubmitting}
-                value={{
-                  ...tableFilters,
-                  folder_id: selectedFolderId || undefined,
-                  type: leadType,
-                }}
-                onFetch={(next) =>
-                  setTableFilters((prev) => ({
-                    ...prev,
-                    ...next,
-                    type: leadType,
+              <div className="space-y-4">
+                {isLinkedIn &&
+                  scrapeStatus === "pending" &&
+                  ((leadsQuery.data as any)?.pagination?.total ?? 0) === 0 && (
+                    <Alert
+                      type="info"
+                      showIcon
+                      message={intl.formatMessage({
+                        id: "analysis.profile_extractor.linkedin_waiting",
+                        defaultMessage:
+                          "LinkedIn scrape started. Waiting for the profile result callback...",
+                      })}
+                    />
+                  )}
+
+                <LeadsTableServer
+                  user_id={userId ?? ""}
+                  folder_id={selectedFolderId || undefined}
+                  leads={(leadsQuery.data as any)?.data ?? []}
+                  total={(leadsQuery.data as any)?.pagination?.total ?? 0}
+                  loading={leadsQuery.isFetching || isSubmitting}
+                  value={{
+                    ...tableFilters,
                     folder_id: selectedFolderId || undefined,
-                  }))
-                }
-                showFilters={true}
-                showFileUpload={false}
-                showProfileAvatar={true}
-              />
+                    type: leadType,
+                  }}
+                  onFetch={(next) =>
+                    setTableFilters((prev) => ({
+                      ...prev,
+                      ...next,
+                      type: leadType,
+                      folder_id: selectedFolderId || undefined,
+                    }))
+                  }
+                  showFilters={true}
+                  showFileUpload={false}
+                  showProfileAvatar={true}
+                />
+              </div>
             )}
           </Card>
         </Col>
