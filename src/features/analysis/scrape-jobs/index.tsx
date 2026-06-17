@@ -8,6 +8,7 @@ import {
   Col,
   Empty,
   Row,
+  Modal,
   Space,
   Spin,
   Switch,
@@ -48,6 +49,8 @@ const TERMINAL_STATES = new Set(["completed", "failed"]);
 // How long to keep a just-acted-on job (pause/resume) pinned in the list even
 // if the queue backend transiently omits it during its remove+re-add cycle.
 const ACTION_GRACE_MS = 15000;
+const JOB_LIST_ACTIVE_POLL_MS = 15000;
+const JOB_LIST_QUEUED_POLL_MS = 30000;
 
 const stateTag = (
   intl: ReturnType<typeof useIntl>,
@@ -97,10 +100,10 @@ const stateTag = (
       );
     case "failed":
       return (
-        <Tag color="red">
+        <Tag color="gold">
           {intl.formatMessage({
             id: "analysis.scrape_jobs.status.failed",
-            defaultMessage: "Failed",
+            defaultMessage: "Needs Retry",
           })}
         </Tag>
       );
@@ -118,8 +121,25 @@ interface ScrapeJob {
   failedReason: string | null;
   progress: number;
   control: { paused: boolean; pausedAt: string | null };
-  pipeline?: { paused?: boolean; status?: string } | null;
-  scrape_job?: { status?: string } | null;
+  pipeline?: {
+    paused?: boolean;
+    status?: string;
+    counts?: {
+      collected_count?: number;
+      saved_count?: number;
+      duplicate_count?: number;
+      failed_count?: number;
+    };
+  } | null;
+  scrape_job?: {
+    status?: string;
+    counts?: {
+      collected_count?: number;
+      saved_count?: number;
+      duplicate_count?: number;
+      failed_count?: number;
+    };
+  } | null;
   result: any;
   data: {
     targetUsername: string;
@@ -138,30 +158,57 @@ const isJobPaused = (job: ScrapeJob) =>
       job.scrape_job?.status === "PAUSED",
   );
 
-// A transient fetch failure (temporary upstream/session issue) is not a real
-// dead-end. We present these as "Queued" with a Retry action rather than a
-// scary "Failed", since re-running the job typically succeeds.
+// A transient upstream/runtime failure is not a real dead-end. The backend
+// keeps retrying these in the background, so display them as queued.
 const isTransientQueued = (job: ScrapeJob) =>
   job.state === "failed" && isTransientRelationshipFetchError(job.failedReason);
 
-// State used purely for display. Transient fetch failures are shown as queued;
-// everything else (including the rate-budget exhaustion case) keeps its real
-// state so a genuine "Failed" is still surfaced.
+// State used purely for display. Transient failures are shown as queued;
+// genuine final failures still surface as failed.
 const getDisplayState = (job: ScrapeJob) =>
   isTransientQueued(job) ? "queued" : job.state;
 
-// Both transient (shown as queued) and genuinely failed jobs offer a Retry.
-const canRetryJob = (job: ScrapeJob) => job.state === "failed";
+// A job can be (re)started by the user whenever it has stopped progressing:
+// genuine failures, finished/terminal jobs (re-run), and transient failures
+// surfaced as "queued" that are actually stuck (they carry a finished time).
+// Active jobs (still running) and paused jobs (use Resume) are excluded.
+const canRetryJob = (job: ScrapeJob) =>
+  !isJobPaused(job) &&
+  getDisplayState(job) !== "active" &&
+  (TERMINAL_STATES.has(job.state) ||
+    isTransientQueued(job) ||
+    job.finishedOn != null);
+
+const isJobStillChanging = (job: ScrapeJob) =>
+  !TERMINAL_STATES.has(getDisplayState(job)) && !isJobPaused(job);
+
+const getJobListPollDelay = (jobs: ScrapeJob[]) =>
+  jobs.some((job) => getDisplayState(job) === "active")
+    ? JOB_LIST_ACTIVE_POLL_MS
+    : JOB_LIST_QUEUED_POLL_MS;
+
+const normalizeInstagramUsername = (value?: string | null) =>
+  String(value || "").trim().replace(/^@+/, "").toLowerCase();
+
+const toRelationshipType = (type?: string | null): "follower" | "following" =>
+  String(type || "").toLowerCase() === "following" ? "following" : "follower";
+
+const buildJobRealtimeKey = (targetUsername?: string | null, type?: string | null) =>
+  `${normalizeInstagramUsername(targetUsername)}:${type || "followers"}`;
 
 // ── Leads sub-table rendered when a job row is expanded ──────────────────────
 function JobLeadsTable({
   userId,
   targetUsername,
+  relationshipType,
   folderId,
+  refreshToken = 0,
 }: {
   userId: string;
   targetUsername: string;
+  relationshipType: "follower" | "following";
   folderId: string | null;
+  refreshToken?: number;
 }) {
   const intl = useIntl();
   const { token } = theme.useToken();
@@ -174,12 +221,14 @@ function JobLeadsTable({
 
   const fetch = useCallback(
     async (p: number) => {
-      if (!userId || !targetUsername) return;
+      const normalizedTarget = normalizeInstagramUsername(targetUsername);
+      if (!userId || !normalizedTarget) return;
       setLoading(true);
       try {
         const res = await FetchAllLeadsList({
           user_id: userId,
-          scraped_from_username: targetUsername,
+          scraped_from_username: normalizedTarget,
+          relationship_type: relationshipType,
           ...(folderId ? { folder_id: folderId } : {}),
           page: p,
           limit: LIMIT,
@@ -203,12 +252,12 @@ function JobLeadsTable({
         setLoading(false);
       }
     },
-    [userId, targetUsername, folderId, hasContacts],
+    [userId, targetUsername, relationshipType, folderId, hasContacts],
   );
 
   useEffect(() => {
     fetch(leadsPage);
-  }, [leadsPage, fetch]);
+  }, [leadsPage, fetch, refreshToken]);
 
   useEffect(() => {
     setLeadsPage(1);
@@ -437,6 +486,13 @@ export default function ScrapeJobsManager() {
   // visible while the queue backend settles (eventual consistency).
   const recentActionRef = useRef<Map<string, number>>(new Map());
   const socket = useSocket(userId);
+  const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
+  const [leadRefreshTokens, setLeadRefreshTokens] = useState<Record<string, number>>({});
+  const jobsRef = useRef<ScrapeJob[]>([]);
+
+  useEffect(() => {
+    jobsRef.current = jobs;
+  }, [jobs]);
 
   // Optimistically patch a single job row so pause/resume reflect instantly and
   // the row never flickers out of the list.
@@ -458,28 +514,155 @@ export default function ScrapeJobsManager() {
     [],
   );
 
-  // live per-job profile counts keyed as "targetUsername:type"
+  // live per-job counts keyed as "targetUsername:type"
   const [liveJobCounts, setLiveJobCounts] = useState<
-    Record<string, { completed: number; total: number }>
+    Record<string, { totalFollowersCount: number | null; totalAnalyzed: number | null }>
   >({});
 
   useEffect(() => {
     if (!socket) return;
-    const handler = (payload: {
+    const followerCountHandler = (payload: {
       target_username: string;
       type: string;
       completed: number;
       total: number;
     }) => {
-      const key = `${payload.target_username}:${payload.type}`;
+      const key = buildJobRealtimeKey(payload.target_username, payload.type);
       setLiveJobCounts((prev) => ({
         ...prev,
-        [key]: { completed: payload.completed, total: payload.total },
+        [key]: {
+          totalFollowersCount: Number(payload.total || 0),
+          totalAnalyzed: Number(payload.completed || 0),
+        },
       }));
     };
-    socket.on("scrape:follower_count", handler);
-    return () => { socket.off("scrape:follower_count", handler); };
-  }, [socket]);
+    const progressHandler = (payload: {
+      job_id?: string;
+      target_username?: string;
+      type?: string;
+      status?: string;
+      stage?: string;
+      reason?: string;
+      total_followers_count?: number;
+      total_analyzed?: number;
+      collected_count?: number;
+      total_processed?: number;
+      saved_count?: number;
+      duplicate_count?: number;
+      failed_count?: number;
+      error?: string | null;
+      failed_reason?: string | null;
+      result?: { data?: Record<string, number> } | null;
+    }) => {
+      const key = buildJobRealtimeKey(payload.target_username, payload.type);
+
+      // The three backend emitters use slightly different field names
+      // (pipeline stage handlers, the GraphQL batch loop, and the queue
+      // lifecycle emitter). Normalize them here so the live counters move no
+      // matter which path produced the event.
+      const r = payload.result?.data || {};
+      const collected =
+        payload.total_followers_count ??
+        payload.collected_count ??
+        payload.total_processed ??
+        (r.collected_count as number | undefined) ??
+        null;
+      const savedC = payload.saved_count ?? (r.saved_count as number | undefined);
+      const dupC = payload.duplicate_count ?? (r.duplicate_count as number | undefined);
+      const failC = payload.failed_count ?? (r.failed_count as number | undefined);
+      const analyzed =
+        payload.total_analyzed != null
+          ? Number(payload.total_analyzed)
+          : savedC != null || dupC != null || failC != null
+            ? Number(savedC || 0) + Number(dupC || 0) + Number(failC || 0)
+            : null;
+
+      if (key !== ":followers") {
+        setLiveJobCounts((prev) => ({
+          ...prev,
+          [key]: {
+            totalFollowersCount:
+              collected != null ? Number(collected) : prev[key]?.totalFollowersCount ?? null,
+            totalAnalyzed:
+              analyzed != null ? Number(analyzed) : prev[key]?.totalAnalyzed ?? null,
+          },
+        }));
+      }
+
+      setJobs((prev) =>
+        prev.map((job) => {
+          const sameJob = payload.job_id && String(job.id) === String(payload.job_id);
+          const sameTarget =
+            buildJobRealtimeKey(job.data?.targetUsername, job.data?.type) === key;
+          if (!sameJob && !sameTarget) return job;
+          const nextState =
+            payload.status === "COMPLETED"
+              ? "completed"
+              : payload.status === "RUNNING" || payload.status === "RECOVERING"
+                ? "active"
+                : payload.status === "QUEUED"
+                  ? "waiting"
+                  : payload.status === "PAUSED"
+                    ? "delayed"
+                    : payload.status === "FAILED"
+                      ? "failed"
+                      : job.state;
+          const clearError =
+            payload.status === "QUEUED" ||
+            payload.status === "RUNNING" ||
+            payload.status === "RECOVERING";
+
+          return {
+            ...job,
+            state: nextState,
+            status: payload.status || job.status,
+            failedReason: clearError
+              ? null
+              : payload.error || payload.failed_reason || job.failedReason,
+            scrape_job: {
+              ...(job.scrape_job || {}),
+              counts: {
+                ...((job.scrape_job as any)?.counts || {}),
+                collected_count:
+                  collected ?? (job.scrape_job as any)?.counts?.collected_count,
+                saved_count: savedC ?? (job.scrape_job as any)?.counts?.saved_count,
+                duplicate_count:
+                  dupC ?? (job.scrape_job as any)?.counts?.duplicate_count,
+                failed_count: failC ?? (job.scrape_job as any)?.counts?.failed_count,
+              },
+            } as any,
+          };
+        }),
+      );
+
+      const expandedIdsToRefresh = new Set<string>();
+      if (payload.job_id && expandedRowKeys.includes(String(payload.job_id))) {
+        expandedIdsToRefresh.add(String(payload.job_id));
+      }
+      for (const job of jobsRef.current) {
+        const jobId = String(job.id);
+        if (!expandedRowKeys.includes(jobId)) continue;
+        if (buildJobRealtimeKey(job.data?.targetUsername, job.data?.type) === key) {
+          expandedIdsToRefresh.add(jobId);
+        }
+      }
+
+      if (expandedIdsToRefresh.size > 0) {
+        setLeadRefreshTokens((prev) => ({
+          ...prev,
+          ...Object.fromEntries(
+            Array.from(expandedIdsToRefresh).map((jobId) => [jobId, Date.now()]),
+          ),
+        }));
+      }
+    };
+    socket.on("scrape:follower_count", followerCountHandler);
+    socket.on("scrape:progress", progressHandler);
+    return () => {
+      socket.off("scrape:follower_count", followerCountHandler);
+      socket.off("scrape:progress", progressHandler);
+    };
+  }, [expandedRowKeys, socket]);
 
   const fetchJobs = useCallback(async (p = page, silent = false) => {
     if (!userId) return;
@@ -530,14 +713,15 @@ export default function ScrapeJobsManager() {
     // Only poll while a job can actually change state. Paused jobs sit idle
     // (resumable on demand) and terminal jobs are done — polling those just
     // hammers the queue backend with no benefit.
-    const hasLive = jobs.some(
-      (j) => !TERMINAL_STATES.has(j.state) && !isJobPaused(j),
-    );
+    const hasLive = jobs.some(isJobStillChanging);
     if (!hasLive) {
       if (pollRef.current) clearTimeout(pollRef.current);
       return;
     }
-    pollRef.current = setTimeout(() => fetchJobs(page, true), 5000);
+    pollRef.current = setTimeout(
+      () => fetchJobs(page, true),
+      getJobListPollDelay(jobs),
+    );
     return () => {
       if (pollRef.current) clearTimeout(pollRef.current);
     };
@@ -576,14 +760,47 @@ export default function ScrapeJobsManager() {
   };
 
   const handleResume = async (jobId: string) => {
-    const isRetry = jobs.find((j) => j.id === jobId)?.state === "failed";
+    const job = jobs.find((j) => j.id === jobId);
+    const isRetry = job ? canRetryJob(job) : false;
+    const isCompletedRerun = job?.state === "completed";
+
+    if (isCompletedRerun) {
+      const confirmed = await new Promise<boolean>((resolve) => {
+        Modal.confirm({
+          title: intl.formatMessage({
+            id: "analysis.scrape_jobs.rerun.confirm_title",
+            defaultMessage: "Re-run this scrape?",
+          }),
+          content: intl.formatMessage({
+            id: "analysis.scrape_jobs.rerun.confirm_content",
+            defaultMessage:
+              "This will scrape the target again and use credits for the new run.",
+          }),
+          okText: intl.formatMessage({
+            id: "analysis.scrape_jobs.rerun.confirm_ok",
+            defaultMessage: "Re-run and use credits",
+          }),
+          cancelText: intl.formatMessage({
+            id: "commons.cancel",
+            defaultMessage: "Cancel",
+          }),
+          onOk: () => resolve(true),
+          onCancel: () => resolve(false),
+        });
+      });
+
+      if (!confirmed) return;
+    }
+
     setJobAction(jobId, "resume");
-    // Optimistically re-queue the row (and clear any prior error) so it stays
-    // visible and reflects the action instantly.
+    // Optimistically re-queue the row (and clear any prior error / finished
+    // state) so a retried terminal job stops showing Retry and reflects the
+    // action instantly.
     patchJob(jobId, {
       state: "waiting",
       status: "QUEUED",
       failedReason: null,
+      finishedOn: null,
       control: { paused: false },
     });
     recentActionRef.current.set(jobId, Date.now());
@@ -637,6 +854,44 @@ export default function ScrapeJobsManager() {
     } finally { clearJobAction(jobId); }
   };
 
+  // Counts can live in three places, in priority order:
+  //   1. liveJobCounts  — the latest socket event (most up to date)
+  //   2. pipeline.counts — Redis pipeline state (incremented every batch, but
+  //      only flushed to Mongo at finalize, so this is correct for jobs that
+  //      are still running or were paused mid-run)
+  //   3. scrape_job.counts — Mongo (authoritative once the job finalizes)
+  const getTotalFollowersCount = (job: ScrapeJob) => {
+    const key = buildJobRealtimeKey(job.data?.targetUsername, job.data?.type);
+    return (
+      liveJobCounts[key]?.totalFollowersCount ??
+      job.pipeline?.counts?.collected_count ??
+      job.scrape_job?.counts?.collected_count ??
+      null
+    );
+  };
+
+  const sumAnalyzed = (counts?: {
+    saved_count?: number;
+    duplicate_count?: number;
+    failed_count?: number;
+  } | null) =>
+    counts
+      ? Number(counts.saved_count || 0) +
+        Number(counts.duplicate_count || 0) +
+        Number(counts.failed_count || 0)
+      : null;
+
+  const getTotalAnalyzed = (job: ScrapeJob) => {
+    const key = buildJobRealtimeKey(job.data?.targetUsername, job.data?.type);
+    const live = liveJobCounts[key]?.totalAnalyzed;
+    if (live != null) return live;
+
+    const pipelineAnalyzed = sumAnalyzed(job.pipeline?.counts);
+    if (pipelineAnalyzed) return pipelineAnalyzed;
+
+    return sumAnalyzed(job.scrape_job?.counts);
+  };
+
   const columns: ColumnsType<ScrapeJob> = [
     {
       title: intl.formatMessage({
@@ -672,6 +927,40 @@ export default function ScrapeJobsManager() {
       key: "status",
       width: 120,
       render: (_, r) => stateTag(intl, getDisplayState(r), isJobPaused(r)),
+    },
+    {
+      title: intl.formatMessage({
+        id: "analysis.scrape_jobs.table.total_followers_count",
+        defaultMessage: "Total Followers",
+      }),
+      key: "total_followers_count",
+      width: 140,
+      render: (_, r) => {
+        const count = getTotalFollowersCount(r);
+        return count != null ? (
+          <Text strong>{Number(count).toLocaleString()}</Text>
+        ) : (
+          <Text type="secondary">-</Text>
+        );
+      },
+    },
+    {
+      title: intl.formatMessage({
+        id: "analysis.scrape_jobs.table.total_analyzed",
+        defaultMessage: "Total Analyzed",
+      }),
+      key: "total_analyzed",
+      width: 140,
+      render: (_, r) => {
+        const count = getTotalAnalyzed(r);
+        return count != null ? (
+          <Text strong style={{ color: "#1677ff" }}>
+            {Number(count).toLocaleString()}
+          </Text>
+        ) : (
+          <Text type="secondary">-</Text>
+        );
+      },
     },
     // {
     //   title: intl.formatMessage({
@@ -750,16 +1039,17 @@ export default function ScrapeJobsManager() {
     {
       title: intl.formatMessage({
         id: "analysis.scrape_jobs.table.error",
-        defaultMessage: "Error",
+        defaultMessage: "Status Detail",
       }),
       key: "error",
       ellipsis: true,
       render: (_, r) => {
+        if (getDisplayState(r) !== "failed") return null;
         const failedReason = formatScrapeJobError(r.failedReason);
 
         return failedReason ? (
           <Tooltip title={failedReason}>
-            <Text type="danger" style={{ fontSize: 12 }}>{failedReason}</Text>
+            <Text type="warning" style={{ fontSize: 12 }}>{failedReason}</Text>
           </Tooltip>
         ) : null;
       },
@@ -774,6 +1064,7 @@ export default function ScrapeJobsManager() {
       render: (_, r) => {
         const isTerminal = TERMINAL_STATES.has(r.state);
         const isPaused = isJobPaused(r);
+        const showRetry = canRetryJob(r);
         const busy = actionLoading[r.id];
         return (
           <Space size={6}>
@@ -791,23 +1082,32 @@ export default function ScrapeJobsManager() {
                 })}
               </Button>
             )}
-            {((!isTerminal && isPaused) || canRetryJob(r)) && (
+            {isPaused && !showRetry && (
               <Button
                 size="small"
-                icon={canRetryJob(r) ? <ReloadOutlined /> : <CaretRightOutlined />}
+                icon={<CaretRightOutlined />}
                 loading={busy === "resume"}
                 disabled={!!busy}
                 onClick={() => handleResume(r.id)}
               >
-                {canRetryJob(r)
-                  ? intl.formatMessage({
-                      id: "analysis.scrape_jobs.actions.retry",
-                      defaultMessage: "Retry",
-                    })
-                  : intl.formatMessage({
-                      id: "analysis.scrape_jobs.actions.resume",
-                      defaultMessage: "Resume",
-                    })}
+                {intl.formatMessage({
+                  id: "analysis.scrape_jobs.actions.resume",
+                  defaultMessage: "Resume",
+                })}
+              </Button>
+            )}
+            {showRetry && (
+              <Button
+                size="small"
+                icon={<ReloadOutlined />}
+                loading={busy === "resume"}
+                disabled={!!busy}
+                onClick={() => handleResume(r.id)}
+              >
+                {intl.formatMessage({
+                  id: "analysis.scrape_jobs.actions.retry",
+                  defaultMessage: "Retry",
+                })}
               </Button>
             )}
             {!r.state.includes("active") && (
@@ -947,10 +1247,10 @@ export default function ScrapeJobsManager() {
                       defaultMessage: "Completed",
                     })}
                   </Tag>
-                  <Tag color="red">
+                  <Tag color="gold">
                     {intl.formatMessage({
                       id: "analysis.scrape_jobs.notes.states.failed",
-                      defaultMessage: "Failed",
+                      defaultMessage: "Needs Retry",
                     })}
                   </Tag>
                 </Space>
@@ -1073,7 +1373,7 @@ export default function ScrapeJobsManager() {
                         <Text strong>
                           {intl.formatMessage({
                             id: "analysis.scrape_jobs.notes.why_jobs_fail_title",
-                            defaultMessage: "Why jobs can fail",
+                            defaultMessage: "Why a job may pause and retry",
                           })}
                         </Text>
                         <ul style={{ margin: "8px 0 0", paddingLeft: 18 }}>
@@ -1081,7 +1381,7 @@ export default function ScrapeJobsManager() {
                             <Text>
                               {intl.formatMessage({
                                 id: "analysis.scrape_jobs.notes.failures.rate_limits",
-                                defaultMessage: "Rate limits or temporary blocks (429).",
+                                defaultMessage: "Staying within safe request limits (auto-resumes).",
                               })}
                             </Text>
                           </li>
@@ -1090,7 +1390,7 @@ export default function ScrapeJobsManager() {
                               {intl.formatMessage({
                                 id: "analysis.scrape_jobs.notes.failures.auth",
                                 defaultMessage:
-                                  "Session or cookie/auth issues (expired session, challenge required).",
+                                  "Refreshing the session when it needs renewing.",
                               })}
                             </Text>
                           </li>
@@ -1098,7 +1398,7 @@ export default function ScrapeJobsManager() {
                             <Text>
                               {intl.formatMessage({
                                 id: "analysis.scrape_jobs.notes.failures.network",
-                                defaultMessage: "Network/proxy timeouts or connection failures.",
+                                defaultMessage: "Waiting out a brief network/connection hiccup.",
                               })}
                             </Text>
                           </li>
@@ -1120,11 +1420,15 @@ export default function ScrapeJobsManager() {
           rowKey="id"
           loading={loading}
           expandable={{
+            expandedRowKeys,
+            onExpandedRowsChange: (keys) => setExpandedRowKeys([...keys]),
             expandedRowRender: (record) => (
               <JobLeadsTable
                 userId={userId ?? ""}
                 targetUsername={record.data.targetUsername}
+                relationshipType={toRelationshipType(record.data.type)}
                 folderId={record.data.folder_id}
+                refreshToken={leadRefreshTokens[String(record.id)] || 0}
               />
             ),
             expandIcon: ({ expanded, onExpand, record }) => (

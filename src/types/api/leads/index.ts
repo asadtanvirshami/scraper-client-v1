@@ -39,6 +39,7 @@ export type LeadsListParams = {
   is_converted?: boolean | undefined;
   scrape_status?: boolean;
   scraped_from_username?: string;
+  relationship_type?: "follower" | "following";
   has_contacts?: boolean;
 };
 

@@ -122,6 +122,7 @@ export const apiEndpoints = {
       user_id?: string;
       scrape_status?: boolean;
       scraped_from_username?: string;
+      relationship_type?: "follower" | "following";
       has_contacts?: boolean;
     }) => withPagination("/lead/get", params),
 
@@ -262,10 +263,29 @@ export const apiEndpoints = {
 
   adminBilling: {
     subscriptions: "/admin/billing/subscriptions",
-    cancelSubscription: (userId: string) => `/admin/billing/subscriptions/${userId}/cancel`,
+    cancelSubscription: (userId: string) =>
+      `/admin/billing/subscriptions/${userId}/cancel`,
     charges: "/admin/billing/charges",
     refund: "/admin/billing/refund",
     promoCodes: "/admin/billing/promo-codes",
-    deactivatePromoCode: (promoCodeId: string) => `/admin/billing/promo-codes/${promoCodeId}/deactivate`,
+    deactivatePromoCode: (promoCodeId: string) =>
+      `/admin/billing/promo-codes/${promoCodeId}/deactivate`,
+  },
+  /* ================= ADMIN QUEUES ====================== */
+  adminQueues: {
+    list: "/admin/queues",
+    pause: (queue: string) =>
+      `/admin/queues/${encodeURIComponent(queue)}/pause`,
+    resume: (queue: string) =>
+      `/admin/queues/${encodeURIComponent(queue)}/resume`,
+    listJobs: (queue: string, params?: { states?: string; limit?: number }) => {
+      const q = new URLSearchParams();
+      if (params?.states) q.set("states", params.states);
+      if (params?.limit) q.set("limit", String(params.limit));
+      const qs = q.toString();
+      return `/admin/queues/${encodeURIComponent(queue)}/jobs${qs ? `?${qs}` : ""}`;
+    },
+    retryJob: (queue: string, jobId: string) =>
+      `/admin/queues/${encodeURIComponent(queue)}/jobs/${encodeURIComponent(jobId)}/retry`,
   },
 };
