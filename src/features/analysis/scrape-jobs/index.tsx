@@ -33,6 +33,7 @@ import {
 import { FormattedMessage, useIntl } from "react-intl";
 import {
   DeleteScrapeFollowersJob,
+  GetScrapeFollowersJobStatus,
   ListScrapeFollowersJobs,
   PauseScrapeFollowersJob,
   ResumeScrapeFollowersJob,
@@ -56,7 +57,30 @@ const stateTag = (
   intl: ReturnType<typeof useIntl>,
   state: string,
   paused: boolean,
+  retrying: boolean,
+  cooldownLabel?: string | null,
 ) => {
+  if (state === "cooling_down") {
+    return (
+      <Tag color="processing">
+        {cooldownLabel ||
+          intl.formatMessage({
+            id: "analysis.scrape_jobs.status.cooling_down",
+            defaultMessage: "Cooling Down",
+          })}
+      </Tag>
+    );
+  }
+  if (retrying) {
+    return (
+      <Tag color="processing">
+        {intl.formatMessage({
+          id: "analysis.scrape_jobs.status.retrying",
+          defaultMessage: "Retrying",
+        })}
+      </Tag>
+    );
+  }
   if (paused) {
     return (
       <Tag color="orange">
@@ -111,9 +135,20 @@ const stateTag = (
   }
 };
 
+type JobRetryState = {
+  auto_retrying?: boolean;
+  retry_at?: number | null;
+  retry_delay_ms?: number | null;
+  cooldown_remaining_ms?: number | null;
+  reason?: string | null;
+  waiting_for_abort?: boolean;
+  active?: boolean;
+} | null;
+
 interface ScrapeJob {
   id: string;
   state: string;
+  queue_state?: string | null;
   status?: string;
   timestamp: number;
   processedOn: number | null;
@@ -121,10 +156,12 @@ interface ScrapeJob {
   failedReason: string | null;
   progress: number;
   control: { paused: boolean; pausedAt: string | null };
+  retry?: JobRetryState;
   pipeline?: {
     paused?: boolean;
     status?: string;
     counts?: {
+      target_total_count?: number | null;
       collected_count?: number;
       saved_count?: number;
       duplicate_count?: number;
@@ -134,6 +171,7 @@ interface ScrapeJob {
   scrape_job?: {
     status?: string;
     counts?: {
+      target_total_count?: number | null;
       collected_count?: number;
       saved_count?: number;
       duplicate_count?: number;
@@ -163,10 +201,35 @@ const isJobPaused = (job: ScrapeJob) =>
 const isTransientQueued = (job: ScrapeJob) =>
   job.state === "failed" && isTransientRelationshipFetchError(job.failedReason);
 
+const isCoolingDownJob = (job: ScrapeJob) =>
+  Boolean(
+    job.retry?.auto_retrying &&
+      !isJobPaused(job) &&
+      (job.state === "delayed" ||
+        job.queue_state === "delayed" ||
+        String(job.status || "").toUpperCase() === "COOLING_DOWN"),
+  );
+
+const getCooldownRemainingMs = (job: ScrapeJob, nowTs: number) => {
+  const retryAt = Number(job.retry?.retry_at || 0);
+  if (!retryAt) return Math.max(0, Number(job.retry?.cooldown_remaining_ms || 0));
+  return Math.max(0, retryAt - nowTs);
+};
+
+const formatCooldown = (remainingMs: number) => {
+  const totalSeconds = Math.max(0, Math.ceil(remainingMs / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
+};
+
 // State used purely for display. Transient failures are shown as queued;
 // genuine final failures still surface as failed.
 const getDisplayState = (job: ScrapeJob) =>
-  isTransientQueued(job) ? "queued" : job.state;
+  isCoolingDownJob(job) ? "cooling_down" : isTransientQueued(job) ? "queued" : job.state;
+
+const isRecoveringStatus = (job: ScrapeJob) =>
+  String(job.status || "").toUpperCase() === "RECOVERING";
 
 // A job can be (re)started by the user whenever it has stopped progressing:
 // genuine failures, finished/terminal jobs (re-run), and transient failures
@@ -183,7 +246,7 @@ const isJobStillChanging = (job: ScrapeJob) =>
   !TERMINAL_STATES.has(getDisplayState(job)) && !isJobPaused(job);
 
 const getJobListPollDelay = (jobs: ScrapeJob[]) =>
-  jobs.some((job) => getDisplayState(job) === "active")
+  jobs.some((job) => getDisplayState(job) === "active" || isCoolingDownJob(job))
     ? JOB_LIST_ACTIVE_POLL_MS
     : JOB_LIST_QUEUED_POLL_MS;
 
@@ -196,14 +259,26 @@ const toRelationshipType = (type?: string | null): "follower" | "following" =>
 const buildJobRealtimeKey = (targetUsername?: string | null, type?: string | null) =>
   `${normalizeInstagramUsername(targetUsername)}:${type || "followers"}`;
 
+type LeadTableCacheEntry = {
+  hasContacts: boolean;
+  leads: any[];
+  leadsPage: number;
+  signature: string;
+  total: number;
+};
+
+const leadTableStateCache = new Map<string, LeadTableCacheEntry>();
+
 // ── Leads sub-table rendered when a job row is expanded ──────────────────────
 function JobLeadsTable({
+  jobId,
   userId,
   targetUsername,
   relationshipType,
   folderId,
   refreshToken = 0,
 }: {
+  jobId: string;
   userId: string;
   targetUsername: string;
   relationshipType: "follower" | "following";
@@ -212,15 +287,19 @@ function JobLeadsTable({
 }) {
   const intl = useIntl();
   const { token } = theme.useToken();
-  const [leadsPage, setLeadsPage] = useState(1);
+  const cachedTableState = leadTableStateCache.get(jobId);
+  const [leadsPage, setLeadsPage] = useState(cachedTableState?.leadsPage ?? 1);
   const LIMIT = 10;
-  const [leads, setLeads] = useState<any[]>([]);
-  const [total, setTotal] = useState(0);
+  const [leads, setLeads] = useState<any[]>(cachedTableState?.leads ?? []);
+  const [total, setTotal] = useState(cachedTableState?.total ?? 0);
   const [loading, setLoading] = useState(false);
-  const [hasContacts, setHasContacts] = useState(false);
+  const [hasContacts, setHasContacts] = useState(cachedTableState?.hasContacts ?? false);
+  const lastLoadedSignatureRef = useRef<string | null>(
+    cachedTableState?.signature ?? null,
+  );
 
   const fetch = useCallback(
-    async (p: number) => {
+    async (p: number, signature: string) => {
       const normalizedTarget = normalizeInstagramUsername(targetUsername);
       if (!userId || !normalizedTarget) return;
       setLoading(true);
@@ -241,6 +320,14 @@ function JobLeadsTable({
         const tot: number = res?.pagination?.total ?? list.length;
         setLeads(list);
         setTotal(tot);
+        lastLoadedSignatureRef.current = signature;
+        leadTableStateCache.set(jobId, {
+          hasContacts,
+          leads: list,
+          leadsPage: p,
+          signature,
+          total: tot,
+        });
       } catch {
         message.error(
           intl.formatMessage({
@@ -252,16 +339,35 @@ function JobLeadsTable({
         setLoading(false);
       }
     },
-    [userId, targetUsername, relationshipType, folderId, hasContacts],
+    [folderId, hasContacts, intl, jobId, relationshipType, targetUsername, userId],
   );
 
   useEffect(() => {
-    fetch(leadsPage);
-  }, [leadsPage, fetch, refreshToken]);
+    const normalizedTarget = normalizeInstagramUsername(targetUsername);
+    if (!userId || !normalizedTarget) return;
 
-  useEffect(() => {
-    setLeadsPage(1);
-  }, [hasContacts]);
+    const signature = [
+      userId,
+      normalizedTarget,
+      relationshipType,
+      folderId || "",
+      String(leadsPage),
+      hasContacts ? "1" : "0",
+      String(refreshToken),
+    ].join("|");
+
+    if (lastLoadedSignatureRef.current === signature) return;
+    void fetch(leadsPage, signature);
+  }, [
+    fetch,
+    folderId,
+    hasContacts,
+    leadsPage,
+    refreshToken,
+    relationshipType,
+    targetUsername,
+    userId,
+  ]);
 
   const leadsColumns: ColumnsType<any> = [
     {
@@ -428,7 +534,10 @@ function JobLeadsTable({
           </Text>
           <Switch
             checked={hasContacts}
-            onChange={(checked) => setHasContacts(checked)}
+            onChange={(checked) => {
+              setLeadsPage(1);
+              setHasContacts(checked);
+            }}
             size="small"
           />
         </Space>
@@ -476,6 +585,7 @@ export default function ScrapeJobsManager() {
   const intl = useIntl();
   const { token } = theme.useToken();
   const { id: userId } = useUserInfo();
+  const [nowTs, setNowTs] = useState(() => Date.now());
   const [jobs, setJobs] = useState<ScrapeJob[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -489,10 +599,27 @@ export default function ScrapeJobsManager() {
   const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
   const [leadRefreshTokens, setLeadRefreshTokens] = useState<Record<string, number>>({});
   const jobsRef = useRef<ScrapeJob[]>([]);
+  const bumpLeadTableRefreshTokens = useCallback((jobIds: React.Key[] = []) => {
+    const ids = jobIds.map((jobId) => String(jobId)).filter(Boolean);
+    if (!ids.length) return;
+
+    setLeadRefreshTokens((prev) => ({
+      ...prev,
+      ...Object.fromEntries(ids.map((jobId) => [jobId, Date.now()])),
+    }));
+  }, []);
 
   useEffect(() => {
     jobsRef.current = jobs;
   }, [jobs]);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setNowTs(Date.now());
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, []);
 
   // Optimistically patch a single job row so pause/resume reflect instantly and
   // the row never flickers out of the list.
@@ -514,9 +641,17 @@ export default function ScrapeJobsManager() {
     [],
   );
 
-  // live per-job counts keyed as "targetUsername:type"
+  const isJobRetrying = useCallback(
+    (job: ScrapeJob) => isRecoveringStatus(job),
+    [],
+  );
+
+  // live per-job counts keyed as "targetUsername:type". Total Count is
+  // not tracked here — it's resolved once from Apify and persisted
+  // server-side, so the table always reads it from job.pipeline/scrape_job
+  // counts (refreshed via fetchJobs) rather than from a socket event.
   const [liveJobCounts, setLiveJobCounts] = useState<
-    Record<string, { totalFollowersCount: number | null; totalAnalyzed: number | null }>
+    Record<string, { totalAnalyzed: number | null }>
   >({});
 
   useEffect(() => {
@@ -531,7 +666,6 @@ export default function ScrapeJobsManager() {
       setLiveJobCounts((prev) => ({
         ...prev,
         [key]: {
-          totalFollowersCount: Number(payload.total || 0),
           totalAnalyzed: Number(payload.completed || 0),
         },
       }));
@@ -552,17 +686,19 @@ export default function ScrapeJobsManager() {
       failed_count?: number;
       error?: string | null;
       failed_reason?: string | null;
+      retry?: JobRetryState;
       result?: { data?: Record<string, number> } | null;
     }) => {
       const key = buildJobRealtimeKey(payload.target_username, payload.type);
 
-      // The three backend emitters use slightly different field names
-      // (pipeline stage handlers, the GraphQL batch loop, and the queue
-      // lifecycle emitter). Normalize them here so the live counters move no
-      // matter which path produced the event.
+      // The backend emitters use slightly different field names (pipeline
+      // stage handlers, the GraphQL batch loop, and the queue lifecycle
+      // emitter). Normalize them here so the live counters move no matter
+      // which path produced the event. Total Count is intentionally not
+      // read from here — it's resolved once from Apify and persisted
+      // server-side, surfaced via job.pipeline/scrape_job counts instead.
       const r = payload.result?.data || {};
       const collected =
-        payload.total_followers_count ??
         payload.collected_count ??
         payload.total_processed ??
         (r.collected_count as number | undefined) ??
@@ -570,19 +706,19 @@ export default function ScrapeJobsManager() {
       const savedC = payload.saved_count ?? (r.saved_count as number | undefined);
       const dupC = payload.duplicate_count ?? (r.duplicate_count as number | undefined);
       const failC = payload.failed_count ?? (r.failed_count as number | undefined);
+      // "Analyzed" = profiles saved in a record (new + already-existing
+      // duplicates) — a failed profile was never saved, so it isn't counted.
       const analyzed =
         payload.total_analyzed != null
           ? Number(payload.total_analyzed)
-          : savedC != null || dupC != null || failC != null
-            ? Number(savedC || 0) + Number(dupC || 0) + Number(failC || 0)
+          : savedC != null || dupC != null
+            ? Number(savedC || 0) + Number(dupC || 0)
             : null;
 
       if (key !== ":followers") {
         setLiveJobCounts((prev) => ({
           ...prev,
           [key]: {
-            totalFollowersCount:
-              collected != null ? Number(collected) : prev[key]?.totalFollowersCount ?? null,
             totalAnalyzed:
               analyzed != null ? Number(analyzed) : prev[key]?.totalAnalyzed ?? null,
           },
@@ -600,6 +736,8 @@ export default function ScrapeJobsManager() {
               ? "completed"
               : payload.status === "RUNNING" || payload.status === "RECOVERING"
                 ? "active"
+                : payload.status === "COOLING_DOWN"
+                  ? "delayed"
                 : payload.status === "QUEUED"
                   ? "waiting"
                   : payload.status === "PAUSED"
@@ -619,6 +757,7 @@ export default function ScrapeJobsManager() {
             failedReason: clearError
               ? null
               : payload.error || payload.failed_reason || job.failedReason,
+            retry: payload.retry ?? job.retry,
             scrape_job: {
               ...(job.scrape_job || {}),
               counts: {
@@ -635,26 +774,6 @@ export default function ScrapeJobsManager() {
         }),
       );
 
-      const expandedIdsToRefresh = new Set<string>();
-      if (payload.job_id && expandedRowKeys.includes(String(payload.job_id))) {
-        expandedIdsToRefresh.add(String(payload.job_id));
-      }
-      for (const job of jobsRef.current) {
-        const jobId = String(job.id);
-        if (!expandedRowKeys.includes(jobId)) continue;
-        if (buildJobRealtimeKey(job.data?.targetUsername, job.data?.type) === key) {
-          expandedIdsToRefresh.add(jobId);
-        }
-      }
-
-      if (expandedIdsToRefresh.size > 0) {
-        setLeadRefreshTokens((prev) => ({
-          ...prev,
-          ...Object.fromEntries(
-            Array.from(expandedIdsToRefresh).map((jobId) => [jobId, Date.now()]),
-          ),
-        }));
-      }
     };
     socket.on("scrape:follower_count", followerCountHandler);
     socket.on("scrape:progress", progressHandler);
@@ -662,15 +781,50 @@ export default function ScrapeJobsManager() {
       socket.off("scrape:follower_count", followerCountHandler);
       socket.off("scrape:progress", progressHandler);
     };
-  }, [expandedRowKeys, socket]);
+  }, [socket]);
 
-  const fetchJobs = useCallback(async (p = page, silent = false) => {
+  const fetchJobs = useCallback(async (
+    p = page,
+    {
+      silent = false,
+      refreshActiveStatuses = false,
+    }: {
+      silent?: boolean;
+      refreshActiveStatuses?: boolean;
+    } = {},
+  ) => {
     if (!userId) return;
     if (!silent) setLoading(true);
     try {
       const res = await ListScrapeFollowersJobs({ page: p, limit: 20 });
-      const serverJobs: ScrapeJob[] = res?.data?.jobs ?? [];
+      let serverJobs: ScrapeJob[] = res?.data?.jobs ?? [];
       const serverTotal: number = res?.data?.total ?? serverJobs.length;
+
+      if (refreshActiveStatuses) {
+        const activeJobs = serverJobs.filter(isJobStillChanging);
+        if (activeJobs.length > 0) {
+          const refreshedJobs = await Promise.all(
+            activeJobs.map(async (job) => {
+              try {
+                const detail = await GetScrapeFollowersJobStatus(job.id);
+                return (detail?.data?.job as ScrapeJob | undefined) ?? null;
+              } catch {
+                return null;
+              }
+            }),
+          );
+
+          const refreshedById = new Map(
+            refreshedJobs
+              .filter((job): job is ScrapeJob => Boolean(job?.id))
+              .map((job) => [String(job.id), job]),
+          );
+
+          if (refreshedById.size > 0) {
+            serverJobs = serverJobs.map((job) => refreshedById.get(String(job.id)) ?? job);
+          }
+        }
+      }
 
       setJobs((prev) => {
         const now = Date.now();
@@ -690,6 +844,24 @@ export default function ScrapeJobsManager() {
         );
       });
       setTotal(serverTotal);
+
+      // Terminal jobs receive no further socket progress events, so their
+      // stale live total would otherwise shadow the freshly fetched counts.
+      // An explicit manual refresh clears live totals for every fetched row so
+      // active jobs also rehydrate from the API before the next socket event.
+      setLiveJobCounts((prev) => {
+        let changed = false;
+        const next = { ...prev };
+        for (const job of serverJobs) {
+          if (!refreshActiveStatuses && !TERMINAL_STATES.has(job.state)) continue;
+          const key = buildJobRealtimeKey(job.data?.targetUsername, job.data?.type);
+          if (key in next) {
+            delete next[key];
+            changed = true;
+          }
+        }
+        return changed ? next : prev;
+      });
     } catch {
       if (!silent) {
         message.error(
@@ -719,7 +891,7 @@ export default function ScrapeJobsManager() {
       return;
     }
     pollRef.current = setTimeout(
-      () => fetchJobs(page, true),
+      () => fetchJobs(page, { silent: true }),
       getJobListPollDelay(jobs),
     );
     return () => {
@@ -745,7 +917,7 @@ export default function ScrapeJobsManager() {
           defaultMessage: "Job paused",
         }),
       );
-      await fetchJobs(page, true);
+      await fetchJobs(page, { silent: true });
     } catch (e: any) {
       message.error(
         e?.response?.data?.message ||
@@ -755,11 +927,11 @@ export default function ScrapeJobsManager() {
           }),
       );
       // Revert the optimistic patch on failure.
-      await fetchJobs(page, true);
+      await fetchJobs(page, { silent: true });
     } finally { clearJobAction(jobId); }
   };
 
-  const handleResume = async (jobId: string) => {
+  const handleResume = useCallback(async (jobId: string) => {
     const job = jobs.find((j) => j.id === jobId);
     const isRetry = job ? canRetryJob(job) : false;
     const isCompletedRerun = job?.state === "completed";
@@ -801,6 +973,7 @@ export default function ScrapeJobsManager() {
       status: "QUEUED",
       failedReason: null,
       finishedOn: null,
+      retry: null,
       control: { paused: false },
     });
     recentActionRef.current.set(jobId, Date.now());
@@ -817,7 +990,7 @@ export default function ScrapeJobsManager() {
               defaultMessage: "Resuming job",
             }),
       );
-      await fetchJobs(page, true);
+      await fetchJobs(page, { silent: true });
     } catch (e: any) {
       message.error(
         e?.response?.data?.message ||
@@ -827,9 +1000,11 @@ export default function ScrapeJobsManager() {
           }),
       );
       // Revert the optimistic patch on failure.
-      await fetchJobs(page, true);
-    } finally { clearJobAction(jobId); }
-  };
+      await fetchJobs(page, { silent: true });
+    } finally {
+      clearJobAction(jobId);
+    }
+  }, [clearJobAction, fetchJobs, intl, jobs, page, patchJob, setJobAction]);
 
   const handleDelete = async (jobId: string) => {
     setJobAction(jobId, "delete");
@@ -844,41 +1019,66 @@ export default function ScrapeJobsManager() {
       setJobs((prev) => prev.filter((j) => j.id !== jobId));
       setTotal((t) => Math.max(0, t - 1));
     } catch (e: any) {
+      const serverMessage = e?.response?.data?.message;
       message.error(
-        e?.response?.data?.message ||
+        serverMessage === "followers-scrape-job-active-cannot-delete-pause-first"
+          ? intl.formatMessage({
+              id: "analysis.scrape_jobs.actions.delete_pause_first",
+              defaultMessage: "Pause the running job first, then delete it once it stops.",
+            })
+          : serverMessage === "followers-scrape-job-delete-waiting-for-apify-abort"
+            ? intl.formatMessage({
+                id: "analysis.scrape_jobs.actions.delete_waiting_abort",
+                defaultMessage: "Still stopping the upstream Apify run. Try delete again in a moment.",
+              })
+            : serverMessage ||
           intl.formatMessage({
             id: "analysis.scrape_jobs.actions.delete_failed",
-            defaultMessage: "Failed to delete job",
-          }),
+          defaultMessage: "Failed to delete job",
+        }),
       );
     } finally { clearJobAction(jobId); }
   };
 
-  // Counts can live in three places, in priority order:
-  //   1. liveJobCounts  — the latest socket event (most up to date)
-  //   2. pipeline.counts — Redis pipeline state (incremented every batch, but
-  //      only flushed to Mongo at finalize, so this is correct for jobs that
-  //      are still running or were paused mid-run)
-  //   3. scrape_job.counts — Mongo (authoritative once the job finalizes)
+  const handleRefreshLeads = (jobId: string) => {
+    const cachedTableState = leadTableStateCache.get(jobId);
+    if (cachedTableState) {
+      leadTableStateCache.set(jobId, {
+        ...cachedTableState,
+        signature: "",
+      });
+    }
+
+    bumpLeadTableRefreshTokens([jobId]);
+  };
+
+  // Total Count is the real follower/following count reported by the
+  // target's Instagram profile — resolved once from Apify when the job
+  // starts and persisted server-side as target_total_count. It is never
+  // pushed over the socket, so it's read purely from the fetched job record
+  // (pipeline.counts while running, scrape_job.counts once finalized) —
+  // always fresh after fetchJobs(), never shadowed by stale live state.
+  // Older jobs scraped before this field existed fall back to collected_count
+  // so they don't regress to a blank column.
   const getTotalFollowersCount = (job: ScrapeJob) => {
-    const key = buildJobRealtimeKey(job.data?.targetUsername, job.data?.type);
     return (
-      liveJobCounts[key]?.totalFollowersCount ??
+      job.pipeline?.counts?.target_total_count ??
+      job.scrape_job?.counts?.target_total_count ??
       job.pipeline?.counts?.collected_count ??
       job.scrape_job?.counts?.collected_count ??
       null
     );
   };
 
+  // "Analyzed" = profiles that ended up saved in a record — newly inserted
+  // or already-existing duplicates. A failed profile was never saved, so it
+  // doesn't count here.
   const sumAnalyzed = (counts?: {
     saved_count?: number;
     duplicate_count?: number;
-    failed_count?: number;
   } | null) =>
     counts
-      ? Number(counts.saved_count || 0) +
-        Number(counts.duplicate_count || 0) +
-        Number(counts.failed_count || 0)
+      ? Number(counts.saved_count || 0) + Number(counts.duplicate_count || 0)
       : null;
 
   const getTotalAnalyzed = (job: ScrapeJob) => {
@@ -925,13 +1125,28 @@ export default function ScrapeJobsManager() {
         defaultMessage: "Status",
       }),
       key: "status",
-      width: 120,
-      render: (_, r) => stateTag(intl, getDisplayState(r), isJobPaused(r)),
+      width: 130,
+      render: (_, r) =>
+        stateTag(
+          intl,
+          getDisplayState(r),
+          isJobPaused(r),
+          isJobRetrying(r),
+          isCoolingDownJob(r)
+            ? intl.formatMessage(
+                {
+                  id: "analysis.scrape_jobs.status.cooling_down_with_time",
+                  defaultMessage: "Cooling Down ({time})",
+                },
+                { time: formatCooldown(getCooldownRemainingMs(r, nowTs)) },
+              )
+            : null,
+        ),
     },
     {
       title: intl.formatMessage({
         id: "analysis.scrape_jobs.table.total_followers_count",
-        defaultMessage: "Total Followers",
+        defaultMessage: "Total Count",
       }),
       key: "total_followers_count",
       width: 140,
@@ -1044,6 +1259,23 @@ export default function ScrapeJobsManager() {
       key: "error",
       ellipsis: true,
       render: (_, r) => {
+        if (isCoolingDownJob(r)) {
+          const detail = r.retry?.waiting_for_abort
+            ? intl.formatMessage({
+                id: "analysis.scrape_jobs.cooldown.waiting_abort",
+                defaultMessage: "Stopping the upstream Apify run before retrying.",
+              })
+            : intl.formatMessage(
+                {
+                  id: "analysis.scrape_jobs.cooldown.resume_in",
+                  defaultMessage: "Automatically resumes in {time}.",
+                },
+                { time: formatCooldown(getCooldownRemainingMs(r, nowTs)) },
+              );
+
+          return <Text type="secondary" style={{ fontSize: 12 }}>{detail}</Text>;
+        }
+
         if (getDisplayState(r) !== "failed") return null;
         const failedReason = formatScrapeJobError(r.failedReason);
 
@@ -1056,6 +1288,32 @@ export default function ScrapeJobsManager() {
     },
     {
       title: intl.formatMessage({
+        id: "analysis.scrape_jobs.table.refresh",
+        defaultMessage: "Refresh",
+      }),
+      key: "refresh",
+      width: 110,
+      render: (_, r) => {
+        const busy = actionLoading[r.id];
+        return (
+          <Tooltip
+            title={intl.formatMessage({
+              id: "analysis.scrape_jobs.actions.refresh_leads",
+              defaultMessage: "Refresh leads table",
+            })}
+          >
+            <Button
+              size="small"
+              icon={<ReloadOutlined />}
+              disabled={!!busy}
+              onClick={() => handleRefreshLeads(r.id)}
+            />
+          </Tooltip>
+        );
+      },
+    },
+    {
+      title: intl.formatMessage({
         id: "commons.actions",
         defaultMessage: "Actions",
       }),
@@ -1064,11 +1322,11 @@ export default function ScrapeJobsManager() {
       render: (_, r) => {
         const isTerminal = TERMINAL_STATES.has(r.state);
         const isPaused = isJobPaused(r);
-        const showRetry = canRetryJob(r);
+        const retrying = isJobRetrying(r);
         const busy = actionLoading[r.id];
         return (
           <Space size={6}>
-            {!isTerminal && !isPaused && (
+            {!isTerminal && !isPaused && !retrying && (
               <Button
                 size="small"
                 icon={<PauseCircleOutlined />}
@@ -1082,7 +1340,7 @@ export default function ScrapeJobsManager() {
                 })}
               </Button>
             )}
-            {isPaused && !showRetry && (
+            {isPaused && !retrying && (
               <Button
                 size="small"
                 icon={<CaretRightOutlined />}
@@ -1096,27 +1354,13 @@ export default function ScrapeJobsManager() {
                 })}
               </Button>
             )}
-            {showRetry && (
-              <Button
-                size="small"
-                icon={<ReloadOutlined />}
-                loading={busy === "resume"}
-                disabled={!!busy}
-                onClick={() => handleResume(r.id)}
-              >
-                {intl.formatMessage({
-                  id: "analysis.scrape_jobs.actions.retry",
-                  defaultMessage: "Retry",
-                })}
-              </Button>
-            )}
             {!r.state.includes("active") && (
               <Button
                 size="small"
                 danger
                 icon={<DeleteOutlined />}
                 loading={busy === "delete"}
-                disabled={!!busy}
+                disabled={!!busy || retrying}
                 onClick={() => handleDelete(r.id)}
               />
             )}
@@ -1145,7 +1389,7 @@ export default function ScrapeJobsManager() {
         </div>
         <Button
           icon={<ReloadOutlined />}
-          onClick={() => fetchJobs(page)}
+          onClick={() => fetchJobs(page, { refreshActiveStatuses: true })}
           loading={loading}
         >
           <FormattedMessage id="analysis.scrape_jobs.refresh" defaultMessage="Refresh" />
@@ -1424,6 +1668,7 @@ export default function ScrapeJobsManager() {
             onExpandedRowsChange: (keys) => setExpandedRowKeys([...keys]),
             expandedRowRender: (record) => (
               <JobLeadsTable
+                jobId={String(record.id)}
                 userId={userId ?? ""}
                 targetUsername={record.data.targetUsername}
                 relationshipType={toRelationshipType(record.data.type)}

@@ -942,6 +942,7 @@
         "resume_failed": "No se pudo reanudar el trabajo",
         "retry": "Reintentar",
         "retrying": "Reintentando trabajo",
+        "refresh_leads": "Actualizar tabla de leads",
         "deleted": "Trabajo eliminado",
         "delete_failed": "No se pudo eliminar el trabajo"
       },

@@ -50,6 +50,26 @@ const PAUSABLE_JOB_STATES = new Set(["waiting", "delayed", "prioritized"]);
 const JOB_STATUS_ACTIVE_POLL_MS = 10000;
 const JOB_STATUS_QUEUED_POLL_MS = 30000;
 
+type JobRetryState = {
+  auto_retrying?: boolean;
+  retry_at?: number | null;
+  cooldown_remaining_ms?: number | null;
+  waiting_for_abort?: boolean;
+} | null;
+
+const getRetryRemainingMs = (retry: JobRetryState, nowTs: number) => {
+  const retryAt = Number(retry?.retry_at || 0);
+  if (!retryAt) return Math.max(0, Number(retry?.cooldown_remaining_ms || 0));
+  return Math.max(0, retryAt - nowTs);
+};
+
+const formatCooldown = (remainingMs: number) => {
+  const totalSeconds = Math.max(0, Math.ceil(remainingMs / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
+};
+
 const getAnalyzerDisplayState = (state: string | null, failedReason: string | null) =>
   state === "failed" && isTransientRelationshipFetchError(failedReason)
     ? "queued"
@@ -81,6 +101,7 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
   const router = useRouter();
   const { id } = useUserInfo();
   const [form] = Form.useForm();
+  const [nowTs, setNowTs] = useState(() => Date.now());
 
   const isTwitter = platform === "twitter";
   const isLinkedIn = platform === "linkedin";
@@ -153,6 +174,7 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
   const [activeJobState, setActiveJobState] = useState<string | null>(null);
   const [activeJobFailedReason, setActiveJobFailedReason] = useState<string | null>(null);
+  const [activeJobRetry, setActiveJobRetry] = useState<JobRetryState>(null);
   const [activeJobPaused, setActiveJobPaused] = useState(false);
   const [retryingJob, setRetryingJob] = useState(false);
   const [jobPollNonce, setJobPollNonce] = useState(0);
@@ -189,6 +211,14 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
 
   const scrapeMutation = useScrapeFollowersOrFollowing();
   const socket = useSocket(id);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setNowTs(Date.now());
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, []);
 
   // ── Real-time progress from server ──────────────────────────────────────
   useEffect(() => {
@@ -262,6 +292,24 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
     }
     // Transient fetch failures are presented as Queued (retryable) rather than
     // a hard Failed — consistent with the Scrape Jobs manager.
+    if (
+      activeJobRetry?.auto_retrying &&
+      !activeJobPaused &&
+      (activeJobState === "delayed" || activeJobState === "waiting")
+    ) {
+      return (
+        <Tag color="processing">
+          {intl.formatMessage(
+            {
+              id: "analysis.analyzer.status.cooling_down",
+              defaultMessage: "Cooling Down ({time})",
+            },
+            { time: formatCooldown(getRetryRemainingMs(activeJobRetry, nowTs)) },
+          )}
+        </Tag>
+      );
+    }
+
     const displayState = getAnalyzerDisplayState(
       activeJobState,
       activeJobFailedReason,
@@ -342,10 +390,12 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
         const failedReason = job?.failedReason || null;
         setActiveJobState(nextState || null);
         setActiveJobFailedReason(failedReason);
+        setActiveJobRetry((job?.retry as JobRetryState) || null);
         setActiveJobPaused(Boolean(job?.control?.paused));
         await refetchLeads();
 
         if (nextState === "completed") {
+          setActiveJobRetry(null);
           setActiveJobId(null);
           setActiveJobPaused(false);
           return;
@@ -355,6 +405,7 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
           nextState === "failed" &&
           !isTransientRelationshipFetchError(failedReason)
         ) {
+          setActiveJobRetry(null);
           setActiveJobPaused(false);
           return;
         }
@@ -370,6 +421,7 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
 
         console.error("Failed to poll scrape job status:", error);
         setActiveJobState("failed");
+        setActiveJobRetry(null);
         setActiveJobId(null);
         setActiveJobPaused(false);
       }
@@ -463,6 +515,7 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
       const jobId = String(response?.data?.job?.id || "").trim();
       setActiveJobState(jobId ? String(response?.data?.job?.state || "waiting").toLowerCase() : null);
       setActiveJobFailedReason(null);
+      setActiveJobRetry(jobId ? ((response?.data?.job?.retry as JobRetryState) || null) : null);
       setActiveJobPaused(Boolean(response?.data?.job?.control?.paused));
       setActiveJobId(jobId || null);
 
@@ -484,6 +537,7 @@ const InstagramAnalyzer: React.FC<InstagramAnalyzerProps> = ({
       setActiveJobId(jobId || activeJobId);
       setActiveJobState(String(response?.data?.job?.state || "waiting").toLowerCase());
       setActiveJobFailedReason(null);
+      setActiveJobRetry((response?.data?.job?.retry as JobRetryState) || null);
       setActiveJobPaused(Boolean(response?.data?.job?.control?.paused));
       setJobPollNonce((prev) => prev + 1);
       message.info(

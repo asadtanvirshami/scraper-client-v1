@@ -870,6 +870,7 @@
         "resume_failed": "Failed to resume job",
         "retry": "Retry",
         "retrying": "Retrying job",
+        "refresh_leads": "Refresh leads table",
         "deleted": "Job deleted",
         "delete_failed": "Failed to delete job"
       },
