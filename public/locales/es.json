@@ -930,7 +930,14 @@
         "active": "Activo",
         "queued": "En cola",
         "completed": "Completado",
-        "failed": "Fallido"
+        "failed": "Fallido",
+        "cooling_down": "Enfriamiento",
+        "cooling_down_with_time": "Enfriamiento ({time})",
+        "retrying": "Reintentando"
+      },
+      "cooldown": {
+        "waiting_abort": "Deteniendo la ejecución de Apify antes de reintentar.",
+        "resume_in": "Se reanuda automáticamente en {time}."
       },
       "actions": {
         "pause": "Pausar",
@@ -946,6 +953,13 @@
         "deleted": "Trabajo eliminado",
         "delete_failed": "No se pudo eliminar el trabajo"
       },
+      "allocating": {
+        "detail": "Asignando una cuenta y preparando el primer lote para enviarlo a Apify."
+      },
+      "cooldown": {
+        "waiting_abort": "Deteniendo la ejecución de Apify antes de reintentar.",
+        "resume_in": "Se reanuda automáticamente en {time}."
+      },
       "table": {
         "target": "Objetivo",
         "type": "Tipo",
@@ -954,7 +968,7 @@
         "total_on_profile": "Total en el perfil",
         "started": "Iniciado",
         "finished": "Finalizado",
-        "error": "Error"
+        "message": "Mensaje"
       },
       "leads": {
         "load_failed": "No se pudieron cargar los leads de este trabajo",
@@ -979,20 +993,24 @@
       },
       "notes": {
         "title": "Notas del ciclo de vida del trabajo",
-        "subtitle": "Un trabajo pasa por estos estados: En cola, Activo, Pausado, Completado o Fallido.",
+        "subtitle": "Un trabajo pasa por estos estados: En cola, Asignando, Activo, Reintentando, Pausado, Completado o Fallido.",
         "state_definitions_title": "Definición de estados",
         "important_behavior_title": "Comportamiento importante",
         "why_jobs_fail_title": "Por qué pueden fallar los trabajos",
         "states": {
           "queued": "En cola",
+          "allocating": "Asignando",
           "active": "Activo",
+          "retrying": "Reintentando",
           "paused": "Pausado",
           "completed": "Completado",
           "failed": "Fallido"
         },
         "definitions": {
           "queued": "En cola: esperando a ser procesado.",
+          "allocating": "Asignando: seleccionando una cuenta y preparando el primer lote antes de que comience el procesamiento activo.",
           "active": "Activo: ejecutándose actualmente.",
+          "retrying": "Reintentando: reanudación automática tras un problema temporal o un periodo de enfriamiento.",
           "paused": "Pausado: detenido temporalmente y se puede reanudar desde el último cursor o punto de control guardado.",
           "completed": "Completado: finalizó correctamente (estado final).",
           "failed": "Fallido: se detuvo debido a un error (puede o no recuperarse), pero puedes volver a intentar el trabajo."

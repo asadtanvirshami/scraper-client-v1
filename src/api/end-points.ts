@@ -53,7 +53,7 @@ export const apiEndpoints = {
     }) => withPagination("/bug/get", params),
 
     feedback_create: "/feedback/create",
-    feedback_update: (id: string) => `/feedback/update/${id}`,
+    feedback_update: "/feedback/update",
     feedback_delete: (id: string) => `/feedback/delete/${id}`,
     feedback_list: (params: {
       offset?: number; // 1-based

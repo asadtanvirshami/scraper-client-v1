@@ -41,10 +41,10 @@ export async function UpdateFeedback(
   id: string,
   input: Partial<CreateFeedbackPayload>,
 ): Promise<GenericResponse> {
-  const { data } = await api.put(
-    apiEndpoints.support.feedback_update(id),
-    input,
-  );
+  const { data } = await api.post(apiEndpoints.support.feedback_update, {
+    feedback_id: id,
+    ...input,
+  });
   return data;
 }
 

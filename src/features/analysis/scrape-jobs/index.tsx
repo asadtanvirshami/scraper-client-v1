@@ -41,7 +41,10 @@ import {
 import { FetchAllLeadsList } from "@/api/api_calls/leads";
 import { useUserInfo } from "@/helpers/use-user";
 import { useSocket } from "@/hooks/use-socket";
-import { formatScrapeJobError, isTransientRelationshipFetchError } from "./error-format";
+import {
+  formatScrapeJobError,
+  isTransientRelationshipFetchError,
+} from "./error-format";
 
 const { Title, Text } = Typography;
 
@@ -60,6 +63,16 @@ const stateTag = (
   retrying: boolean,
   cooldownLabel?: string | null,
 ) => {
+  if (state === "allocating") {
+    return (
+      <Tag color="cyan">
+        {intl.formatMessage({
+          id: "analysis.scrape_jobs.status.allocating",
+          defaultMessage: "Allocating",
+        })}
+      </Tag>
+    );
+  }
   if (state === "cooling_down") {
     return (
       <Tag color="processing">
@@ -157,6 +170,12 @@ interface ScrapeJob {
   progress: number;
   control: { paused: boolean; pausedAt: string | null };
   retry?: JobRetryState;
+  lifecycle?: {
+    phase?: string | null;
+    first_batch_started?: boolean;
+    allocated_at?: string | null;
+    active_at?: string | null;
+  } | null;
   pipeline?: {
     paused?: boolean;
     status?: string;
@@ -196,11 +215,6 @@ const isJobPaused = (job: ScrapeJob) =>
       job.scrape_job?.status === "PAUSED",
   );
 
-// A transient upstream/runtime failure is not a real dead-end. The backend
-// keeps retrying these in the background, so display them as queued.
-const isTransientQueued = (job: ScrapeJob) =>
-  job.state === "failed" && isTransientRelationshipFetchError(job.failedReason);
-
 const isCoolingDownJob = (job: ScrapeJob) =>
   Boolean(
     job.retry?.auto_retrying &&
@@ -209,6 +223,18 @@ const isCoolingDownJob = (job: ScrapeJob) =>
         job.queue_state === "delayed" ||
         String(job.status || "").toUpperCase() === "COOLING_DOWN"),
   );
+
+const isAllocatingJob = (job: ScrapeJob) =>
+  Boolean(
+    !isCoolingDownJob(job) &&
+      !isJobPaused(job) &&
+      (String(job.status || "").toUpperCase() === "ALLOCATING" ||
+        (job.state === "active" && job.lifecycle?.phase === "ALLOCATING")),
+  );
+
+const isTransientQueued = (job: ScrapeJob) =>
+  job.state === "failed" &&
+  isTransientRelationshipFetchError(job.failedReason);
 
 const getCooldownRemainingMs = (job: ScrapeJob, nowTs: number) => {
   const retryAt = Number(job.retry?.retry_at || 0);
@@ -226,10 +252,16 @@ const formatCooldown = (remainingMs: number) => {
 // State used purely for display. Transient failures are shown as queued;
 // genuine final failures still surface as failed.
 const getDisplayState = (job: ScrapeJob) =>
-  isCoolingDownJob(job) ? "cooling_down" : isTransientQueued(job) ? "queued" : job.state;
+  isAllocatingJob(job)
+    ? "allocating"
+    : isCoolingDownJob(job)
+      ? "cooling_down"
+      : isTransientQueued(job)
+        ? "queued"
+      : job.state;
 
 const isRecoveringStatus = (job: ScrapeJob) =>
-  String(job.status || "").toUpperCase() === "RECOVERING";
+  ["RECOVERING", "RETRYING"].includes(String(job.status || "").toUpperCase());
 
 // A job can be (re)started by the user whenever it has stopped progressing:
 // genuine failures, finished/terminal jobs (re-run), and transient failures
@@ -687,6 +719,7 @@ export default function ScrapeJobsManager() {
       error?: string | null;
       failed_reason?: string | null;
       retry?: JobRetryState;
+      lifecycle?: ScrapeJob["lifecycle"];
       result?: { data?: Record<string, number> } | null;
     }) => {
       const key = buildJobRealtimeKey(payload.target_username, payload.type);
@@ -736,6 +769,8 @@ export default function ScrapeJobsManager() {
               ? "completed"
               : payload.status === "RUNNING" || payload.status === "RECOVERING"
                 ? "active"
+                : payload.status === "ALLOCATING"
+                  ? "active"
                 : payload.status === "COOLING_DOWN"
                   ? "delayed"
                 : payload.status === "QUEUED"
@@ -747,6 +782,7 @@ export default function ScrapeJobsManager() {
                       : job.state;
           const clearError =
             payload.status === "QUEUED" ||
+            payload.status === "ALLOCATING" ||
             payload.status === "RUNNING" ||
             payload.status === "RECOVERING";
 
@@ -758,6 +794,7 @@ export default function ScrapeJobsManager() {
               ? null
               : payload.error || payload.failed_reason || job.failedReason,
             retry: payload.retry ?? job.retry,
+            lifecycle: payload.lifecycle ?? job.lifecycle,
             scrape_job: {
               ...(job.scrape_job || {}),
               counts: {
@@ -1132,15 +1169,7 @@ export default function ScrapeJobsManager() {
           getDisplayState(r),
           isJobPaused(r),
           isJobRetrying(r),
-          isCoolingDownJob(r)
-            ? intl.formatMessage(
-                {
-                  id: "analysis.scrape_jobs.status.cooling_down_with_time",
-                  defaultMessage: "Cooling Down ({time})",
-                },
-                { time: formatCooldown(getCooldownRemainingMs(r, nowTs)) },
-              )
-            : null,
+          null,
         ),
     },
     {
@@ -1253,10 +1282,10 @@ export default function ScrapeJobsManager() {
     },
     {
       title: intl.formatMessage({
-        id: "analysis.scrape_jobs.table.error",
-        defaultMessage: "Status Detail",
+        id: "analysis.scrape_jobs.table.message",
+        defaultMessage: "Message",
       }),
-      key: "error",
+      key: "message",
       ellipsis: true,
       render: (_, r) => {
         if (isCoolingDownJob(r)) {
@@ -1274,6 +1303,17 @@ export default function ScrapeJobsManager() {
               );
 
           return <Text type="secondary" style={{ fontSize: 12 }}>{detail}</Text>;
+        }
+
+        if (isAllocatingJob(r)) {
+          return (
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              {intl.formatMessage({
+                id: "analysis.scrape_jobs.allocating.detail",
+                defaultMessage: "Allocating an account and preparing to send the first batch to Apify.",
+              })}
+            </Text>
+          );
         }
 
         if (getDisplayState(r) !== "failed") return null;
@@ -1462,7 +1502,7 @@ export default function ScrapeJobsManager() {
                   {intl.formatMessage({
                     id: "analysis.scrape_jobs.notes.subtitle",
                     defaultMessage:
-                      "A job moves through these states: Queued, Active, Paused, Completed, or Failed.",
+                      "A job moves through these states: Queued, Allocating, Active, Retrying, Paused, Completed, or Failed.",
                   })}
                 </Text>
 
@@ -1473,10 +1513,22 @@ export default function ScrapeJobsManager() {
                       defaultMessage: "Queued",
                     })}
                   </Tag>
+                  <Tag color="cyan">
+                    {intl.formatMessage({
+                      id: "analysis.scrape_jobs.notes.states.allocating",
+                      defaultMessage: "Allocating",
+                    })}
+                  </Tag>
                   <Tag color="green">
                     {intl.formatMessage({
                       id: "analysis.scrape_jobs.notes.states.active",
                       defaultMessage: "Active",
+                    })}
+                  </Tag>
+                  <Tag color="processing">
+                    {intl.formatMessage({
+                      id: "analysis.scrape_jobs.notes.states.retrying",
+                      defaultMessage: "Retrying",
                     })}
                   </Tag>
                   <Tag color="orange">
@@ -1491,10 +1543,10 @@ export default function ScrapeJobsManager() {
                       defaultMessage: "Completed",
                     })}
                   </Tag>
-                  <Tag color="gold">
+                  <Tag color="red">
                     {intl.formatMessage({
                       id: "analysis.scrape_jobs.notes.states.failed",
-                      defaultMessage: "Needs Retry",
+                      defaultMessage: "Failed",
                     })}
                   </Tag>
                 </Space>
@@ -1527,8 +1579,26 @@ export default function ScrapeJobsManager() {
                         <li>
                           <Text>
                             {intl.formatMessage({
+                              id: "analysis.scrape_jobs.notes.definitions.allocating",
+                              defaultMessage:
+                                "Allocating: Selecting an account and preparing the first batch before active processing begins.",
+                            })}
+                          </Text>
+                        </li>
+                        <li>
+                          <Text>
+                            {intl.formatMessage({
                               id: "analysis.scrape_jobs.notes.definitions.active",
                               defaultMessage: "Active: Currently running.",
+                            })}
+                          </Text>
+                        </li>
+                        <li>
+                          <Text>
+                            {intl.formatMessage({
+                              id: "analysis.scrape_jobs.notes.definitions.retrying",
+                              defaultMessage:
+                                "Retrying: Automatically retrying after a temporary issue or cooldown.",
                             })}
                           </Text>
                         </li>
@@ -1617,7 +1687,7 @@ export default function ScrapeJobsManager() {
                         <Text strong>
                           {intl.formatMessage({
                             id: "analysis.scrape_jobs.notes.why_jobs_fail_title",
-                            defaultMessage: "Why a job may pause and retry",
+                            defaultMessage: "Why jobs can fail",
                           })}
                         </Text>
                         <ul style={{ margin: "8px 0 0", paddingLeft: 18 }}>
@@ -1625,7 +1695,7 @@ export default function ScrapeJobsManager() {
                             <Text>
                               {intl.formatMessage({
                                 id: "analysis.scrape_jobs.notes.failures.rate_limits",
-                                defaultMessage: "Staying within safe request limits (auto-resumes).",
+                                defaultMessage: "Rate limits or temporary blocks (429).",
                               })}
                             </Text>
                           </li>
@@ -1634,7 +1704,7 @@ export default function ScrapeJobsManager() {
                               {intl.formatMessage({
                                 id: "analysis.scrape_jobs.notes.failures.auth",
                                 defaultMessage:
-                                  "Refreshing the session when it needs renewing.",
+                                  "Session or cookie/auth issues (expired session, challenge required).",
                               })}
                             </Text>
                           </li>
@@ -1642,7 +1712,7 @@ export default function ScrapeJobsManager() {
                             <Text>
                               {intl.formatMessage({
                                 id: "analysis.scrape_jobs.notes.failures.network",
-                                defaultMessage: "Waiting out a brief network/connection hiccup.",
+                                defaultMessage: "Network/proxy timeouts or connection failures.",
                               })}
                             </Text>
                           </li>
@@ -1658,70 +1728,72 @@ export default function ScrapeJobsManager() {
       </Row>
 
       <Card bodyStyle={{ padding: 0 }}>
-        <Table
-          dataSource={jobs}
-          columns={columns}
-          rowKey="id"
-          loading={loading}
-          expandable={{
-            expandedRowKeys,
-            onExpandedRowsChange: (keys) => setExpandedRowKeys([...keys]),
-            expandedRowRender: (record) => (
-              <JobLeadsTable
-                jobId={String(record.id)}
-                userId={userId ?? ""}
-                targetUsername={record.data.targetUsername}
-                relationshipType={toRelationshipType(record.data.type)}
-                folderId={record.data.folder_id}
-                refreshToken={leadRefreshTokens[String(record.id)] || 0}
-              />
-            ),
-            expandIcon: ({ expanded, onExpand, record }) => (
-              <Button
-                size="small"
-                type="text"
-                icon={
-                  <DownOutlined
-                    style={{
-                      transition: "transform 0.2s",
-                      transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
-                    }}
-                  />
-                }
-                onClick={(e) => onExpand(record, e)}
-              />
-            ),
-            rowExpandable: () => true,
-          }}
-          pagination={{
-            current: page,
-            pageSize: 20,
-            total,
-            onChange: (p) => setPage(p),
-            showSizeChanger: false,
-            showTotal: (t) =>
-              intl.formatMessage(
-                {
-                  id: "analysis.scrape_jobs.pagination_total",
-                  defaultMessage: "{count} jobs",
-                },
-                { count: t },
+        <div style={{ overflowX: "auto" }}>
+          <Table
+            dataSource={jobs}
+            columns={columns}
+            rowKey="id"
+            loading={loading}
+            expandable={{
+              expandedRowKeys,
+              onExpandedRowsChange: (keys) => setExpandedRowKeys([...keys]),
+              expandedRowRender: (record) => (
+                <JobLeadsTable
+                  jobId={String(record.id)}
+                  userId={userId ?? ""}
+                  targetUsername={record.data.targetUsername}
+                  relationshipType={toRelationshipType(record.data.type)}
+                  folderId={record.data.folder_id}
+                  refreshToken={leadRefreshTokens[String(record.id)] || 0}
+                />
               ),
-          }}
-          locale={{
-            emptyText: (
-              <Empty
-                description={intl.formatMessage({
-                  id: "analysis.scrape_jobs.empty",
-                  defaultMessage:
-                    "No scrape jobs found. Start scraping from the Analysis page.",
-                })}
-                image={Empty.PRESENTED_IMAGE_SIMPLE}
-              />
-            ),
-          }}
-          scroll={{ x: 900 }}
-        />
+              expandIcon: ({ expanded, onExpand, record }) => (
+                <Button
+                  size="small"
+                  type="text"
+                  icon={
+                    <DownOutlined
+                      style={{
+                        transition: "transform 0.2s",
+                        transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
+                      }}
+                    />
+                  }
+                  onClick={(e) => onExpand(record, e)}
+                />
+              ),
+              rowExpandable: () => true,
+            }}
+            pagination={{
+              current: page,
+              pageSize: 20,
+              total,
+              onChange: (p) => setPage(p),
+              showSizeChanger: false,
+              showTotal: (t) =>
+                intl.formatMessage(
+                  {
+                    id: "analysis.scrape_jobs.pagination_total",
+                    defaultMessage: "{count} jobs",
+                  },
+                  { count: t },
+                ),
+            }}
+            locale={{
+              emptyText: (
+                <Empty
+                  description={intl.formatMessage({
+                    id: "analysis.scrape_jobs.empty",
+                    defaultMessage:
+                      "No scrape jobs found. Start scraping from the Analysis page.",
+                  })}
+                  image={Empty.PRESENTED_IMAGE_SIMPLE}
+                />
+              ),
+            }}
+            scroll={{ x: "max-content" }}
+          />
+        </div>
       </Card>
     </div>
   );

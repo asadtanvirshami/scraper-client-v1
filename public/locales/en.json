@@ -858,7 +858,14 @@
         "active": "Active",
         "queued": "Queued",
         "completed": "Completed",
-        "failed": "Failed"
+        "failed": "Failed",
+        "cooling_down": "Cooling Down",
+        "cooling_down_with_time": "Cooling Down ({time})",
+        "retrying": "Retrying"
+      },
+      "cooldown": {
+        "waiting_abort": "Stopping the upstream Apify run before retrying.",
+        "resume_in": "Automatically resumes in {time}."
       },
       "actions": {
         "pause": "Pause",
@@ -874,6 +881,13 @@
         "deleted": "Job deleted",
         "delete_failed": "Failed to delete job"
       },
+      "allocating": {
+        "detail": "Allocating an account and preparing to send the first batch to Apify."
+      },
+      "cooldown": {
+        "waiting_abort": "Stopping the Apify run before retrying.",
+        "resume_in": "Automatically resumes in {time}."
+      },
       "table": {
         "target": "Target",
         "type": "Type",
@@ -882,7 +896,7 @@
         "total_on_profile": "Total on Profile",
         "started": "Started",
         "finished": "Finished",
-        "error": "Error"
+        "message": "Message"
       },
       "leads": {
         "load_failed": "Failed to load leads for this job",
@@ -907,20 +921,24 @@
       },
       "notes": {
         "title": "Job Lifecycle Notes",
-        "subtitle": "A job moves through these states: Queued, Active, Paused, Completed, or Failed.",
+        "subtitle": "A job moves through these states: Queued, Allocating, Active, Retrying, Paused, Completed, or Failed.",
         "state_definitions_title": "State definitions",
         "important_behavior_title": "Important behavior",
         "why_jobs_fail_title": "Why jobs can fail",
         "states": {
           "queued": "Queued",
+          "allocating": "Allocating",
           "active": "Active",
+          "retrying": "Retrying",
           "paused": "Paused",
           "completed": "Completed",
           "failed": "Failed"
         },
         "definitions": {
           "queued": "Queued: Waiting to be processed.",
+          "allocating": "Allocating: Selecting an account and preparing the first batch before active processing begins.",
           "active": "Active: Currently running.",
+          "retrying": "Retrying: Automatically retrying after a temporary issue or cooldown.",
           "paused": "Paused: Temporarily stopped and resumable from the last saved cursor/checkpoint.",
           "completed": "Completed: Finished successfully (final state).",
           "failed": "Failed: Stopped due to an error (may or may not be recoverable) but you can retry the job."
