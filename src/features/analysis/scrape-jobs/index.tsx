@@ -44,6 +44,7 @@ import { useSocket } from "@/hooks/use-socket";
 import {
   formatScrapeJobError,
   isTransientRelationshipFetchError,
+  isManualRetryRequiredError,
 } from "./error-format";
 
 const { Title, Text } = Typography;
@@ -236,6 +237,14 @@ const isTransientQueued = (job: ScrapeJob) =>
   job.state === "failed" &&
   isTransientRelationshipFetchError(job.failedReason);
 
+// A hard provider-side cap (e.g. Apify's monthly usage limit) — the backend
+// stops auto-retrying on the first occurrence (see requiresManualRetry), so
+// nothing is happening in the background. Must read as "Queued" with a
+// manual Retry action, never as "Retrying" (which would imply the system is
+// already working on it).
+const isManualRetryRequiredJob = (job: ScrapeJob) =>
+  job.state === "failed" && isManualRetryRequiredError(job.failedReason);
+
 const getCooldownRemainingMs = (job: ScrapeJob, nowTs: number) => {
   const retryAt = Number(job.retry?.retry_at || 0);
   if (!retryAt) return Math.max(0, Number(job.retry?.cooldown_remaining_ms || 0));
@@ -249,18 +258,20 @@ const formatCooldown = (remainingMs: number) => {
   return minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
 };
 
-// State used purely for display. Transient failures are shown as queued;
-// genuine final failures still surface as failed.
+// State used purely for display. Transient failures and manual-retry-required
+// failures are both shown as queued; genuine final failures still surface as
+// failed.
 const getDisplayState = (job: ScrapeJob) =>
   isAllocatingJob(job)
     ? "allocating"
     : isCoolingDownJob(job)
       ? "cooling_down"
-      : isTransientQueued(job)
+      : isTransientQueued(job) || isManualRetryRequiredJob(job)
         ? "queued"
       : job.state;
 
 const isRecoveringStatus = (job: ScrapeJob) =>
+  !isManualRetryRequiredJob(job) &&
   ["RECOVERING", "RETRYING"].includes(String(job.status || "").toUpperCase());
 
 // A job can be (re)started by the user whenever it has stopped progressing:
@@ -272,6 +283,7 @@ const canRetryJob = (job: ScrapeJob) =>
   getDisplayState(job) !== "active" &&
   (TERMINAL_STATES.has(job.state) ||
     isTransientQueued(job) ||
+    isManualRetryRequiredJob(job) ||
     job.finishedOn != null);
 
 const isJobStillChanging = (job: ScrapeJob) =>
@@ -1363,6 +1375,7 @@ export default function ScrapeJobsManager() {
         const isTerminal = TERMINAL_STATES.has(r.state);
         const isPaused = isJobPaused(r);
         const retrying = isJobRetrying(r);
+        const needsManualRetry = r.state === "failed" && canRetryJob(r);
         const busy = actionLoading[r.id];
         return (
           <Space size={6}>
@@ -1391,6 +1404,20 @@ export default function ScrapeJobsManager() {
                 {intl.formatMessage({
                   id: "analysis.scrape_jobs.actions.resume",
                   defaultMessage: "Resume",
+                })}
+              </Button>
+            )}
+            {needsManualRetry && (
+              <Button
+                size="small"
+                icon={<CaretRightOutlined />}
+                loading={busy === "resume"}
+                disabled={!!busy}
+                onClick={() => handleResume(r.id)}
+              >
+                {intl.formatMessage({
+                  id: "analysis.scrape_jobs.actions.retry",
+                  defaultMessage: "Retry",
                 })}
               </Button>
             )}

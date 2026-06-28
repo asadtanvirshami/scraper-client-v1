@@ -20,6 +20,23 @@ export const isTransientRelationshipFetchError = (failedReason: string | null) =
   );
 };
 
+// Hard, account-level provider caps (e.g. Apify's monthly usage limit) — the
+// backend stops auto-retrying these immediately (see requiresManualRetry in
+// runtimeControls/errors.js) because every automatic retry would fail the
+// same way until the cap resets. Showing "Retrying" here would be a lie —
+// nothing is happening in the background, so this must read as a calm
+// "Queued" state with a manual Retry action instead.
+const MANUAL_RETRY_REQUIRED_ERRORS = ["usage hard limit exceeded"];
+
+export const isManualRetryRequiredError = (failedReason: string | null) => {
+  if (!failedReason) return false;
+
+  const normalizedReason = normalizeReason(failedReason);
+  return MANUAL_RETRY_REQUIRED_ERRORS.some((reason) =>
+    normalizedReason.includes(reason),
+  );
+};
+
 export const formatScrapeJobError = (failedReason: string | null) => {
   if (!failedReason) return null;
 
